@@ -12,7 +12,7 @@ export enum ObservableState {
   None = 0,
   Accessed,
   Selected,
-  Emphasized,
+  Moving,
 }
 
 export function CreateObservableArrayItem<T>(value: T) {
@@ -112,7 +112,7 @@ export class ObservableArray<T> {
     if (from !== to) {
       let temp = this._array[from]
       // state
-      this.State(ObservableState.Emphasized, from, to)
+      this.State(ObservableState.Moving, from, to)
       await Sleep(delay)
       Vue.set(this._array, from, this._array[to])
       Vue.set(this._array, to, temp)
@@ -124,7 +124,7 @@ export class ObservableArray<T> {
 
   async Move(from: number, to: number, delay: number) {
     if (from !== to) {
-      this.State(ObservableState.Emphasized, from, to)
+      this.State(ObservableState.Moving, from, to)
       await Sleep(delay)
       this._array.splice(to, 0, this._array.splice(from, 1)[0])
       await Sleep(delay)
@@ -134,6 +134,7 @@ export class ObservableArray<T> {
 }
 
 export interface ObservableArrayState {
-  pointers?: Array<number>,
-  seperation?: Array<number>,
+  locators?: Array<number>,
+  partition?: Array<number>,
+  seperators?: Array<number>,
 }

@@ -76,7 +76,7 @@ html, body {
     margin: 0.25rem;
     color: #eee;
     user-select: none;
-    cursor: pointer;
+    cursor: locator;
 
     &.selected {
       background: #962222;

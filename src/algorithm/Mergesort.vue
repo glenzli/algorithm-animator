@@ -1,7 +1,7 @@
 <template>
   <div>
     <array-visualizer :array="array" :state="state"></array-visualizer>
-    <array-visualizer :array="auxArray" :state="auxState" :yBase="100"></array-visualizer>
+    <array-visualizer :array="auxArray" :state="auxState" :y="100"></array-visualizer>
   </div>
 </template>
 
@@ -17,14 +17,14 @@ import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 })
 export default class Quicksort extends Mixins(NumericArrayAlgorithmMixin) {
   array: Array<ObservableArrayItem<number>> = []
-  state: ObservableArrayState = { seperation: [0, 0] }
+  state: ObservableArrayState = { partition: [0, 0] }
   auxArray: Array<ObservableArrayItem<number>> = []
-  auxState: ObservableArrayState = { pointers: [0], seperation: [0, 0] }
+  auxState: ObservableArrayState = { locators: [0], partition: [0, 0] }
 
   async Merge(array: ObservableArray<number>, from: number, to: number, mid: number, auxArray: ObservableArray<number>) {
     auxArray.Fill(to - from + 1, Number.NaN)
-    let seperation = mid - from + 1
-    this.auxState.pointers = [0, seperation]
+    let partition = mid - from + 1
+    this.auxState.locators = [0, partition]
     await Sleep(this.delay)
     for (let i = 0; i <= to - from; ++i) {
       auxArray.Set(i, array.Get(i + from)!)
@@ -33,17 +33,17 @@ export default class Quicksort extends Mixins(NumericArrayAlgorithmMixin) {
     array.Restore()
     await Sleep(this.delay)
     for (let i = 0; i <= to - from; ++i) {
-      let [index1, index2] = this.auxState.pointers!
-      let val1 = auxArray.Get(index1 < seperation ? index1 : -1)
+      let [index1, index2] = this.auxState.locators!
+      let val1 = auxArray.Get(index1 < partition ? index1 : -1)
       let val2 = auxArray.Get(index2)
       if (val2 == null || (val1 != null && val1! < val2!)) {
         array.Set(i + from, val1!)
         auxArray.State(ObservableState.Selected, index1)
-        Vue.set(this.auxState.pointers!, 0, index1 + 1 < seperation ? (index1 + 1) : auxArray.length)
+        Vue.set(this.auxState.locators!, 0, index1 + 1 < partition ? (index1 + 1) : auxArray.length)
       } else {
         array.Set(i + from, val2)
         auxArray.State(ObservableState.Selected, index2)
-        Vue.set(this.auxState.pointers!, 1, index2 + 1)
+        Vue.set(this.auxState.locators!, 1, index2 + 1)
       }
       await Sleep(this.delay)
     }
@@ -55,10 +55,10 @@ export default class Quicksort extends Mixins(NumericArrayAlgorithmMixin) {
     array.PartialRestore(ObservableState.Accessed)
     if (to - from > 1) {
       let mid = Math.floor((to - from) / 2 + from)
-      this.state.seperation = [0, 0]
+      this.state.partition = [0, 0]
       await this.RunMergesort(array, from, mid, auxArray)
       await this.RunMergesort(array, mid + 1, to, auxArray)
-      this.state.seperation = to - from < array.length - 1 ? [from, to] : [0, 0]
+      this.state.partition = to - from < array.length - 1 ? [from, to] : [0, 0]
       await this.Merge(array, from, to, mid, auxArray)
     } else {
       if (to > from && array.Get(from, ObservableState.Accessed)! > array.Get(to, ObservableState.Accessed)!) {

@@ -5,11 +5,8 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { ObservableArrayItem, ObservableState } from '../model'
-import { Arrayex } from 'arrayex'
 import { RectangleItem, PointTextItem, GroupItem, RegularPolygonItem, Point, SolidBrush, Color$, Stroke, Coordinate } from 'paper-vueify'
-
-const RECTSZ = 36
-const SPACESZ = RECTSZ + 1
+import { ARRAYITEM_SIZE, ARRAYITEM_TOTAL, ARRAYITEM_OFFSET } from './defs'
 
 function ToString(val: any) {
   if (typeof val === 'number') {
@@ -22,27 +19,21 @@ function ToString(val: any) {
 export default class ArrayItemVisualizer extends Vue {
   @Prop({ required: true }) item!: ObservableArrayItem<any>
   @Prop({ required: true }) index!: number
-  @Prop({ required: true }) total!: number
-  @Prop({ default: false }) seperated!: boolean
-  @Prop({ default: false }) pointer!: boolean
-  @Prop({ default: 0 }) yBase!: number
+  @Prop({ required: true }) length!: number
+  @Prop({ default: 0 }) y!: number
   @Prop({ default: () => ['#3c6387', '#ad2020', '#d8c513', '#764891'] }) colors!: Array<string>
 
   get offset() {
-    return -Math.floor(((this.total - 1) * SPACESZ + RECTSZ) / 2)
+    return ARRAYITEM_OFFSET(this.length)
   }
 
   get x() {
-    return this.offset + SPACESZ * this.index
-  }
-
-  get y() {
-    return (this.seperated ? -SPACESZ : 0) + ((this.item.state === ObservableState.Emphasized) ? -Math.floor(SPACESZ / 2) : 0) + this.yBase
+    return this.offset + ARRAYITEM_TOTAL * this.index
   }
 
   get box() {
     return RectangleItem({
-      size: Point(RECTSZ, RECTSZ),
+      size: Point(ARRAYITEM_SIZE, ARRAYITEM_SIZE),
       brush: SolidBrush(Color$.ToColor(this.colors[this.item.state])),
       stroke: Stroke({ thickness: 0 }),
       coordinate: Coordinate({ position: Point(this.x, this.y) }),
@@ -66,13 +57,12 @@ export default class ArrayItemVisualizer extends Vue {
       sides: 3,
       brush: SolidBrush(Color$.ToColor(this.colors[2])),
       stroke: Stroke({ thickness: 0 }),
-      coordinate: Coordinate({ position: Point(this.x, SPACESZ + this.y) }),
+      coordinate: Coordinate({ position: Point(this.x, ARRAYITEM_TOTAL + this.y) }),
     })
   }
 
   get visual() {
-    let children = Arrayex.NonNull([this.box, this.label, this.pointer ? this.pointerMark : null])
-    return GroupItem({ children })
+    return GroupItem({ children: [this.box, this.label] })
   }
 }
 </script>

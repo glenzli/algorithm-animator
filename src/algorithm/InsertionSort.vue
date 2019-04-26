@@ -16,11 +16,12 @@ import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 })
 export default class Insertionsort extends Mixins(NumericArrayAlgorithmMixin) {
   array: Array<ObservableArrayItem<number>> = []
-  state: ObservableArrayState = { pointers: [0], seperation: [0, 0] }
+  state: ObservableArrayState = { locators: [0], partition: [0, 0], seperators: [-1] }
 
   async RunInsertionsort(array: ObservableArray<number>) {
     for (let i = 1; i < array.length; ++i) {
-      Vue.set(this.state.pointers!, 0, i - 1)
+      Vue.set(this.state.locators!, 0, i - 1)
+      Vue.set(this.state.seperators!, 0, i - 1)
       let current = array.Get(i, ObservableState.Accessed)!
       await Sleep(this.delay)
       let j = i - 1

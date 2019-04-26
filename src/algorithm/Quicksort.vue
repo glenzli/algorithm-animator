@@ -17,37 +17,41 @@ import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 })
 export default class Quicksort extends Mixins(NumericArrayAlgorithmMixin) {
   array: Array<ObservableArrayItem<number>> = []
-  state: ObservableArrayState = { pointers: [0], seperation: [0, 0] }
+  state: ObservableArrayState = { locators: [0], partition: [0, 0], seperators: [-1, -1] }
 
   async RunQuicksort(array: ObservableArray<number>, from: number, to: number) {
     if (from < to) {
-      this.state.seperation = to - from < array.length - 1 ? [from, to] : [0, 0]
+      this.state.partition = to - from < array.length - 1 ? [from, to] : [0, 0]
       await Sleep(this.delay)
       let pivot = array.Get(from, ObservableState.Selected)!
+      Vue.set(this.state.seperators!, 0, from)
       await Sleep(this.delay)
-      Vue.set(this.state.pointers!, 0, from + 1)
+      Vue.set(this.state.locators!, 0, from + 1)
       for (let i = from + 1; i <= to; ++i) {
         if (array.Get(i, ObservableState.Accessed)! < pivot) {
-          if (i !== this.state.pointers![0]) {
+          if (i !== this.state.locators![0]) {
             await Sleep(this.delay)
-            await array.Swap(i, this.state.pointers![0], this.delay)
+            await array.Swap(i, this.state.locators![0], this.delay)
+            Vue.set(this.state.seperators!, 1, this.state.locators![0])
             await Sleep(this.delay)
           }
-          Vue.set(this.state.pointers!, 0, this.state.pointers![0] + 1)
+          Vue.set(this.state.locators!, 0, this.state.locators![0] + 1)
         }
       }
-      if (from !== this.state.pointers![0] - 1) {
-        await array.Swap(from, this.state.pointers![0] - 1, this.delay)
+      if (from !== this.state.locators![0] - 1) {
+        await array.Swap(from, this.state.locators![0] - 1, this.delay)
       } else {
         await Sleep(this.delay)
       }
       array.PartialRestore(ObservableState.Accessed)
-      array.State(ObservableState.Selected, this.state.pointers![0] - 1)
+      array.State(ObservableState.Selected, this.state.locators![0] - 1)
+      this.state.seperators = [this.state.locators![0] - 2, this.state.locators![0] - 1]
       await Sleep(this.delay)
-      array.State(ObservableState.None, this.state.pointers![0] - 1)
-      this.state.seperation = [0, 0]
-      await this.RunQuicksort(array, from, this.state.pointers![0] - 2)
-      await this.RunQuicksort(array, this.state.pointers![0], to)
+      array.State(ObservableState.None, this.state.locators![0] - 1)
+      this.state.partition = [0, 0]
+      this.state.seperators = [-1, -1]
+      await this.RunQuicksort(array, from, this.state.locators![0] - 2)
+      await this.RunQuicksort(array, this.state.locators![0], to)
     }
   }
 
