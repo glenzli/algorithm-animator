@@ -7,9 +7,8 @@
 <script lang="ts">
 import { Component, Mixins, Vue } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
-import { ObservableArray, ObservableArrayItem, $olink, ObservableArrayState } from '../model'
+import { ObservableArray, ObservableArrayItem, $olink, ObservableArrayState, Sleep, ObservableState } from '../model'
 import { ArrayVisualizer } from '../components'
-import { Sleep, Move, CreateNumericData, WrapData } from './utils'
 import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 
 @Component({
@@ -21,21 +20,21 @@ export default class Insertionsort extends Mixins(NumericArrayAlgorithmMixin) {
 
   async RunInsertionsort(array: ObservableArray<number>) {
     for (let i = 1; i < array.length; ++i) {
-      array.ResetMark()
-      array.Mark(i - 1)
-      await Sleep(this.delay)
-      let current = array.Get(i) as number
       Vue.set(this.state.pointers!, 0, i - 1)
+      let current = array.Get(i, ObservableState.Accessed)!
       await Sleep(this.delay)
-      for (; this.state.pointers![0] >= 0; Vue.set(this.state.pointers!, 0, this.state.pointers![0] - 1)) {
-        if (current >= (array.Get(this.state.pointers![0]) as number)) {
+      let j = i - 1
+      for (; j >= 0; --j) {
+        if (current > array.Get(j, ObservableState.Accessed)!) {
+          array.State(ObservableState.None, j)
           break
         }
       }
-      if (this.state.pointers![0] !== i - 1) {
+      if (j !== i - 1) {
         await Sleep(this.delay)
-        await Move(array, i, this.state.pointers![0] + 1, this.delay)
+        await array.Move(i, j + 1, this.delay)
       }
+      array.PartialRestore(ObservableState.Accessed)
     }
   }
 
@@ -45,7 +44,7 @@ export default class Insertionsort extends Mixins(NumericArrayAlgorithmMixin) {
   }
 
   mounted() {
-    this.array = this.data.length > 0 ? WrapData(this.data) : CreateNumericData(30)
+    this.array = this.data.length > 0 ? ObservableArray.From(this.data) : ObservableArray.Numeric(30)
     this.Run()
   }
 }

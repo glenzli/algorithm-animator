@@ -9,8 +9,7 @@
 import Vue from 'vue'
 import { Component, Mixins } from 'vue-property-decorator'
 import { ArrayVisualizer } from '../components'
-import { ObservableArrayItem, ObservableArrayState, ObservableArray, $olink } from '../model'
-import { Sleep, Swap, CreateNumericData, WrapData } from './utils'
+import { ObservableArrayItem, ObservableArrayState, ObservableArray, $olink, Sleep, ObservableState } from '../model'
 import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 
 @Component({
@@ -24,36 +23,36 @@ export default class Quicksort extends Mixins(NumericArrayAlgorithmMixin) {
 
   async Merge(array: ObservableArray<number>, from: number, to: number, mid: number, auxArray: ObservableArray<number>) {
     auxArray.Fill(to - from + 1, Number.NaN)
-    await Sleep(this.delay)
-    for (let i = 0; i <= to - from; ++i) {
-      auxArray.Set(i, array.Get(i + from)! as number)
-      array.Set(i + from, Number.NaN)
-    }
-    array.ResetState()
-    await Sleep(this.delay)
     let seperation = mid - from + 1
     this.auxState.pointers = [0, seperation]
+    await Sleep(this.delay)
     for (let i = 0; i <= to - from; ++i) {
-      let index1 = this.auxState.pointers![0]
-      let val1 = auxArray.Get(index1 < seperation ? index1 : -1) as number
-      let val2 = auxArray.Get(this.auxState.pointers![1]) as number
-      if ((val1 != null && val1 < val2) || val2 == null) {
-        array.Set(i + from, val1)
-        auxArray.Mark(index1)
-        Vue.set(this.auxState.pointers!, 0, index1 + 1)
+      auxArray.Set(i, array.Get(i + from)!)
+      array.Set(i + from, Number.NaN)
+    }
+    array.Restore()
+    await Sleep(this.delay)
+    for (let i = 0; i <= to - from; ++i) {
+      let [index1, index2] = this.auxState.pointers!
+      let val1 = auxArray.Get(index1 < seperation ? index1 : -1)
+      let val2 = auxArray.Get(index2)
+      if (val2 == null || (val1 != null && val1! < val2!)) {
+        array.Set(i + from, val1!)
+        auxArray.State(ObservableState.Selected, index1)
+        Vue.set(this.auxState.pointers!, 0, index1 + 1 < seperation ? (index1 + 1) : auxArray.length)
       } else {
         array.Set(i + from, val2)
-        auxArray.Mark(this.auxState.pointers![1])
-        Vue.set(this.auxState.pointers!, 1, this.auxState.pointers![1] + 1)
+        auxArray.State(ObservableState.Selected, index2)
+        Vue.set(this.auxState.pointers!, 1, index2 + 1)
       }
       await Sleep(this.delay)
     }
-    auxArray.Clear()
+    auxArray.Empty()
     await Sleep(this.delay)
   }
 
   async RunMergesort(array: ObservableArray<number>, from: number, to: number, auxArray: ObservableArray<number>) {
-    array.ResetState()
+    array.PartialRestore(ObservableState.Accessed)
     if (to - from > 1) {
       let mid = Math.floor((to - from) / 2 + from)
       this.state.seperation = [0, 0]
@@ -62,10 +61,10 @@ export default class Quicksort extends Mixins(NumericArrayAlgorithmMixin) {
       this.state.seperation = to - from < array.length - 1 ? [from, to] : [0, 0]
       await this.Merge(array, from, to, mid, auxArray)
     } else {
-      if (to > from && (array.Get(from) as number) > (array.Get(to) as number)) {
-        await Swap(array, from, to, this.delay)
+      if (to > from && array.Get(from, ObservableState.Accessed)! > array.Get(to, ObservableState.Accessed)!) {
+        await array.Swap(from, to, this.delay)
       } else {
-        array.Get(from)
+        array.State(ObservableState.Accessed, from)
         await Sleep(this.delay)
       }
     }
@@ -78,8 +77,8 @@ export default class Quicksort extends Mixins(NumericArrayAlgorithmMixin) {
   }
 
   mounted() {
-    this.array = this.data.length > 0 ? WrapData(this.data) : CreateNumericData(30)
-    this.auxArray = WrapData([])
+    this.array = this.data.length > 0 ? ObservableArray.From(this.data) : ObservableArray.Numeric(30)
+    this.auxArray = ObservableArray.From([])
     this.Run()
   }
 }

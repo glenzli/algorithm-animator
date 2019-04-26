@@ -4,7 +4,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { ObservableArrayItem } from '../model'
+import { ObservableArrayItem, ObservableState } from '../model'
 import { Arrayex } from 'arrayex'
 import { RectangleItem, PointTextItem, GroupItem, RegularPolygonItem, Point, SolidBrush, Color$, Stroke, Coordinate } from 'paper-vueify'
 
@@ -26,7 +26,7 @@ export default class ArrayItemVisualizer extends Vue {
   @Prop({ default: false }) seperated!: boolean
   @Prop({ default: false }) pointer!: boolean
   @Prop({ default: 0 }) yBase!: number
-  @Prop({ default: () => ['#3c6387', '#ad2020', '#d8c513'] }) colors!: Array<string>
+  @Prop({ default: () => ['#3c6387', '#ad2020', '#d8c513', '#764891'] }) colors!: Array<string>
 
   get offset() {
     return -Math.floor(((this.total - 1) * SPACESZ + RECTSZ) / 2)
@@ -37,22 +37,13 @@ export default class ArrayItemVisualizer extends Vue {
   }
 
   get y() {
-    return (this.seperated ? -SPACESZ : 0) + (this.item.raised ? -Math.floor(SPACESZ / 2) : 0) + this.yBase
-  }
-
-  get colorIndex() {
-    if (this.item.marked) {
-      return 2
-    } else if (this.item.highlight) {
-      return 1
-    }
-    return 0
+    return (this.seperated ? -SPACESZ : 0) + ((this.item.state === ObservableState.Emphasized) ? -Math.floor(SPACESZ / 2) : 0) + this.yBase
   }
 
   get box() {
     return RectangleItem({
       size: Point(RECTSZ, RECTSZ),
-      brush: SolidBrush(Color$.ToColor(this.colors[this.colorIndex])),
+      brush: SolidBrush(Color$.ToColor(this.colors[this.item.state])),
       stroke: Stroke({ thickness: 0 }),
       coordinate: Coordinate({ position: Point(this.x, this.y) }),
     })

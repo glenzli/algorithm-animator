@@ -1,20 +1,22 @@
+import Vue from 'vue'
 import { $olink } from './ObjectLink'
 import { Arrayex } from 'arrayex'
+import { Sleep } from './utils'
 
 export interface ObservableArrayItem<T> {
   value: T,
-  highlight: boolean,
-  marked: boolean,
-  raised: boolean,
+  state: number,
+}
+
+export enum ObservableState {
+  None = 0,
+  Accessed,
+  Selected,
+  Emphasized,
 }
 
 export function CreateObservableArrayItem<T>(value: T) {
-  return { value, highlight: false, marked: false, raised: false } as ObservableArrayItem<T>
-}
-
-export interface ObservableArrayState {
-  pointers?: Array<number>,
-  seperation?: Array<number>,
+  return { value, state: 0 } as ObservableArrayItem<T>
 }
 
 declare global {
@@ -31,7 +33,16 @@ export class ObservableArray<T> {
     this._array.id = $olink.New(this)
   }
 
-  get observables() {
+  static Numeric(n: number, range = [0, 50]) {
+    let data = Arrayex.Create(n, () => Math.round((range[1] - range[0]) * Math.random() + range[0]))
+    return new ObservableArray(data).data
+  }
+
+  static From<T>(data: Array<T>) {
+    return new ObservableArray(data).data
+  }
+
+  get data() {
     return this._array
   }
 
@@ -39,64 +50,90 @@ export class ObservableArray<T> {
     return this._array.length
   }
 
-  Get(index: number, raw = false) {
-    let observable = this._array[index]
-    if (observable) {
-      observable.highlight = true
-      return raw ? observable : observable.value
-    }
-    return undefined
-  }
-
-  Mark(index: number) {
-    let observable = this._array[index]
-    if (observable) {
-      observable.marked = true
-      return observable.value
-    }
-    return undefined
-  }
-
-  Raise(...indexes: Array<number>) {
+  private Alter(alter: (item: ObservableArrayItem<T>) => void, ...indexes: Array<number>) {
     indexes.forEach(index => {
-      let observable = this._array[index]
-      if (observable) {
-        observable.raised = true
+      let item = this._array[index]
+      if (item) {
+        alter(item)
       }
     })
   }
 
-  Set(index: number, value: T) {
-    let observable = this._array[index]
-    if (observable) {
-      observable.value = value
+  State(state: number, ...indexes: Array<number>) {
+    this.Alter(item => { item.state = state }, ...indexes)
+  }
+
+  Restore() {
+    this._array.forEach(item => { item.state = ObservableState.None })
+  }
+
+  PartialRestore(state: number) {
+    this._array.forEach(item => {
+      if (item.state === state) {
+        item.state = ObservableState.None
+      }
+    })
+  }
+
+  Raw(index: number) {
+    return this._array[index]
+  }
+
+  Get(index: number, state?: number) {
+    let item = this._array[index]
+    if (item) {
+      if (state != null) {
+        item.state = state
+      }
+      return item.value
+    }
+    return undefined
+  }
+
+  Set(index: number, value: T, state?: number) {
+    let item = this._array[index]
+    if (item) {
+      if (state != null) {
+        item.state = state
+      }
+      item.value = value
     }
   }
 
-  ResetState() {
-    this._array.forEach(observable => {
-      observable.highlight = false
-      observable.raised = false
-    })
-  }
-
-  ResetMark() {
-    this._array.forEach(observable => {
-      observable.marked = false
-    })
-  }
-
-  ResetRaise() {
-    this._array.forEach(observable => {
-      observable.raised = false
-    })
-  }
-
-  Clear() {
+  Empty() {
     this._array.splice(0, this._array.length)
   }
 
   Fill(n: number, value: T) {
     this._array.splice(0, this._array.length, ...Arrayex.Create(n, () => CreateObservableArrayItem(value)))
   }
+
+  async Swap(from: number, to: number, delay: number, restoreState = ObservableState.Accessed) {
+    if (from !== to) {
+      let temp = this._array[from]
+      // state
+      this.State(ObservableState.Emphasized, from, to)
+      await Sleep(delay)
+      Vue.set(this._array, from, this._array[to])
+      Vue.set(this._array, to, temp)
+      await Sleep(delay)
+      // clear state
+      this.State(restoreState, from, to)
+    }
+  }
+
+  async Move(from: number, to: number, delay: number) {
+    if (from !== to) {
+      this.State(ObservableState.Emphasized, from, to)
+      await Sleep(delay)
+      this._array.splice(to, 0, this._array.splice(from, 1)[0])
+      await Sleep(delay)
+      this.State(ObservableState.None, to, to + 1)
+    }
+  }
+}
+
+export interface ObservableArrayState {
+  pointers?: Array<number>,
+  seperation?: Array<number>,
 }
