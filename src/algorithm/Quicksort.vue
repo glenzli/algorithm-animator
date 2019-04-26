@@ -27,7 +27,6 @@ async function RunQuicksort(array: ObservableArray<number>, state: ObservableArr
       }
       await Sleep(delay)
       array.ResetState()
-      await Sleep(delay)
     }
     await Swap(array, from, state.pointers![0] - 1, delay)
     array.ResetMark()

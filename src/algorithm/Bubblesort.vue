@@ -26,11 +26,8 @@ export default class Bubblesort extends Mixins(NumericArrayAlgorithmMixin) {
         if ((array.Get(i) as number) > (array.Get(i + 1) as number)) {
           swapped = true
           await Swap(array, i, i + 1, this.delay)
-        } else {
-          await Sleep(this.delay)
         }
         array.ResetState()
-        await Sleep(this.delay)
       }
       array.Mark(terminal)
       await Sleep(this.delay)

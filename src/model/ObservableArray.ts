@@ -8,7 +8,7 @@ export interface ObservableArrayItem<T> {
   raised: boolean,
 }
 
-function CreateObservableArrayItem<T>(value: T) {
+export function CreateObservableArrayItem<T>(value: T) {
   return { value, highlight: false, marked: false, raised: false } as ObservableArrayItem<T>
 }
 
