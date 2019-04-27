@@ -1,4 +1,4 @@
-import { Component, Prop, Vue, Provide } from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 
 @Component
 export class AlgorithmMixin extends Vue {

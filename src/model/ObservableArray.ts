@@ -20,19 +20,21 @@ declare global {
 
 export class ObservableArray<T> {
   _array: Array<ObservableArrayItem<T>>
+  _continue: () => Promise<any>
 
-  constructor(array: Array<T> = []) {
+  constructor(array: Array<T> = [], continuing?: () => Promise<any>) {
     this._array = array.map(value => CreateArrayItem(value))
     this._array.id = $olink.New(this)
+    this._continue = continuing || (() => new Promise(resolve => resolve()))
   }
 
-  static Numeric(n: number, range = [0, 50]) {
+  static Numeric(n: number, range = [0, 50], continuing?: () => Promise<any>) {
     let data = Arrayex.Create(n, () => Math.round((range[1] - range[0]) * Math.random() + range[0]))
-    return new ObservableArray(data).data
+    return new ObservableArray(data, continuing).data
   }
 
-  static From<T>(data: Array<T>) {
-    return new ObservableArray(data).data
+  static From<T>(data: Array<T>, continuing?: () => Promise<any>) {
+    return new ObservableArray(data, continuing).data
   }
 
   get data() {
@@ -107,9 +109,11 @@ export class ObservableArray<T> {
       // state
       this.State(ObservableState.Swapping, from, to)
       await Sleep(delay)
+      await this._continue()
       Vue.set(this._array, from, this._array[to])
       Vue.set(this._array, to, temp)
       await Sleep(delay)
+      await this._continue()
       // clear state
       this.State(restoreState, from, to)
     }
@@ -120,8 +124,10 @@ export class ObservableArray<T> {
       this.State(ObservableState.MovingFrom, from)
       this.State(ObservableState.MovingTo, to)
       await Sleep(delay)
+      await this._continue()
       this._array.splice(to, 0, this._array.splice(from, 1)[0])
       await Sleep(delay)
+      await this._continue()
       this.State(restoreState, to, to + 1)
     }
   }

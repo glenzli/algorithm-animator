@@ -25,7 +25,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
 import { AlgorithmComponents } from './algorithm'
 
-const CATEGORIES = ['Sort']
+const CATEGORIES = ['Sort', 'Heap']
 const ALGORITHMS = Arrayex.Group(Object.keys(AlgorithmComponents), key => {
   let category = CATEGORIES.filter(category => key.endsWith(category))[0]
   return category || 'Other'

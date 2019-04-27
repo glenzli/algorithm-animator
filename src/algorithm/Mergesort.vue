@@ -91,7 +91,7 @@ export default class QuickSort extends Mixins(NumericArrayAlgorithmMixin) {
 
   mounted() {
     this.CreateArray()
-    this.auxArray = ObservableArray.From([])
+    this.auxArray = ObservableArray.From([], this.Continue)
     this.Run()
   }
 }

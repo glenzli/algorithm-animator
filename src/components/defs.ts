@@ -9,13 +9,17 @@ export function ARRAYITEM_OFFSET(length: number) {
 }
 
 export const BINARYNODE_SIZE = 36
-export const BINARYNODE_SPACE = 18
-export const BINARYNODE_TOTAL = BINARYNODE_SIZE + BINARYNODE_SPACE
+export const BINARYNODE_SPACE_X = 8
+export const BINARYNODE_SPACE_Y = 24
 
-export function BINARYNODE_OFFSET(index: number) {
+export function BINARYNODE_OFFSET(index: number, count: number) {
   let level = Math.floor(Math.log2(index))
-  let y = level * BINARYNODE_TOTAL
+  let y = level * (BINARYNODE_SIZE + BINARYNODE_SPACE_Y)
+  // compute x
+  let maxLevel = Math.ceil(Math.log2(count + 1))
+  let maxTotal = Math.pow(2, maxLevel)
+  let baseOffset = -Math.floor(((maxTotal - 1) * BINARYNODE_SIZE + maxTotal * BINARYNODE_SPACE_X) / 4)
   let total = Math.pow(2, level)
-  let x = -Math.floor(((total - 1) * BINARYNODE_SIZE + BINARYNODE_SPACE) / 2) + (index - total) * BINARYNODE_TOTAL
+  let x = baseOffset + (index - total + 0.5) * (maxTotal / total / 2) * (BINARYNODE_SIZE + BINARYNODE_SPACE_X)
   return Point(x, y)
 }
