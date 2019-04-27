@@ -81,7 +81,28 @@ export class ObservableBinaryHeap<T> {
   }
 
   Peek() {
-    return this._state.count > 0 ? this._heap[1].value : undefined
+    return this.Get(0)
+  }
+
+  Get(index: number, state?: ObservableState) {
+    let node = this._heap[index + 1]
+    if (node) {
+      if (state != null) {
+        node.state = state
+      }
+      return node.value
+    }
+    return undefined
+  }
+
+  Set(index: number, value: T, state?: ObservableState) {
+    let node = this._heap[index + 1]
+    if (node) {
+      node.value = value
+      if (state != null) {
+        node.state = state
+      }
+    }
   }
 
   Raw(index: number) {

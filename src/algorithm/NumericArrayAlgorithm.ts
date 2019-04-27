@@ -7,7 +7,7 @@ export class NumericArrayAlgorithmMixin extends Mixins(AlgorithmMixin) {
   @Prop({ default: () => [0, 50] }) range!: Array<number>
   @Prop({ default: 30 }) n!: number
 
-  @Provide('quantizer') quantizer = (value: number) => (value - this.range[0]) / (this.range[1] - this.range[0])
+  @Provide('quantizer') quantizer = (value: number) => Number.isFinite(value) ? (value - this.range[0]) / (this.range[1] - this.range[0]) : 0
 
   array: Array<ObservableArrayItem<number>> = []
 

@@ -30,20 +30,24 @@ export default class HeapSort extends Mixins(NumericArrayAlgorithmMixin) {
   }
 
   async RunHeapsort(array: ObservableArray<number>) {
-    await Sleep(this.delay * 2)
-    await this.Continue()
-    this.heap = ObservableBinaryHeap.FromNumeric(array.data.map(item => item.value), this.heapState, this.Continue)
-    array.Fill(array.length, Number.NaN)
+    this.heap = ObservableBinaryHeap.FromNumeric(array.data.map(() => Number.NEGATIVE_INFINITY), this.heapState, this.Continue)
+    let heapObserver = $olink.Get<ObservableBinaryHeap<number>>(this.heap.id)!
+    // fill
+    for (let i = 0; i < array.length; ++i) {
+      await Sleep(this.delay)
+      await this.Continue()
+      heapObserver.Set(i, array.Get(i)!)
+      array.Set(i, Number.NaN)
+    }
     await Sleep(this.delay)
     await this.Continue()
     // build
-    let heapObserver = $olink.Get<ObservableBinaryHeap<number>>(this.heap.id)!
     await heapObserver.BuildHeap(this.delay)
     // begin to remove
     while (this.heapState.count > 0) {
       await Sleep(this.delay)
       let maximum = heapObserver.Peek()!
-      array.Set(this.heapState.count - 1, maximum, ObservableState.Selected)
+      array.Set(this.heapState.count - 1, maximum)
       await Sleep(this.delay)
       await this.Continue()
       await heapObserver.Delete(this.delay)

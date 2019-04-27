@@ -3,18 +3,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue, Inject } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
 import { ObservableBinaryHeapNode, ObservableState, ObservableBinaryHeap } from '../model'
 import { CircleItem, PointTextItem, GroupItem, PolylineItem, Point, PointObject, Point$, SolidBrush, Color$, Stroke, Coordinate } from 'paper-vueify'
-import { BINARYNODE_OFFSET, BINARYNODE_SIZE } from './defs'
-
-function ToString(val: any) {
-  if (typeof val === 'number') {
-    return Number.isNaN(val) ? '' : val.toString()
-  }
-  return val.toString()
-}
+import { BINARYNODE_OFFSET, BINARYNODE_SIZE, ToLabel } from './defs'
 
 @Component
 export default class BinaryHeapNodeVisualizer extends Vue {
@@ -24,6 +17,8 @@ export default class BinaryHeapNodeVisualizer extends Vue {
   @Prop({ required: true }) count!: number
   @Prop({ default: () => Point(0, 0) }) position!: PointObject
   @Prop({ default: () => ['#3c6387', '#ad2020', '#d8c513', '#764891', '#764891', '#764891'] }) colors!: Array<string>
+
+  @Inject({ default: null }) quantizer!: ((val: any) => number) | null
 
   get offset() {
     return Point$.Add(BINARYNODE_OFFSET(this.index, this.count), this.position)
@@ -47,7 +42,7 @@ export default class BinaryHeapNodeVisualizer extends Vue {
       fontSize: 24,
       fontFamily: 'Titillium Web',
       justification: 'center',
-      content: ToString(this.node.value),
+      content: ToLabel(this.node.value),
       brush: SolidBrush(Color$.ToColor('#eee')),
       coordinate: Coordinate({ position: Point(this.offset.x, 9 + this.offset.y) }),
     })
@@ -74,7 +69,8 @@ export default class BinaryHeapNodeVisualizer extends Vue {
   }
 
   get visual() {
-    return GroupItem({ children: Arrayex.NonNull([this.link, this.box, this.label]) })
+    let opacity = this.quantizer ? (this.quantizer(this.node.value) * 0.5 + 0.5) : 1
+    return GroupItem({ children: Arrayex.NonNull([this.link, this.box, this.label]), opacity })
   }
 }
 </script>

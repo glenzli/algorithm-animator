@@ -6,14 +6,7 @@
 import { Component, Prop, Vue, Inject } from 'vue-property-decorator'
 import { ObservableArrayItem, ObservableState } from '../model'
 import { RectangleItem, PointTextItem, GroupItem, Point, SolidBrush, Color$, Stroke, Coordinate, PointObject } from 'paper-vueify'
-import { ARRAYITEM_SIZE, ARRAYITEM_TOTAL, ARRAYITEM_OFFSET } from './defs'
-
-function ToLabel(val: any) {
-  if (typeof val === 'number') {
-    return Number.isNaN(val) ? '' : val.toString()
-  }
-  return val.toString()
-}
+import { ARRAYITEM_SIZE, ARRAYITEM_TOTAL, ARRAYITEM_OFFSET, ToLabel } from './defs'
 
 @Component
 export default class ArrayItemVisualizer extends Vue {

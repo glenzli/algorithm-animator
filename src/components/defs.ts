@@ -23,3 +23,10 @@ export function BINARYNODE_OFFSET(index: number, count: number) {
   let x = baseOffset + (index - total + 0.5) * (maxTotal / total / 2) * (BINARYNODE_SIZE + BINARYNODE_SPACE_X)
   return Point(x, y)
 }
+
+export function ToLabel(val: any) {
+  if (typeof val === 'number') {
+    return (Number.isNaN(val) || !Number.isFinite(val)) ? '' : val.toString()
+  }
+  return val.toString()
+}
