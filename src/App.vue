@@ -1,11 +1,20 @@
 <template>
   <div id="app">
     <p-canvas :autosize="true"></p-canvas>
-    <component :is="current"></component>
+    <component :is="algorithm" :paused="paused" :delay="delay"></component>
     <div class="panel">
-      <div class="config"></div>
+      <div class="config">
+        <div class="button g" :class="{ selected: delay === 1000 }" @click="SetDelay(1000)">Extremely Slow</div>
+        <div class="button g" :class="{ selected: delay === 500 }" @click="SetDelay(500)">Slow</div>
+        <div class="button g" :class="{ selected: delay === 300 }" @click="SetDelay(300)">Normal</div>
+        <div class="button g" :class="{ selected: delay === 100 }" @click="SetDelay(100)">Fast</div>
+        <div class="button g" :class="{ selected: delay === 50 }" @click="SetDelay(50)">Extremely Fast</div>
+        <div class="button" @click="ToggleAnimation">{{ paused ? 'Continue' : 'Pause' }}</div>
+      </div>
       <div class="list">
-        <div class="tag" v-for="(tag, index) in algorithms" :key="index" :class="{ selected: index === active }" @click="Select(index)">{{tag}}</div>
+        <div class="category" v-for="(category, index) in categories" :key="index" :class="{ selected: index === activeCategory }" @click="SelectCategory(index)">{{category}}</div>
+        <div class="seperator"></div>
+        <div class="tag" v-for="(tag, index) in candidateAlgorithms" :key="`a${index}`" :class="{ selected: index === activeAlgorithm }" @click="SelectAlgorithm(index)">{{tag}}</div>
       </div>
     </div>
   </div>
@@ -13,21 +22,54 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { Arrayex } from 'arrayex'
 import { AlgorithmComponents } from './algorithm'
+
+const CATEGORIES = ['Sort']
+const ALGORITHMS = Arrayex.Group(Object.keys(AlgorithmComponents), key => {
+  let category = CATEGORIES.filter(category => key.endsWith(category))[0]
+  return category || 'Other'
+})
 
 @Component({
   components: { ...AlgorithmComponents },
 })
 export default class App extends Vue {
-  algorithms = Object.keys(AlgorithmComponents)
-  active = 0
+  categories = CATEGORIES
+  algorithms = ALGORITHMS
+  activeCategory = 0
+  activeAlgorithm = 0
+  paused = false
+  delay = 500
 
-  get current() {
-    return this.algorithms[this.active]
+  get candidateAlgorithms() {
+    return this.algorithms[this.categories[this.activeCategory]]
   }
 
-  Select(index: number) {
-    this.active = index
+  get algorithm() {
+    return this.candidateAlgorithms[this.activeAlgorithm]
+  }
+
+  SelectCategory(index: number) {
+    this.activeCategory = index
+    this.SelectAlgorithm(0)
+  }
+
+  SelectAlgorithm(index: number) {
+    this.activeAlgorithm = index
+    this.paused = false
+  }
+
+  ToggleAnimation() {
+    this.paused = !this.paused
+  }
+
+  SetDelay(delay: number) {
+    this.delay = delay
+  }
+
+  mounted() {
+    this.SetDelay(300)
   }
 }
 </script>
@@ -56,7 +98,43 @@ html, body {
   bottom: 5%;
   transform: translate(-50%, 0);
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+}
+
+.config {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .button {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background: #333;
+    color: #eee;
+    user-select: none;
+    cursor: pointer;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    margin: 0 1rem;
+
+    &:hover {
+      background: #555;
+    }
+
+    &.g {
+      margin: 0;
+      border-radius: 0;
+      padding: 0.5rem;
+
+      &.selected {
+        background: #962222;
+      }
+    }
+  }
+
+  margin: 1rem;
 }
 
 .list {
@@ -65,18 +143,15 @@ html, body {
   flex-wrap: wrap;
   flex: 1;
 
-  .tag {
+  .category, .tag {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
     background: #333;
-    border-radius: 0.25rem;
-    padding: 0.25rem 0.5rem;
-    margin: 0.25rem;
     color: #eee;
     user-select: none;
-    cursor: locator;
+    cursor: pointer;
 
     &.selected {
       background: #962222;
@@ -85,6 +160,20 @@ html, body {
     &:hover {
       background: #555;
     }
+  }
+
+  .category {
+    padding: 0.5rem 1rem;
+  }
+
+  .tag {
+    border-radius: 0.25rem;
+    margin: 0.25rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .seperator {
+    width: 2rem;
   }
 }
 </style>

@@ -1,22 +1,15 @@
 import Vue from 'vue'
 import { $olink } from './ObjectLink'
 import { Arrayex } from 'arrayex'
-import { Sleep } from './utils'
+import { Sleep, ObservableState } from './utils'
 
 export interface ObservableArrayItem<T> {
   value: T,
   state: number,
 }
 
-export enum ObservableState {
-  None = 0,
-  Accessed,
-  Selected,
-  Moving,
-}
-
-export function CreateObservableArrayItem<T>(value: T) {
-  return { value, state: 0 } as ObservableArrayItem<T>
+function CreateArrayItem<T>(value: T) {
+  return { value, state: ObservableState.None } as ObservableArrayItem<T>
 }
 
 declare global {
@@ -29,7 +22,7 @@ export class ObservableArray<T> {
   _array: Array<ObservableArrayItem<T>>
 
   constructor(array: Array<T> = []) {
-    this._array = array.map(value => CreateObservableArrayItem(value))
+    this._array = array.map(value => CreateArrayItem(value))
     this._array.id = $olink.New(this)
   }
 
@@ -105,14 +98,14 @@ export class ObservableArray<T> {
   }
 
   Fill(n: number, value: T) {
-    this._array.splice(0, this._array.length, ...Arrayex.Create(n, () => CreateObservableArrayItem(value)))
+    this._array.splice(0, this._array.length, ...Arrayex.Create(n, () => CreateArrayItem(value)))
   }
 
   async Swap(from: number, to: number, delay: number, restoreState = ObservableState.Accessed) {
     if (from !== to) {
       let temp = this._array[from]
       // state
-      this.State(ObservableState.Moving, from, to)
+      this.State(ObservableState.Swapping, from, to)
       await Sleep(delay)
       Vue.set(this._array, from, this._array[to])
       Vue.set(this._array, to, temp)
@@ -122,13 +115,14 @@ export class ObservableArray<T> {
     }
   }
 
-  async Move(from: number, to: number, delay: number) {
+  async Move(from: number, to: number, delay: number, restoreState = ObservableState.None) {
     if (from !== to) {
-      this.State(ObservableState.Moving, from, to)
+      this.State(ObservableState.MovingFrom, from)
+      this.State(ObservableState.MovingTo, to)
       await Sleep(delay)
       this._array.splice(to, 0, this._array.splice(from, 1)[0])
       await Sleep(delay)
-      this.State(ObservableState.None, to, to + 1)
+      this.State(restoreState, to, to + 1)
     }
   }
 }

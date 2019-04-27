@@ -1,37 +1,42 @@
 <template>
   <div>
     <array-visualizer :array="array" :state="state"></array-visualizer>
-    <array-visualizer :array="auxArray" :state="auxState" :y="100"></array-visualizer>
+    <array-visualizer :array="auxArray" :state="auxState" :position="auxPosition"></array-visualizer>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 import { Component, Mixins } from 'vue-property-decorator'
-import { ArrayVisualizer } from '../components'
+import { ArrayVisualizer, ARRAYITEM_TOTAL } from '../components'
 import { ObservableArrayItem, ObservableArrayState, ObservableArray, $olink, Sleep, ObservableState } from '../model'
+import { Point } from 'paper-vueify'
 import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 
 @Component({
   components: { ArrayVisualizer },
 })
-export default class Quicksort extends Mixins(NumericArrayAlgorithmMixin) {
-  array: Array<ObservableArrayItem<number>> = []
+export default class QuickSort extends Mixins(NumericArrayAlgorithmMixin) {
   state: ObservableArrayState = { partition: [0, 0] }
   auxArray: Array<ObservableArrayItem<number>> = []
-  auxState: ObservableArrayState = { locators: [0], partition: [0, 0] }
+  auxState: ObservableArrayState = { locators: [0], partition: [0, 0], seperators: [-1] }
+  auxPosition = Point(0, 100)
 
   async Merge(array: ObservableArray<number>, from: number, to: number, mid: number, auxArray: ObservableArray<number>) {
+    this.auxPosition.x = -(this.array.length - from - to - 1) / 2 * ARRAYITEM_TOTAL
     auxArray.Fill(to - from + 1, Number.NaN)
     let partition = mid - from + 1
     this.auxState.locators = [0, partition]
+    Vue.set(this.auxState.seperators!, 0, mid - from)
     await Sleep(this.delay)
+    await this.Continue()
     for (let i = 0; i <= to - from; ++i) {
       auxArray.Set(i, array.Get(i + from)!)
       array.Set(i + from, Number.NaN)
     }
     array.Restore()
     await Sleep(this.delay)
+    await this.Continue()
     for (let i = 0; i <= to - from; ++i) {
       let [index1, index2] = this.auxState.locators!
       let val1 = auxArray.Get(index1 < partition ? index1 : -1)
@@ -46,9 +51,12 @@ export default class Quicksort extends Mixins(NumericArrayAlgorithmMixin) {
         Vue.set(this.auxState.locators!, 1, index2 + 1)
       }
       await Sleep(this.delay)
+      await this.Continue()
     }
     auxArray.Empty()
+    this.auxState.seperators = [-1]
     await Sleep(this.delay)
+    await this.Continue()
   }
 
   async RunMergesort(array: ObservableArray<number>, from: number, to: number, auxArray: ObservableArray<number>) {
@@ -57,15 +65,20 @@ export default class Quicksort extends Mixins(NumericArrayAlgorithmMixin) {
       let mid = Math.floor((to - from) / 2 + from)
       this.state.partition = [0, 0]
       await this.RunMergesort(array, from, mid, auxArray)
+      await this.Continue()
       await this.RunMergesort(array, mid + 1, to, auxArray)
+      await this.Continue()
       this.state.partition = to - from < array.length - 1 ? [from, to] : [0, 0]
       await this.Merge(array, from, to, mid, auxArray)
+      await this.Continue()
     } else {
       if (to > from && array.Get(from, ObservableState.Accessed)! > array.Get(to, ObservableState.Accessed)!) {
         await array.Swap(from, to, this.delay)
+        await this.Continue()
       } else {
         array.State(ObservableState.Accessed, from)
         await Sleep(this.delay)
+        await this.Continue()
       }
     }
   }
@@ -77,7 +90,7 @@ export default class Quicksort extends Mixins(NumericArrayAlgorithmMixin) {
   }
 
   mounted() {
-    this.array = this.data.length > 0 ? ObservableArray.From(this.data) : ObservableArray.Numeric(30)
+    this.CreateArray()
     this.auxArray = ObservableArray.From([])
     this.Run()
   }

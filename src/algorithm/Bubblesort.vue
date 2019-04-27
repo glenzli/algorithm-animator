@@ -14,9 +14,7 @@ import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 @Component({
   components: { ArrayVisualizer },
 })
-export default class Bubblesort extends Mixins(NumericArrayAlgorithmMixin) {
-  array: Array<ObservableArrayItem<number>> = []
-
+export default class BubbleSort extends Mixins(NumericArrayAlgorithmMixin) {
   async RunBubblesort(array: ObservableArray<number>) {
     for (let i = 0; i < array.length; ++i) {
       let terminal = array.length - 1 - i
@@ -24,15 +22,18 @@ export default class Bubblesort extends Mixins(NumericArrayAlgorithmMixin) {
       for (let j = 0; j < terminal; ++j) {
         if (array.Get(j, ObservableState.Accessed)! > array.Get(j + 1, ObservableState.Accessed)!) {
           await array.Swap(j, j + 1, this.delay)
+          await this.Continue()
           noSwap = false
         }
       }
       array.PartialRestore(ObservableState.Accessed)
       array.State(ObservableState.Selected, terminal)
       await Sleep(this.delay)
+      await this.Continue()
       if (noSwap) {
         break
       }
+      await this.Continue()
     }
     array.Restore()
   }
@@ -43,7 +44,7 @@ export default class Bubblesort extends Mixins(NumericArrayAlgorithmMixin) {
   }
 
   mounted() {
-    this.array = this.data.length > 0 ? ObservableArray.From(this.data) : ObservableArray.Numeric(30)
+    this.CreateArray()
     this.Run()
   }
 }

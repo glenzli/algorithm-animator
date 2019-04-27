@@ -14,8 +14,7 @@ import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 @Component({
   components: { ArrayVisualizer },
 })
-export default class Insertionsort extends Mixins(NumericArrayAlgorithmMixin) {
-  array: Array<ObservableArrayItem<number>> = []
+export default class InsertionSort extends Mixins(NumericArrayAlgorithmMixin) {
   state: ObservableArrayState = { locators: [0], partition: [0, 0], seperators: [-1] }
 
   async RunInsertionsort(array: ObservableArray<number>) {
@@ -24,6 +23,7 @@ export default class Insertionsort extends Mixins(NumericArrayAlgorithmMixin) {
       Vue.set(this.state.seperators!, 0, i - 1)
       let current = array.Get(i, ObservableState.Accessed)!
       await Sleep(this.delay)
+      await this.Continue()
       let j = i - 1
       for (; j >= 0; --j) {
         if (current > array.Get(j, ObservableState.Accessed)!) {
@@ -33,10 +33,15 @@ export default class Insertionsort extends Mixins(NumericArrayAlgorithmMixin) {
       }
       if (j !== i - 1) {
         await Sleep(this.delay)
+        await this.Continue()
         await array.Move(i, j + 1, this.delay)
+        await this.Continue()
       }
       array.PartialRestore(ObservableState.Accessed)
+      await this.Continue()
     }
+    this.state.locators = [-1]
+    this.state.seperators = [-1]
   }
 
   Run() {
@@ -45,7 +50,7 @@ export default class Insertionsort extends Mixins(NumericArrayAlgorithmMixin) {
   }
 
   mounted() {
-    this.array = this.data.length > 0 ? ObservableArray.From(this.data) : ObservableArray.Numeric(30)
+    this.CreateArray()
     this.Run()
   }
 }
