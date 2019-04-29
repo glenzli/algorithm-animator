@@ -23,6 +23,7 @@ export class ObservableBinaryHeap<T> {
   private _isNull: (val: T) => boolean
   private _continue: () => Promise<any>
   private _nullValue: T
+  private _delay: number
 
   private CalcHeapCapacity(n: number) {
     let level = Math.ceil(Math.log2(n + 1))
@@ -40,6 +41,7 @@ export class ObservableBinaryHeap<T> {
     this._compare = (n1: ObservableBinaryHeapNode<T>, n2: ObservableBinaryHeapNode<T>) => compare(n1.value, n2.value)
     this._isNull = isNull || ((val: T) => val === nullValue)
     this._continue = continuing || (() => new Promise(resolve => resolve()))
+    this._delay = 0
   }
 
   static Numeric(n: number, range = [0, 50], state: ObservableBinaryHeapState, continuing?: () => Promise<any>) {
@@ -53,6 +55,14 @@ export class ObservableBinaryHeap<T> {
 
   get data() {
     return this._heap
+  }
+
+  get delay() {
+    return this._delay
+  }
+
+  set delay(value: number) {
+    this._delay = value
   }
 
   private Left(index: number) {
@@ -127,16 +137,16 @@ export class ObservableBinaryHeap<T> {
     }
   }
 
-  async Swap(from: number, to: number, delay: number, restoreState = ObservableState.Accessed) {
+  async Swap(from: number, to: number, restoreState = ObservableState.Accessed) {
     if (from !== to) {
       let temp = this._heap[from]
       // state
       this.State(ObservableState.Swapping, from, to)
-      await Sleep(delay)
+      await Sleep(this._delay)
       await this._continue()
       Vue.set(this._heap, from, this._heap[to])
       Vue.set(this._heap, to, temp)
-      await Sleep(delay)
+      await Sleep(this._delay)
       await this._continue()
       // clear state
       this.State(restoreState, from, to)
@@ -164,13 +174,13 @@ export class ObservableBinaryHeap<T> {
     }
   }
 
-  private async Down(start: number, delay: number) {
+  private async Down(start: number) {
     let descendant = this.Left(start)
     while (descendant <= this._state.count) {
       let parent = this.Parent(descendant)
       let sibling = this.NextSibling(descendant)
       this.State(ObservableState.Accessed, descendant, sibling)
-      await Sleep(delay)
+      await Sleep(this._delay)
       await this._continue()
       if (descendant < this._state.count && this._compare(this._heap[descendant], this._heap[sibling]) < 0) {
         this.State(ObservableState.None, descendant)
@@ -178,11 +188,11 @@ export class ObservableBinaryHeap<T> {
       } else {
         this.State(ObservableState.None, sibling)
       }
-      await Sleep(delay)
+      await Sleep(this._delay)
       await this._continue()
       this.State(ObservableState.Accessed, parent)
       if (this._compare(this._heap[descendant], this._heap[parent]) > 0) {
-        await this.Swap(descendant, parent, delay)
+        await this.Swap(descendant, parent)
         await this._continue()
         descendant = this.Left(descendant)
       } else {
@@ -192,16 +202,16 @@ export class ObservableBinaryHeap<T> {
     }
   }
 
-  async BuildHeap(delay: number) {
+  async BuildHeap() {
     for (let i = this._heap.length / 2; i > 0; --i) {
-      await this.Down(i, delay)
-      await Sleep(delay)
+      await this.Down(i)
+      await Sleep(this._delay)
       await this._continue()
       this.Restore()
     }
   }
 
-  async Insert(value: T, delay: number) {
+  async Insert(value: T) {
     if (this._state.count + 1 >= this._heap.length) {
       let increase = this.CalcHeapCapacity(this._heap.length + 1) - this._heap.length
       this._heap.splice(this._heap.length, 0, ...Arrayex.Create(increase, () => CreateHeapNode(this._nullValue)))
@@ -209,12 +219,12 @@ export class ObservableBinaryHeap<T> {
     let descendant = ++this._state.count
     this._heap[descendant].value = value
     this.State(ObservableState.Accessed, descendant)
-    await Sleep(delay)
+    await Sleep(this._delay)
     await this._continue()
     let parent = Math.floor(descendant / 2)
     this.State(ObservableState.Accessed, parent)
     while (descendant > 1 && this._compare(this._heap[descendant], this._heap[parent]) > 0) {
-      await this.Swap(descendant, parent, delay)
+      await this.Swap(descendant, parent)
       await this._continue()
       descendant = Math.floor(descendant / 2)
       parent = Math.floor(descendant / 2)
@@ -222,20 +232,20 @@ export class ObservableBinaryHeap<T> {
     this.Restore()
   }
 
-  async Delete(delay: number) {
+  async Delete() {
     // cache
     let retValue = this._heap[1].value
     // swap
     this.State(ObservableState.Accessed, this._state.count, 1)
-    await this.Swap(1, this._state.count, delay)
-    await Sleep(delay)
+    await this.Swap(1, this._state.count)
+    await Sleep(this._delay)
     await this._continue()
     this._heap[this._state.count].value = this._nullValue
     --this._state.count
-    await Sleep(delay)
+    await Sleep(this._delay)
     await this._continue()
     // down
-    await this.Down(1, delay)
+    await this.Down(1)
     this.Restore()
     return retValue
   }

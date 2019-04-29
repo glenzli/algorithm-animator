@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins } from 'vue-property-decorator'
+import { Component, Mixins, Watch } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
 import { Point, Point$ } from 'paper-vueify'
 import { ObservableArray, ObservableArrayItem, $olink, ObservableArrayState, ObservableState, ObservableBinaryHeapNode, ObservableBinaryHeapState, Sleep, ObservableBinaryHeap } from '../model'
@@ -31,6 +31,7 @@ export default class HeapSort extends Mixins(NumericArrayAlgorithmMixin) {
 
   async RunHeapsort(array: ObservableArray<number>) {
     this.heap = ObservableBinaryHeap.FromNumeric(array.data.map(() => Number.NEGATIVE_INFINITY), this.heapState, this.Continue)
+    this.OnDelayChanged()
     let heapObserver = $olink.Get<ObservableBinaryHeap<number>>(this.heap.id)!
     // fill
     for (let i = 0; i < array.length; ++i) {
@@ -42,7 +43,7 @@ export default class HeapSort extends Mixins(NumericArrayAlgorithmMixin) {
     await Sleep(this.delay)
     await this.Continue()
     // build
-    await heapObserver.BuildHeap(this.delay)
+    await heapObserver.BuildHeap()
     // begin to remove
     while (this.heapState.count > 0) {
       await Sleep(this.delay)
@@ -50,7 +51,7 @@ export default class HeapSort extends Mixins(NumericArrayAlgorithmMixin) {
       array.Set(this.heapState.count - 1, maximum)
       await Sleep(this.delay)
       await this.Continue()
-      await heapObserver.Delete(this.delay)
+      await heapObserver.Delete()
       heapObserver.State(ObservableState.Selected, 1)
       await Sleep(this.delay)
       await this.Continue()
@@ -65,6 +66,11 @@ export default class HeapSort extends Mixins(NumericArrayAlgorithmMixin) {
   mounted() {
     this.CreateArray()
     this.Run()
+  }
+
+  @Watch('delay')
+  OnDelayChanged() {
+    $olink.Get<ObservableBinaryHeap<number>>(this.heap.id)!.delay = this.delay
   }
 }
 </script>

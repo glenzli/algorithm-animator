@@ -21,7 +21,7 @@ export default class BuildHeap extends Mixins(NumericHeapAlgorithmMixin) {
   }
 
   async RunBuild(heap: ObservableBinaryHeap<any>) {
-    await heap.BuildHeap(this.delay)
+    await heap.BuildHeap()
   }
 
   Run() {

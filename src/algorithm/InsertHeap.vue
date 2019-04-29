@@ -26,7 +26,7 @@ export default class InsertHeap extends Mixins(NumericHeapAlgorithmMixin) {
     for (let i = 0; i < this.n / 2; ++i) {
       let range = this.range[1] - this.range[0]
       let value = Math.floor(range / 4 * Math.random() + this.range[0] + range / 4 * 3)
-      await heap.Insert(value, this.delay)
+      await heap.Insert(value)
       await this.Continue()
     }
   }

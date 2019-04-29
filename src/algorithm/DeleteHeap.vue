@@ -24,7 +24,7 @@ export default class DeleteHeap extends Mixins(NumericHeapAlgorithmMixin) {
     heap.InstantBuildHeap()
     await Sleep(this.delay)
     for (let i = 0; i < this.n / 2; ++i) {
-      await heap.Delete(this.delay)
+      await heap.Delete()
       await this.Continue()
     }
   }

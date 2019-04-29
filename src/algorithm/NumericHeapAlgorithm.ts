@@ -1,5 +1,5 @@
-import { Component, Prop, Mixins, Provide } from 'vue-property-decorator'
-import { ObservableBinaryHeapNode, ObservableBinaryHeap, ObservableBinaryHeapState } from '../model'
+import { Component, Prop, Mixins, Provide, Watch } from 'vue-property-decorator'
+import { ObservableBinaryHeapNode, ObservableBinaryHeap, ObservableBinaryHeapState, $olink } from '../model'
 import { AlgorithmMixin } from './Algorithm'
 
 @Component
@@ -14,5 +14,11 @@ export class NumericHeapAlgorithmMixin extends Mixins(AlgorithmMixin) {
 
   CreateHeap() {
     this.heap = ObservableBinaryHeap.Numeric(this.n, this.range, this.state, this.Continue)
+    this.OnDelayChanged()
+  }
+
+  @Watch('delay')
+  OnDelayChanged() {
+    $olink.Get<ObservableBinaryHeap<number>>(this.heap.id)!.delay = this.delay
   }
 }
