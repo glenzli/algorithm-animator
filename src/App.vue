@@ -14,7 +14,7 @@
       <div class="list">
         <div class="category" v-for="(category, index) in categories" :key="index" :class="{ selected: index === activeCategory }" @click="SelectCategory(index)">{{category}}</div>
         <div class="seperator"></div>
-        <div class="tag" v-for="(tag, index) in candidateAlgorithms" :key="`a${index}`" :class="{ selected: index === activeAlgorithm }" @click="SelectAlgorithm(index)">{{tag}}</div>
+        <div class="tag" v-for="(tag, index) in candidateAlgorithms" :key="`a${index}`" :class="{ selected: index === activeAlgorithm }" @click="SelectAlgorithm(index)">{{tag.name}}</div>
       </div>
     </div>
   </div>
@@ -23,31 +23,27 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
-import { AlgorithmComponents } from './algorithm'
-
-const CATEGORIES = ['Sort', 'Heap']
-const ALGORITHMS = Arrayex.Group(Object.keys(AlgorithmComponents), key => {
-  let category = CATEGORIES.filter(category => key.endsWith(category))[0]
-  return category || 'Other'
-})
+import { AlgorithmComponents, AlgorithmCategories } from './algorithm'
 
 @Component({
   components: { ...AlgorithmComponents },
 })
 export default class App extends Vue {
-  categories = CATEGORIES
-  algorithms = ALGORITHMS
   activeCategory = 0
   activeAlgorithm = 0
   paused = false
   delay = 500
 
+  get categories() {
+    return Object.keys(AlgorithmCategories)
+  }
+
   get candidateAlgorithms() {
-    return this.algorithms[this.categories[this.activeCategory]]
+    return AlgorithmCategories[this.categories[this.activeCategory]]
   }
 
   get algorithm() {
-    return this.candidateAlgorithms[this.activeAlgorithm]
+    return this.candidateAlgorithms[this.activeAlgorithm].id
   }
 
   SelectCategory(index: number) {

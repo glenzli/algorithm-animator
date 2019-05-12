@@ -10,7 +10,7 @@ import { Component, Mixins, Watch } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
 import { Point, Point$ } from 'paper-vueify'
 import { ObservableArray, ObservableArrayItem, $olink, ObservableArrayState, ObservableState, ObservableBinaryHeapNode, ObservableBinaryHeapState, Sleep, ObservableBinaryHeap } from '../model'
-import { ArrayVisualizer, BinaryHeapVisualizer, BINARYNODE_SIZE, BINARYNODE_SPACE_Y, ARRAYITEM_TOTAL } from '../components'
+import { ArrayVisualizer, BinaryHeapVisualizer, HEAP_NODE_SIZE, HEAP_NODE_SPACE_Y, ARRAY_ITEM_TOTAL } from '../components'
 import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 
 @Component({
@@ -21,12 +21,12 @@ export default class HeapSort extends Mixins(NumericArrayAlgorithmMixin) {
   heapState: ObservableBinaryHeapState = { count: 0 }
 
   get position() {
-    let yOffset = this.heap.length > 0 ? -Math.floor(Math.ceil(Math.log2(this.heap.length)) / 2 * (BINARYNODE_SIZE + BINARYNODE_SPACE_Y)) : 0
+    let yOffset = this.heap.length > 0 ? -Math.floor(Math.ceil(Math.log2(this.heap.length)) / 2 * (HEAP_NODE_SIZE + HEAP_NODE_SPACE_Y)) : 0
     return Point(0, yOffset)
   }
 
   get arrayPosition() {
-    return Point$.Add(this.position, Point(0, -3 * ARRAYITEM_TOTAL))
+    return Point$.Add(this.position, Point(0, -3 * ARRAY_ITEM_TOTAL))
   }
 
   async RunHeapsort(array: ObservableArray<number>) {

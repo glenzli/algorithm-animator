@@ -7,7 +7,7 @@
 <script lang="ts">
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
-import { RegularPolygonItem, PolylineItem, RectangleItem, GroupItem, SolidBrush, NoneBrush, PointObject, Color$, Stroke, Coordinate, Point } from 'paper-vueify'
+import { PointObject, Point } from 'paper-vueify'
 import BinaryHeapNodeVisualizer from './BinaryHeapNodeVisualizer.vue'
 import { ObservableBinaryHeapNode, ObservableState, ObservableBinaryHeapState } from '../model'
 
