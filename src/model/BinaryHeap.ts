@@ -112,7 +112,7 @@ export class ObservableBinaryHeap<T> {
   }
 
   Raw(index: number) {
-    return this._heap[index]
+    return this._heap[index + 1]
   }
 
   State(state: number, ...indexes: Array<number>) {

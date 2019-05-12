@@ -1,7 +1,7 @@
 import { ObservableState, Sleep } from '../utils'
 import { ObservableArray } from '../ObservableArray'
 
-describe('ObjectLink', () => {
+describe('Array', () => {
   const data = [1, 2, 3, 4, 5, 6, 7, 8]
   const oa1 = new ObservableArray(data)
 
@@ -44,22 +44,20 @@ describe('ObjectLink', () => {
     expect(oa1.Raw(0)).toEqual({ value: 2.5, state: ObservableState.Accessed })
   })
 
-  test('Swap', () => {
-    oa1.Swap(0, 1, 0).then(() => {
-      expect(oa1.Get(0)).toEqual(2.5)
-      expect(oa1.Raw(0).state).toEqual(ObservableState.Accessed)
-      expect(oa1.Get(1)).toEqual(1)
-      expect(oa1.Raw(1).state).toEqual(ObservableState.Accessed)
-    })
+  test('Swap', async () => {
+    await oa1.Swap(0, 1, 0)
+    expect(oa1.Get(0)).toEqual(2)
+    expect(oa1.Raw(0).state).toEqual(ObservableState.Accessed)
+    expect(oa1.Get(1)).toEqual(2.5)
+    expect(oa1.Raw(1).state).toEqual(ObservableState.Accessed)
   })
 
-  test('Move', () => {
-    oa1.Move(7, 0, 0).then(() => {
-      expect(oa1.Get(0)).toEqual(8)
-      expect(oa1.Raw(0).state).toEqual(ObservableState.Accessed)
-      expect(oa1.Get(1)).toEqual(2.5)
-      expect(oa1.Raw(1).state).toEqual(ObservableState.Accessed)
-    })
+  test('Move', async () => {
+    await oa1.Move(7, 0, 0)
+    expect(oa1.Get(0)).toEqual(8)
+    expect(oa1.Raw(0).state).toEqual(ObservableState.None)
+    expect(oa1.Get(1)).toEqual(2)
+    expect(oa1.Raw(1).state).toEqual(ObservableState.None)
   })
 
   test('Empty', () => {
