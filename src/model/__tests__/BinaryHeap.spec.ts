@@ -51,26 +51,24 @@ describe('BinaryHeap', () => {
     expect(oh1.data.map(v => v.value).slice(1, 9)).toEqual([8, 5, 7, 4, 1, 6, 3, 2.5])
   })
 
-  test('Swap', () => {
-    oh1.Swap(1, 2).then(() => {
-      expect(oh1.Raw(0)).toEqual({ value: 5, state: ObservableState.Accessed })
-      expect(oh1.Raw(1)).toEqual({ value: 8, state: ObservableState.Accessed })
-    })
+  test('Swap', async () => {
+    await oh1.Swap(1, 2)
+    expect(oh1.Raw(0)).toEqual({ value: 5, state: ObservableState.Accessed })
+    expect(oh1.Raw(1)).toEqual({ value: 8, state: ObservableState.Accessed })
   })
 
-  test('BuildHeap', () => {
-    oh1.BuildHeap().then(() => {
-      expect(oh1.data.map(v => v.value).slice(1, 9)).toEqual([8, 5, 7, 4, 1, 6, 3, 2.5])
-    })
+  test('BuildHeap', async () => {
+    await oh1.BuildHeap()
+    expect(oh1.data.map(v => v.value).slice(1, 9)).toEqual([8, 5, 7, 4, 1, 6, 3, 2.5])
   })
 
   test('Insert', async () => {
     await oh1.Insert(12)
-    expect(oh1.data.map(v => v.value).slice(1, 10)).toEqual([12, 5, 7, 8, 1, 6, 3, 2.5, 4])
+    expect(oh1.data.map(v => v.value).slice(1, 10)).toEqual([12, 8, 7, 5, 1, 6, 3, 2.5, 4])
   })
 
   test('Delete', async () => {
     await oh1.Delete()
-    expect(oh1.data.map(v => v.value).slice(1, 9)).toEqual([7, 8, 6, 5, 1, 4, 3, 2.5])
+    expect(oh1.data.map(v => v.value).slice(1, 9)).toEqual([8, 5, 7, 4, 1, 6, 3, 2.5])
   })
 })
