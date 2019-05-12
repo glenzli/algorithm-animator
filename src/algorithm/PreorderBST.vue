@@ -13,7 +13,7 @@ import { $olink, ObservableBinaryTree } from '../model'
 @Component({
   components: { BinaryTreeVisualizer },
 })
-export default class BuildHeap extends Mixins(NumericBSTAlgorithmMixin) {
+export default class PreorderBST extends Mixins(NumericBSTAlgorithmMixin) {
   async RunBuild(tree: ObservableBinaryTree<any>) {
     tree.Preorder()
   }

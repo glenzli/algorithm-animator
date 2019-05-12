@@ -14,7 +14,7 @@ import { $olink, Sleep, ObservableBinaryTree, ObservableBinaryNode, ObservableSt
 @Component({
   components: { BinaryTreeVisualizer },
 })
-export default class BuildHeap extends Mixins(NumericBSTAlgorithmMixin) {
+export default class SearchBST extends Mixins(NumericBSTAlgorithmMixin) {
   searchNode: ObservableBinaryNode<number> = { value: Number.NaN, left: [], right: [], level: 0, state: ObservableState.Swapping }
 
   get insertExtra() {
