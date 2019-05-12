@@ -27,7 +27,7 @@ export function GetHeapNodeOffset(index: number, count: number) {
 }
 
 export const BINARY_NODE_SIZE = 30
-export const BINARY_NODE_SPACE_X = 0
+export const BINARY_NODE_SPACE_X = 2
 export const BINARY_NODE_SPACE_Y = 6
 export const BINARY_NODE_TEXT = 21
 
