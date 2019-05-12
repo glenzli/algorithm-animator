@@ -69,10 +69,6 @@ export class ObservableBinaryHeap<T> {
     return 2 * index
   }
 
-  private Right(index: number) {
-    return 2 * index + 1
-  }
-
   private NextSibling(index: number) {
     return index + 1
   }
