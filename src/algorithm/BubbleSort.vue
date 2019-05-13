@@ -1,18 +1,18 @@
 <template>
   <div>
-    <array-visualizer :array="array"></array-visualizer>
+    <array-renderer :array="array"></array-renderer>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
-import { ObservableArray, ObservableArrayItem, $olink, ObservableArrayState, ObservableState, Sleep } from '../model'
-import { ArrayVisualizer } from '../components'
+import { ObservableArray, ArrayItem, $olink, ObservableArrayState, Operation, Sleep } from '../model'
+import { ArrayRenderer } from '../components'
 import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 
 @Component({
-  components: { ArrayVisualizer },
+  components: { ArrayRenderer },
 })
 export default class BubbleSort extends Mixins(NumericArrayAlgorithmMixin) {
   async RunBubblesort(array: ObservableArray<number>) {
@@ -20,14 +20,14 @@ export default class BubbleSort extends Mixins(NumericArrayAlgorithmMixin) {
       let terminal = array.length - 1 - i
       let noSwap = true
       for (let j = 0; j < terminal; ++j) {
-        if (array.Get(j, ObservableState.Accessed)! > array.Get(j + 1, ObservableState.Accessed)!) {
-          await array.Swap(j, j + 1, this.delay)
+        if (array.Get(j, Operation.Accessed)! > array.Get(j + 1, Operation.Accessed)!) {
+          await array.Swap(j, j + 1)
           await this.Continue()
           noSwap = false
         }
       }
-      array.PartialRestore(ObservableState.Accessed)
-      array.State(ObservableState.Selected, terminal)
+      array.PartialRestore(Operation.Accessed)
+      array.State(Operation.Selected, terminal)
       await Sleep(this.delay)
       await this.Continue()
       if (noSwap) {

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <binary-tree-visualizer :root="root" :extra="insertExtra" :state="state" :position="position"></binary-tree-visualizer>
+    <binary-tree-renderer :root="root" :extra="insertExtra" :state="state" :position="position"></binary-tree-renderer>
   </div>
 </template>
 
@@ -8,22 +8,22 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import { Point } from 'paper-vueify'
 import { NumericBSTAlgorithmMixin } from './NumericBSTAlgorithm'
-import { BinaryTreeVisualizer } from '../components'
-import { $olink, Sleep, ObservableBinaryTree, ObservableBinaryNode, ObservableState } from '../model'
+import { BinaryTreeRenderer } from '../components'
+import { $olink, Sleep, BinaryTree, BinaryNode, Operation } from '../model'
 
 @Component({
-  components: { BinaryTreeVisualizer },
+  components: { BinaryTreeRenderer },
 })
 export default class BuildHeap extends Mixins(NumericBSTAlgorithmMixin) {
-  searchNode: ObservableBinaryNode<number> = { value: Number.NaN, left: [], right: [], level: 0, state: ObservableState.Swapping }
+  searchNode: BinaryNode<number> = { value: Number.NaN, left: [], right: [], level: 0, state: Operation.Swapping }
 
   get insertExtra() {
     return Number.isNaN(this.searchNode.value) ? null : this.searchNode
   }
 
-  async RunBuild(tree: ObservableBinaryTree<any>) {
+  async RunBuild(tree: BinaryTree<any>) {
     await Sleep(this.delay)
-    let data = ObservableBinaryTree.NearlyBalancedNumericData(Math.ceil((this.n + 1) / 2), this.range)
+    let data = BinaryTree.NumericData(Math.ceil((this.n + 1) / 2), this.range)
     data = [tree.root[0].value, ...data]
     for (let value of data) {
       this.searchNode.value = value
@@ -34,7 +34,7 @@ export default class BuildHeap extends Mixins(NumericBSTAlgorithmMixin) {
   }
 
   Run() {
-    let observer = $olink.Get<ObservableBinaryTree<any>>(this.id)!
+    let observer = $olink.Get<BinaryTree<any>>(this.id)!
     this.RunBuild(observer)
   }
 

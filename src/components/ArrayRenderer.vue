@@ -1,6 +1,6 @@
 <template>
   <div>
-    <array-item-visualizer v-for="(item, index) in array" :key="index" :item="item" :index="index" :length="length" :position="position"></array-item-visualizer>
+    <array-item-renderer v-for="(item, index) in array" :key="index" :item="item" :index="index" :length="length" :position="position"></array-item-renderer>
     <template v-if="locators">
       <p-item v-for="(locator, index) in locators" :key="`l${index}`" :element="locator"></p-item>
     </template>
@@ -17,8 +17,8 @@ import Vue from 'vue'
 import { Component, Prop, Watch } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
 import { RegularPolygonItem, PolylineItem, RectangleItem, GroupItem, SolidBrush, NoneBrush, PointObject, Color$, Stroke, Coordinate, Point } from 'paper-vueify'
-import ArrayItemVisualizer from './ArrayItemVisualizer.vue'
-import { ObservableArrayItem, ObservableArrayState, ObservableState } from '../model'
+import ArrayItemRenderer from './ArrayItemRenderer.vue'
+import { ArrayItem, ObservableArrayState, Operation } from '../model'
 import { ARRAY_ITEM_SIZE, ARRAY_ITEM_TOTAL, GetArrayItemOffset, ARRAY_ITEM_SPACE } from './defs'
 
 const SHARE_BRUSH = SolidBrush(Color$.ToColor('#405f60'))
@@ -26,10 +26,10 @@ const SHARE_STROKE = Stroke({ thickness: 1, brush: SHARE_BRUSH, dash: [ARRAY_ITE
 const SHARE_STROKE_SOLID = Stroke({ thickness: 1, brush: SHARE_BRUSH })
 
 @Component({
-  components: { ArrayItemVisualizer },
+  components: { ArrayItemRenderer },
 })
-export default class ArrayVisualizer extends Vue {
-  @Prop({ required: true }) array!: Array<ObservableArrayItem<any>>
+export default class ArrayRenderer extends Vue {
+  @Prop({ required: true }) array!: Array<ArrayItem<any>>
   @Prop({ default: () => ({}) }) state!: ObservableArrayState
   @Prop({ default: () => Point(0, 0) }) position!: PointObject
 
@@ -92,11 +92,11 @@ export default class ArrayVisualizer extends Vue {
     let indexes = Arrayex.Create(this.array.length, index => index)
     let dynamics = indexes.filter(index => {
       let state = this.array[index].state
-      return state >= ObservableState.Swapping && state <= ObservableState.MovingTo
+      return state >= Operation.Swapping && state <= Operation.MovingTo
     })
     if (dynamics.length === 2) {
-      let from = this.array[dynamics[0]].state === ObservableState.MovingFrom ? 0 : 1
-      let isMoving = this.array[dynamics[0]].state !== ObservableState.Swapping
+      let from = this.array[dynamics[0]].state === Operation.MovingFrom ? 0 : 1
+      let isMoving = this.array[dynamics[0]].state !== Operation.Swapping
       let xFrom = this.offset + dynamics[from] * ARRAY_ITEM_TOTAL
       let xTo = this.offset + (dynamics[1 - from]  - (isMoving ? 0.5 : 0)) * ARRAY_ITEM_TOTAL
       // create indicator

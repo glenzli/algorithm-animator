@@ -1,6 +1,6 @@
 import { Component, Prop, Mixins, Provide, Watch } from 'vue-property-decorator'
 import { Point } from 'paper-vueify'
-import { ObservableBinaryNode, ObservableBinaryTree, $olink, ObservableState, ObservableBinaryTreeState } from '../model'
+import { BinaryNode, BinaryTree, $olink, Operation, BinaryTreeState } from '../model'
 import { AlgorithmMixin } from './Algorithm'
 import { BINARY_NODE_SIZE, BINARY_NODE_SPACE_Y } from '../components'
 
@@ -11,8 +11,8 @@ export class NumericBSTAlgorithmMixin extends Mixins(AlgorithmMixin) {
 
   @Provide('quantizer') quantizer = (value: number) => Number.isFinite(value) ? (value - this.range[0]) / (this.range[1] - this.range[0]) : 0
 
-  roots: Array<ObservableBinaryNode<number>> = [{ value: Number.NaN, left: [], right: [], level: 0, state: ObservableState.None }]
-  state: ObservableBinaryTreeState = { height: 0 }
+  roots: Array<BinaryNode<number>> = [{ value: Number.NaN, left: [], right: [], level: 0, state: Operation.None }]
+  state: BinaryTreeState = { height: 0 }
   id = -1
 
   get root() {
@@ -25,7 +25,7 @@ export class NumericBSTAlgorithmMixin extends Mixins(AlgorithmMixin) {
   }
 
   CreateBST(n = 0) {
-    let { id, root } = ObservableBinaryTree.Numeric(n || this.n, this.range, this.state)
+    let { id, root } = BinaryTree.Numeric(n || this.n, this.range, this.state)
     this.roots = root
     this.id = id
     this.OnDelayChanged()
@@ -33,6 +33,6 @@ export class NumericBSTAlgorithmMixin extends Mixins(AlgorithmMixin) {
 
   @Watch('delay')
   OnDelayChanged() {
-    $olink.Get<ObservableBinaryTree<number>>(this.id)!.delay = this.delay
+    $olink.Get<BinaryTree<number>>(this.id)!.delay = this.delay
   }
 }

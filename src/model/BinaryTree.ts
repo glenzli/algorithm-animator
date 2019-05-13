@@ -1,35 +1,35 @@
 import { Arrayex } from 'arrayex'
 import { $olink } from './ObjectLink'
-import { ObservableState, Sleep } from './utils'
+import { Operation, Sleep } from './utils'
 
-export interface ObservableBinaryNode<T> {
+export interface BinaryNode<T> {
   value: T,
-  left: Array<ObservableBinaryNode<T>>,
-  right: Array<ObservableBinaryNode<T>>,
+  left: Array<BinaryNode<T>>,
+  right: Array<BinaryNode<T>>,
   level: number,
   state: number,
 }
 
-export interface ObservableBinaryTreeState {
+export interface BinaryTreeState {
   height: number,
 }
 
 function CreateBinaryNode<T>(value: T) {
-  return { value, left: [], right: [], level: 0, state: ObservableState.None } as ObservableBinaryNode<T>
+  return { value, left: [], right: [], level: 0, state: Operation.None } as BinaryNode<T>
 }
 
-export class ObservableBinaryTree<T> {
-  private _root: Array<ObservableBinaryNode<T>> = []
+export class BinaryTree<T> {
+  private _root: Array<BinaryNode<T>> = []
   private _valueCompare: (v1: T, v2: T) => number
-  private _compare: (n1: ObservableBinaryNode<T>, n2: ObservableBinaryNode<T>) => number
+  private _compare: (n1: BinaryNode<T>, n2: BinaryNode<T>) => number
   private _delay: number
   private _id: number
-  private _state: ObservableBinaryTreeState
+  private _state: BinaryTreeState
 
-  constructor(array: Array<T> = [], state: ObservableBinaryTreeState, compare: (val1: T, val2: T) => number) {
+  constructor(array: Array<T> = [], state: BinaryTreeState, compare: (val1: T, val2: T) => number) {
     this._state = state
     this._valueCompare = compare
-    this._compare = (n1: ObservableBinaryNode<T>, n2: ObservableBinaryNode<T>) => compare(n1.value, n2.value)
+    this._compare = (n1: BinaryNode<T>, n2: BinaryNode<T>) => compare(n1.value, n2.value)
     for (let value of array) {
       this.InsertNormally(value)
     }
@@ -48,19 +48,19 @@ export class ObservableBinaryTree<T> {
     }
   }
 
-  static NearlyBalancedNumericData(n: number, range = [0, 50]) {
+  static NumericData(n: number, range = [0, 50]) {
     let data = Arrayex.Create(n, () => Math.round((range[1] - range[0]) * Math.random() + range[0]))
     data = data.sort((n1, n2) => n1 - n2)
     return this.BinaryTraverse(data, 0, data.length - 1)
   }
 
-  static Numeric(n: number, range = [0, 50], state: ObservableBinaryTreeState) {
-    let data = this.NearlyBalancedNumericData(n, range)
+  static Numeric(n: number, range = [0, 50], state: BinaryTreeState) {
+    let data = this.NumericData(n, range)
     return this.FromNumeric(data, state)
   }
 
-  static FromNumeric(data: Array<number>, state: ObservableBinaryTreeState) {
-    let tree = new ObservableBinaryTree(data, state, (n1, n2) => n1 - n2)
+  static FromNumeric(data: Array<number>, state: BinaryTreeState) {
+    let tree = new BinaryTree(data, state, (n1, n2) => n1 - n2)
     return { id: tree._id, root: tree.root }
   }
 
@@ -102,19 +102,19 @@ export class ObservableBinaryTree<T> {
     }
   }
 
-  State(state: number, ...nodes: Array<ObservableBinaryNode<T>>) {
+  State(state: number, ...nodes: Array<BinaryNode<T>>) {
     nodes.forEach(node => { node.state = state })
   }
 
-  Restore(node: ObservableBinaryNode<T>) {
+  Restore(node: BinaryNode<T>) {
     if (node) {
-      node.state = ObservableState.None
+      node.state = Operation.None
       this.Restore(node.left[0])
       this.Restore(node.right[0])
     }
   }
 
-  private async VisitNode(node: ObservableBinaryNode<T>, state = ObservableState.Accessed) {
+  private async VisitNode(node: BinaryNode<T>, state = Operation.Accessed) {
     this.State(state, node)
     return await Sleep(this._delay)
   }
@@ -147,7 +147,7 @@ export class ObservableBinaryTree<T> {
     await Sleep(this._delay)
   }
 
-  private async SearchAt(node: ObservableBinaryNode<T>, value: T) {
+  private async SearchAt(node: BinaryNode<T>, value: T) {
     await this.VisitNode(node)
     let result = this._valueCompare(value, node.value)
     if (result > 0) {
@@ -159,7 +159,7 @@ export class ObservableBinaryTree<T> {
         await this.SearchAt(node.left[0], value)
       }
     } else {
-      this.State(ObservableState.Selected, node)
+      this.State(Operation.Selected, node)
       await Sleep(this._delay)
     }
   }
@@ -172,7 +172,7 @@ export class ObservableBinaryTree<T> {
     }
   }
 
-  private async PreorderInterval(node: ObservableBinaryNode<T>) {
+  private async PreorderInterval(node: BinaryNode<T>) {
     await this.VisitNode(node)
     if (node.left.length > 0) {
       await this.PreorderInterval(node.left[0])
@@ -188,7 +188,7 @@ export class ObservableBinaryTree<T> {
     }
   }
 
-  private async PostorderInterval(node: ObservableBinaryNode<T>) {
+  private async PostorderInterval(node: BinaryNode<T>) {
     if (node.left.length > 0) {
       await this.PostorderInterval(node.left[0])
     }
@@ -204,7 +204,7 @@ export class ObservableBinaryTree<T> {
     }
   }
 
-  private async InorderInterval(node: ObservableBinaryNode<T>) {
+  private async InorderInterval(node: BinaryNode<T>) {
     if (node.left.length > 0) {
       await this.InorderInterval(node.left[0])
     }
@@ -220,7 +220,7 @@ export class ObservableBinaryTree<T> {
     }
   }
 
-  private InstantSearchAt(node: ObservableBinaryNode<T>, parentNode: ObservableBinaryNode<T> | null, value: T): { node: ObservableBinaryNode<T>, parentNode: ObservableBinaryNode<T> | null } | null {
+  private InstantSearchAt(node: BinaryNode<T>, parentNode: BinaryNode<T> | null, value: T): { node: BinaryNode<T>, parentNode: BinaryNode<T> | null } | null {
     let result = this._valueCompare(value, node.value)
     if (result > 0) {
       if (node.right.length > 0) {
@@ -239,7 +239,7 @@ export class ObservableBinaryTree<T> {
     }
   }
 
-  private async SpliceNode(parentNode: ObservableBinaryNode<T> | null, node: ObservableBinaryNode<T>, ...newNodes: Array<ObservableBinaryNode<T>>) {
+  private async SpliceNode(parentNode: BinaryNode<T> | null, node: BinaryNode<T>, ...newNodes: Array<BinaryNode<T>>) {
     if (parentNode) {
       if (parentNode.left.includes(node)) {
         parentNode.left.splice(0, 1, ...newNodes)
@@ -260,7 +260,7 @@ export class ObservableBinaryTree<T> {
     await this.Search(value, false)
     let result = this.InstantSearchAt(this._root[0], null, value)
     while (result) {
-      await this.VisitNode(result.node, ObservableState.Selected)
+      await this.VisitNode(result.node, Operation.Selected)
       let { node, parentNode } = result
       let branches = node.left.length + node.right.length
       if (branches > 1) {
@@ -274,7 +274,7 @@ export class ObservableBinaryTree<T> {
           successor = probe
           probe = probe.left[0]
         }
-        this.State(ObservableState.Swapping, node, successor)
+        this.State(Operation.Swapping, node, successor)
         await Sleep(this._delay)
         // successor should have no left child but possible right child, isolate successor
         let right = successor.right.splice(0)
@@ -289,7 +289,7 @@ export class ObservableBinaryTree<T> {
         await this.SpliceNode(parentNode, node, successor)
       } else if (branches > 0) {
         let branchNode = node.left.length > 0 ? node.left[0] : node.right[0]
-        this.State(ObservableState.Swapping, node, branchNode)
+        this.State(Operation.Swapping, node, branchNode)
         await Sleep(this._delay)
         await this.SpliceNode(parentNode, node, branchNode)
       } else {

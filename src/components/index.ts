@@ -1,4 +1,4 @@
 export * from './defs'
-export { default as ArrayVisualizer } from './ArrayVisualizer.vue'
-export { default as BinaryHeapVisualizer } from './BinaryHeapVisualizer.vue'
-export { default as BinaryTreeVisualizer } from './BinaryTreeVisualizer.vue'
+export { default as ArrayRenderer } from './ArrayRenderer.vue'
+export { default as HeapRenderer } from './HeapRenderer.vue'
+export { default as BinaryTreeRenderer } from './BinaryTreeRenderer.vue'

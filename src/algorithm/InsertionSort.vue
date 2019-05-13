@@ -1,18 +1,18 @@
 <template>
   <div>
-    <array-visualizer :array="array" :state="state"></array-visualizer>
+    <array-renderer :array="array" :state="state"></array-renderer>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Mixins, Vue } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
-import { ObservableArray, ObservableArrayItem, $olink, ObservableArrayState, Sleep, ObservableState } from '../model'
-import { ArrayVisualizer } from '../components'
+import { ObservableArray, ArrayItem, $olink, ObservableArrayState, Sleep, Operation } from '../model'
+import { ArrayRenderer } from '../components'
 import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 
 @Component({
-  components: { ArrayVisualizer },
+  components: { ArrayRenderer },
 })
 export default class InsertionSort extends Mixins(NumericArrayAlgorithmMixin) {
   state: ObservableArrayState = { locators: [0], partition: [0, 0], seperators: [-1] }
@@ -21,23 +21,23 @@ export default class InsertionSort extends Mixins(NumericArrayAlgorithmMixin) {
     for (let i = 1; i < array.length; ++i) {
       Vue.set(this.state.locators!, 0, i - 1)
       Vue.set(this.state.seperators!, 0, i - 1)
-      let current = array.Get(i, ObservableState.Accessed)!
+      let current = array.Get(i, Operation.Accessed)!
       await Sleep(this.delay)
       await this.Continue()
       let j = i - 1
       for (; j >= 0; --j) {
-        if (current > array.Get(j, ObservableState.Accessed)!) {
-          array.State(ObservableState.None, j)
+        if (current > array.Get(j, Operation.Accessed)!) {
+          array.State(Operation.None, j)
           break
         }
       }
       if (j !== i - 1) {
         await Sleep(this.delay)
         await this.Continue()
-        await array.Move(i, j + 1, this.delay)
+        await array.Move(i, j + 1)
         await this.Continue()
       }
-      array.PartialRestore(ObservableState.Accessed)
+      array.PartialRestore(Operation.Accessed)
       await this.Continue()
     }
     this.state.locators = [-1]

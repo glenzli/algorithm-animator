@@ -1,6 +1,6 @@
 <template>
   <div>
-    <array-visualizer :array="array" :state="state"></array-visualizer>
+    <array-renderer :array="array" :state="state"></array-renderer>
   </div>
 </template>
 
@@ -8,12 +8,12 @@
 import Vue from 'vue'
 import { Component, Mixins } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
-import { ObservableArray, ObservableArrayItem, $olink, ObservableArrayState, Sleep, ObservableState } from '../model'
-import { ArrayVisualizer } from '../components'
+import { ObservableArray, ArrayItem, $olink, ObservableArrayState, Sleep, Operation } from '../model'
+import { ArrayRenderer } from '../components'
 import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 
 @Component({
-  components: { ArrayVisualizer },
+  components: { ArrayRenderer },
 })
 export default class QuickSort extends Mixins(NumericArrayAlgorithmMixin) {
   state: ObservableArrayState = { locators: [0], partition: [0, 0], seperators: [-1, -1] }
@@ -23,17 +23,17 @@ export default class QuickSort extends Mixins(NumericArrayAlgorithmMixin) {
       this.state.partition = to - from < array.length - 1 ? [from, to] : [0, 0]
       await Sleep(this.delay)
       await this.Continue()
-      let pivot = array.Get(from, ObservableState.Selected)!
+      let pivot = array.Get(from, Operation.Selected)!
       Vue.set(this.state.seperators!, 0, from)
       await Sleep(this.delay)
       await this.Continue()
       Vue.set(this.state.locators!, 0, from + 1)
       for (let i = from + 1; i <= to; ++i) {
-        if (array.Get(i, ObservableState.Accessed)! < pivot) {
+        if (array.Get(i, Operation.Accessed)! < pivot) {
           if (i !== this.state.locators![0]) {
             await Sleep(this.delay)
             await this.Continue()
-            await array.Swap(i, this.state.locators![0], this.delay)
+            await array.Swap(i, this.state.locators![0])
             await this.Continue()
             Vue.set(this.state.seperators!, 1, this.state.locators![0])
             await Sleep(this.delay)
@@ -43,18 +43,18 @@ export default class QuickSort extends Mixins(NumericArrayAlgorithmMixin) {
         }
       }
       if (from !== this.state.locators![0] - 1) {
-        await array.Swap(from, this.state.locators![0] - 1, this.delay)
+        await array.Swap(from, this.state.locators![0] - 1)
         await this.Continue()
       } else {
         await Sleep(this.delay)
         await this.Continue()
       }
-      array.PartialRestore(ObservableState.Accessed)
-      array.State(ObservableState.Selected, this.state.locators![0] - 1)
+      array.PartialRestore(Operation.Accessed)
+      array.State(Operation.Selected, this.state.locators![0] - 1)
       this.state.seperators = [this.state.locators![0] - 2, this.state.locators![0] - 1]
       await Sleep(this.delay)
       await this.Continue()
-      array.State(ObservableState.None, this.state.locators![0] - 1)
+      array.State(Operation.None, this.state.locators![0] - 1)
       this.state.partition = [0, 0]
       this.state.seperators = [-1, -1]
       await this.RunQuicksort(array, from, this.state.locators![0] - 2)

@@ -1,7 +1,7 @@
 <template>
   <div>
-    <array-visualizer :array="array" :position="arrayPosition"></array-visualizer>
-    <binary-heap-visualizer :heap="heap" :state="heapState" :position="position"></binary-heap-visualizer>
+    <array-renderer :array="array" :position="arrayPosition"></array-renderer>
+    <heap-renderer :heap="heap" :state="heapState" :position="position"></heap-renderer>
   </div>
 </template>
 
@@ -9,16 +9,16 @@
 import { Component, Mixins, Watch } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
 import { Point, Point$ } from 'paper-vueify'
-import { ObservableArray, ObservableArrayItem, $olink, ObservableArrayState, ObservableState, ObservableBinaryHeapNode, ObservableBinaryHeapState, Sleep, ObservableBinaryHeap } from '../model'
-import { ArrayVisualizer, BinaryHeapVisualizer, HEAP_NODE_SIZE, HEAP_NODE_SPACE_Y, ARRAY_ITEM_TOTAL } from '../components'
+import { ObservableArray, ArrayItem, $olink, ObservableArrayState, Operation, HeapNode, HeapState, Sleep, Heap } from '../model'
+import { ArrayRenderer, HeapRenderer, HEAP_NODE_SIZE, HEAP_NODE_SPACE_Y, ARRAY_ITEM_TOTAL } from '../components'
 import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 
 @Component({
-  components: { ArrayVisualizer, BinaryHeapVisualizer },
+  components: { ArrayRenderer, HeapRenderer },
 })
 export default class HeapSort extends Mixins(NumericArrayAlgorithmMixin) {
-  heap: Array<ObservableBinaryHeapNode<number>> = []
-  heapState: ObservableBinaryHeapState = { count: 0 }
+  heap: Array<HeapNode<number>> = []
+  heapState: HeapState = { count: 0 }
 
   get position() {
     let yOffset = this.heap.length > 0 ? -Math.floor(Math.ceil(Math.log2(this.heap.length)) / 2 * (HEAP_NODE_SIZE + HEAP_NODE_SPACE_Y)) : 0
@@ -30,9 +30,9 @@ export default class HeapSort extends Mixins(NumericArrayAlgorithmMixin) {
   }
 
   async RunHeapsort(array: ObservableArray<number>) {
-    this.heap = ObservableBinaryHeap.FromNumeric(array.data.map(() => Number.NEGATIVE_INFINITY), this.heapState, this.Continue)
+    this.heap = Heap.FromNumeric(array.data.map(() => Number.NEGATIVE_INFINITY), this.heapState, this.Continue)
     this.OnDelayChanged()
-    let heapObserver = $olink.Get<ObservableBinaryHeap<number>>(this.heap.id)!
+    let heapObserver = $olink.Get<Heap<number>>(this.heap.id)!
     // fill
     for (let i = 0; i < array.length; ++i) {
       await Sleep(this.delay)
@@ -52,7 +52,7 @@ export default class HeapSort extends Mixins(NumericArrayAlgorithmMixin) {
       await Sleep(this.delay)
       await this.Continue()
       await heapObserver.Delete()
-      heapObserver.State(ObservableState.Selected, 1)
+      heapObserver.State(Operation.Selected, 1)
       await Sleep(this.delay)
       await this.Continue()
     }
@@ -69,8 +69,8 @@ export default class HeapSort extends Mixins(NumericArrayAlgorithmMixin) {
   }
 
   @Watch('delay')
-  OnDelayChanged() {
-    $olink.Get<ObservableBinaryHeap<number>>(this.heap.id)!.delay = this.delay
+  OnDelayChangedForHeap() {
+    $olink.Get<Heap<number>>(this.heap.id)!.delay = this.delay
   }
 }
 </script>

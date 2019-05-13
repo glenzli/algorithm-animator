@@ -1,8 +1,8 @@
 <template>
   <div>
     <p-item :element="visual"></p-item>
-    <binary-node-visualizer v-if="node.left.length > 0" :node="node.left[0]" :state="state" :parentNode="node" :position="childrenPositions[0]" :parentPosition="position"></binary-node-visualizer>
-    <binary-node-visualizer v-if="node.right.length > 0" :node="node.right[0]" :state="state" :parentNode="node" :position="childrenPositions[1]" :parentPosition="position"></binary-node-visualizer>
+    <binary-node-renderer v-if="node.left.length > 0" :node="node.left[0]" :state="state" :parentNode="node" :position="childrenPositions[0]" :parentPosition="position"></binary-node-renderer>
+    <binary-node-renderer v-if="node.right.length > 0" :node="node.right[0]" :state="state" :parentNode="node" :position="childrenPositions[1]" :parentPosition="position"></binary-node-renderer>
   </div>
 </template>
 
@@ -10,16 +10,16 @@
 import { Component, Prop, Vue, Inject } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
 import { CircleItem, PointTextItem, GroupItem, PolylineItem, Point, PointObject, Point$, SolidBrush, Color$, Stroke, Coordinate } from 'paper-vueify'
-import { ObservableBinaryNode, ObservableState, ObservableBinaryTreeState } from '../model'
+import { BinaryNode, Operation, BinaryTreeState } from '../model'
 import { BINARY_NODE_SIZE, BINARY_NODE_TEXT, GetBinaryChildrenOffsets, ToLabel } from './defs'
 
 @Component({
-  name: 'binary-node-visualizer',
+  name: 'binary-node-renderer',
 })
-export default class BinaryNodeVisualizer extends Vue {
-  @Prop({ required: true }) node!: ObservableBinaryNode<any>
-  @Prop({ required: true }) state!: ObservableBinaryTreeState
-  @Prop({ default: null }) parentNode!: ObservableBinaryNode<any>
+export default class BinaryNodeRenderer extends Vue {
+  @Prop({ required: true }) node!: BinaryNode<any>
+  @Prop({ required: true }) state!: BinaryTreeState
+  @Prop({ default: null }) parentNode!: BinaryNode<any>
   @Prop({ default: () => Point(0, 0) }) position!: PointObject
   @Prop({ default: () => Point(0, 0) }) parentPosition!: PointObject
   @Prop({ default: () => ['#3c6387', '#ad2020', '#d15a10', '#764891', '#764891', '#764891'] }) colors!: Array<string>
@@ -52,7 +52,7 @@ export default class BinaryNodeVisualizer extends Vue {
 
   get isActiveWithParent() {
     if (this.parentNode) {
-      return this.node.state > ObservableState.None && this.node.state === this.parentNode.state
+      return this.node.state > Operation.None && this.node.state === this.parentNode.state
     }
     return false
   }
@@ -61,7 +61,7 @@ export default class BinaryNodeVisualizer extends Vue {
     if (this.node.level > 0) {
       let direction = Point$.Subtract(this.parentPosition, this.position)
       let terminal = Point$.Add(Point$.Multiply(Point$.Normalize(direction), Point$.Length(direction) - BINARY_NODE_SIZE / 2), this.position)
-      let state = this.isActiveWithParent ? this.node.state : ObservableState.None
+      let state = this.isActiveWithParent ? this.node.state : Operation.None
       return PolylineItem({
         points: [this.position, terminal],
         stroke: Stroke({ thickness: this.isActiveWithParent ? 3 : 1, brush: SolidBrush(Color$.ToColor(this.colors[state])) }),

@@ -4,13 +4,13 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Inject } from 'vue-property-decorator'
-import { ObservableArrayItem, ObservableState } from '../model'
+import { ArrayItem, Operation } from '../model'
 import { RectangleItem, PointTextItem, GroupItem, Point, SolidBrush, Color$, Stroke, Coordinate, PointObject } from 'paper-vueify'
 import { ARRAY_ITEM_SIZE, ARRAY_ITEM_TOTAL, ARRAY_ITEM_TEXT, GetArrayItemOffset, ToLabel } from './defs'
 
 @Component
-export default class ArrayItemVisualizer extends Vue {
-  @Prop({ required: true }) item!: ObservableArrayItem<any>
+export default class ArrayItemRenderer extends Vue {
+  @Prop({ required: true }) item!: ArrayItem<any>
   @Prop({ required: true }) index!: number
   @Prop({ required: true }) length!: number
   @Prop({ default: () => Point(0, 0) }) position!: PointObject

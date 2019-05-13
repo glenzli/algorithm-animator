@@ -5,14 +5,14 @@
 <script lang="ts">
 import { Component, Prop, Vue, Inject } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
-import { ObservableBinaryHeapNode, ObservableState, ObservableBinaryHeap } from '../model'
+import { HeapNode, Operation, Heap } from '../model'
 import { CircleItem, PointTextItem, GroupItem, PolylineItem, Point, PointObject, Point$, SolidBrush, Color$, Stroke, Coordinate } from 'paper-vueify'
 import { GetHeapNodeOffset, HEAP_NODE_SIZE, HEAP_NODE_TEXT, ToLabel } from './defs'
 
 @Component
-export default class BinaryHeapNodeVisualizer extends Vue {
-  @Prop({ required: true }) node!: ObservableBinaryHeapNode<any>
-  @Prop({ required: true }) heap!: Array<ObservableBinaryHeapNode<any>>
+export default class HeapNodeRenderer extends Vue {
+  @Prop({ required: true }) node!: HeapNode<any>
+  @Prop({ required: true }) heap!: Array<HeapNode<any>>
   @Prop({ required: true }) index!: number
   @Prop({ required: true }) count!: number
   @Prop({ default: () => Point(0, 0) }) position!: PointObject
@@ -50,7 +50,7 @@ export default class BinaryHeapNodeVisualizer extends Vue {
 
   get isActiveWithParent() {
     if (this.index > 1) {
-      return this.node.state > ObservableState.None && this.node.state === this.heap[Math.floor(this.index / 2)].state
+      return this.node.state > Operation.None && this.node.state === this.heap[Math.floor(this.index / 2)].state
     }
     return false
   }
@@ -59,7 +59,7 @@ export default class BinaryHeapNodeVisualizer extends Vue {
     if (this.index > 1) {
       let direction = Point$.Subtract(this.parentOffset!, this.offset)
       let terminal = Point$.Add(Point$.Multiply(Point$.Normalize(direction), Point$.Length(direction) - HEAP_NODE_SIZE / 2), this.offset)
-      let state = this.isActiveWithParent ? this.node.state : ObservableState.None
+      let state = this.isActiveWithParent ? this.node.state : Operation.None
       return PolylineItem({
         points: [this.offset, terminal],
         stroke: Stroke({ thickness: this.isActiveWithParent ? 3 : 1, brush: SolidBrush(Color$.ToColor(this.colors[state])) }),

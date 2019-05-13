@@ -1,6 +1,6 @@
 <template>
   <div>
-    <binary-heap-visualizer :heap="heap" :state="state" :position="position"></binary-heap-visualizer>
+    <heap-renderer :heap="heap" :state="state" :position="position"></heap-renderer>
   </div>
 </template>
 
@@ -8,11 +8,11 @@
 import { Component, Prop, Mixins } from 'vue-property-decorator'
 import { Point } from 'paper-vueify'
 import { NumericHeapAlgorithmMixin } from './NumericHeapAlgorithm'
-import { BinaryHeapVisualizer, HEAP_NODE_SPACE_Y, HEAP_NODE_SIZE } from '../components'
-import { $olink, ObservableBinaryHeap, Sleep } from '../model'
+import { HeapRenderer, HEAP_NODE_SPACE_Y, HEAP_NODE_SIZE } from '../components'
+import { $olink, Heap, Sleep } from '../model'
 
 @Component({
-  components: { BinaryHeapVisualizer },
+  components: { HeapRenderer },
 })
 export default class InsertHeap extends Mixins(NumericHeapAlgorithmMixin) {
   get position() {
@@ -20,7 +20,7 @@ export default class InsertHeap extends Mixins(NumericHeapAlgorithmMixin) {
     return Point(0, yOffset)
   }
 
-  async RunInsert(heap: ObservableBinaryHeap<any>) {
+  async RunInsert(heap: Heap<any>) {
     heap.InstantBuildHeap()
     await Sleep(this.delay)
     for (let i = 0; i < this.n / 2; ++i) {
@@ -32,7 +32,7 @@ export default class InsertHeap extends Mixins(NumericHeapAlgorithmMixin) {
   }
 
   Run() {
-    let observer = $olink.Get<ObservableBinaryHeap<any>>(this.heap.id)!
+    let observer = $olink.Get<Heap<any>>(this.heap.id)!
     this.RunInsert(observer)
   }
 

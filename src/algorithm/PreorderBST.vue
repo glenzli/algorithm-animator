@@ -1,25 +1,25 @@
 <template>
   <div>
-    <binary-tree-visualizer :root="root" :state="state" :position="position"></binary-tree-visualizer>
+    <binary-tree-renderer :root="root" :state="state" :position="position"></binary-tree-renderer>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import { NumericBSTAlgorithmMixin } from './NumericBSTAlgorithm'
-import { BinaryTreeVisualizer } from '../components'
-import { $olink, ObservableBinaryTree } from '../model'
+import { BinaryTreeRenderer } from '../components'
+import { $olink, BinaryTree } from '../model'
 
 @Component({
-  components: { BinaryTreeVisualizer },
+  components: { BinaryTreeRenderer },
 })
 export default class PreorderBST extends Mixins(NumericBSTAlgorithmMixin) {
-  async RunBuild(tree: ObservableBinaryTree<any>) {
+  async RunBuild(tree: BinaryTree<any>) {
     tree.Preorder()
   }
 
   Run() {
-    let observer = $olink.Get<ObservableBinaryTree<any>>(this.id)!
+    let observer = $olink.Get<BinaryTree<any>>(this.id)!
     this.RunBuild(observer)
   }
 
