@@ -1,5 +1,10 @@
 # Algorithm Animator
-Everytime I think of the time of algorithm learning, it's painful. So, I make this algorithm visualization project to help freshes to learn algorithnm. I will use my spare time to maintain the project, and currently it's interface is a bit ugly, I'll deal with that later.
+![Build State](https://img.shields.io/travis/luz-alphacode/algorithm-animator.svg?style=flat-square)
+![Coverage](https://img.shields.io/codecov/c/github/luz-alphacode/algorithm-animator.svg?style=flat-square)
+![License](https://img.shields.io/github/license/luz-alphacode/algorithm-animator.svg?color=%23333&style=flat-square)
+![Version](https://img.shields.io/github/package-json/v/luz-alphacode/algorithm-animator.svg?style=flat-square)
+
+<br/>Everytime I think of the time of algorithm learning, it's painful. So, I make this algorithm visualization project to help freshes to learn algorithnm. I will use my spare time to maintain the project, and currently it's interface is a bit ugly, I'll deal with that later.
 <br/>Algorithm implemented (in random order):
 <br/>**Bubble Sort**, **Insertion Sort**, **Quick Sort**, **Merge Sort**, **Heap Sort**, **Heap ADT**, **Binary Search Tree**
 <br/>Please visit this [GitHub Page](https://luz-alphacode.github.io/algorithm-animator/) for algorithm animations.
