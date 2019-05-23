@@ -4,7 +4,7 @@ node_js:
 
 script:
   - npm run test
-  - if [ "$TRAVIS_BRANCH" == "master" ]; then npm run build; fi
+  - npm run build
 
 after_success:
   - codecov

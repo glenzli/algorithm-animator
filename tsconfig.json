@@ -9,7 +9,9 @@
     "experimentalDecorators": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "declaration": false,
     "sourceMap": true,
+    "traceResolution": true,
     "baseUrl": ".",
     "types": [
       "webpack-env",
