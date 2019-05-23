@@ -1,15 +1,16 @@
 <template>
   <div id="app">
-    <p-canvas :autosize="true"></p-canvas>
-    <component :is="algorithm" :paused="paused" :delay="delay"></component>
+    <p-canvas :autosize="true" @resize="OnResize"></p-canvas>
+    <component :is="algorithm" :n="n" :key="key" :paused="paused" :delay="delay"></component>
     <div class="panel">
       <div class="config">
-        <div class="button g" :class="{ selected: delay === 1000 }" @click="SetDelay(1000)">Extremely Slow</div>
+        <div class="button g" :class="{ selected: delay === 1000 }" @click="SetDelay(1000)">Slower</div>
         <div class="button g" :class="{ selected: delay === 500 }" @click="SetDelay(500)">Slow</div>
         <div class="button g" :class="{ selected: delay === 300 }" @click="SetDelay(300)">Normal</div>
         <div class="button g" :class="{ selected: delay === 100 }" @click="SetDelay(100)">Fast</div>
-        <div class="button g" :class="{ selected: delay === 50 }" @click="SetDelay(50)">Extremely Fast</div>
+        <div class="button g" :class="{ selected: delay === 50 }" @click="SetDelay(50)">Faster</div>
         <div class="button" @click="ToggleAnimation">{{ paused ? 'Continue' : 'Pause' }}</div>
+        <div class="button" @click="Restart">Restart</div>
       </div>
       <div class="list">
         <div class="category" v-for="(category, index) in categories" :key="index" :class="{ selected: index === activeCategory }" @click="SelectCategory(index)">{{category}}</div>
@@ -33,6 +34,8 @@ export default class App extends Vue {
   activeAlgorithm = 0
   paused = false
   delay = 500
+  n = 50
+  key = 0
 
   get categories() {
     return Object.keys(AlgorithmCategories)
@@ -60,8 +63,17 @@ export default class App extends Vue {
     this.paused = !this.paused
   }
 
+  Restart() {
+    ++this.key
+  }
+
   SetDelay(delay: number) {
     this.delay = delay
+  }
+
+  OnResize(size: any) {
+    this.n = Math.ceil(size.width * 0.8 / 48)
+    ++this.key
   }
 
   mounted() {

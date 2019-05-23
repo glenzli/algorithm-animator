@@ -1,0 +1,84 @@
+<template>
+  <div>
+    <array-renderer :array="array" :state="state"></array-renderer>
+  </div>
+</template>
+
+<script lang="ts">
+import { Component, Mixins, Vue } from 'vue-property-decorator'
+import { Arrayex } from 'arrayex'
+import { ObservableArray, ArrayItem, $olink, ObservableArrayState, Sleep, Operation } from '../model'
+import { ArrayRenderer } from '../components'
+import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
+
+@Component({
+  components: { ArrayRenderer },
+})
+export default class ShellSort extends Mixins(NumericArrayAlgorithmMixin) {
+  state: ObservableArrayState = { locators: [-1], partition: [0, 0], seperators: [-1] }
+
+  async ShellSortOnce(array: ObservableArray<number>, delta: number, from: number) {
+    let subArray = []
+    for (let i = from; i < array.length; i += delta) {
+      subArray.push(array.Get(i, Operation.Accessed)!)
+    }
+    await Sleep(this.delay)
+    subArray = subArray.sort((a, b) => b - a)
+    for (let i = from; i < array.length; i += delta) {
+      array.Set(i, subArray.pop()!, Operation.Selected)
+    }
+    await Sleep(this.delay)
+    array.Restore()
+  }
+
+  async RunShellSort(array: ObservableArray<number>) {
+    let interval = array.length
+    while (interval > 2) {
+      interval = Math.ceil(interval / 2)
+      for (let i = 0; i < interval; ++i) {
+        await this.ShellSortOnce(array, interval, i)
+      }
+      await Sleep(this.delay)
+    }
+    array.Restore()
+    await this.RunInsertionsort(array)
+  }
+
+  async RunInsertionsort(array: ObservableArray<number>) {
+    for (let i = 1; i < array.length; ++i) {
+      Vue.set(this.state.locators!, 0, i - 1)
+      Vue.set(this.state.seperators!, 0, i - 1)
+      let current = array.Get(i, Operation.Accessed)!
+      await Sleep(this.delay)
+      await this.Continue()
+      let j = i - 1
+      for (; j >= 0; --j) {
+        if (current > array.Get(j, Operation.Accessed)!) {
+          array.State(Operation.None, j)
+          break
+        }
+      }
+      if (j !== i - 1) {
+        await Sleep(this.delay)
+        await this.Continue()
+        await array.Move(i, j + 1)
+        await this.Continue()
+      }
+      array.PartialRestore(Operation.Accessed)
+      await this.Continue()
+    }
+    this.state.locators = [-1]
+    this.state.seperators = [-1]
+  }
+
+  Run() {
+    let observer = $olink.Get<ObservableArray<any>>(this.array.id)!
+    this.RunShellSort(observer)
+  }
+
+  mounted() {
+    this.CreateArray()
+    this.Run()
+  }
+}
+</script>
