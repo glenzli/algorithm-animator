@@ -2,6 +2,7 @@
 node_modules
 /coverage
 /dist
+/gh-pages
 
 # local env files
 .env.local

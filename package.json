@@ -4,14 +4,14 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build --no-clean --dest gh-pages",
+    "build": "vue-cli-service build --dest gh-pages",
     "lint": "vue-cli-service lint",
     "test": "jest"
   },
   "dependencies": {
     "arrayex": "^1.0.6",
     "core-js": "^2.6.5",
-    "paper-vueify": "^1.1.0",
+    "paper-vueify": "^1.1.2",
     "vue": "^2.6.10"
   },
   "devDependencies": {
