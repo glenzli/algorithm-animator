@@ -18,9 +18,10 @@ export default class PostorderBST extends Mixins(NumericBSTAlgorithmMixin) {
     tree.Postorder()
   }
 
-  Run() {
+  async Run() {
     let observer = $olink.Get<BinaryTree<any>>(this.id)!
-    this.RunBuild(observer)
+    await this.RunBuild(observer)
+    this.OnComplete()
   }
 
   mounted() {

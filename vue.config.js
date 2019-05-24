@@ -3,11 +3,10 @@ module.exports = {
   productionSourceMap: false,
   filenameHashing: false,
   configureWebpack: config => {
-    if (process.env.NODE_ENV === 'production') {
-      config.externals = {
-        paper: 'paper',
-        vue: 'Vue'
-      }
+    config.externals = {
+      paper: 'paper',
+      vue: 'Vue',
+      vuetify: 'Vuetify'
     }
   }
 }

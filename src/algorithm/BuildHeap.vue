@@ -24,9 +24,10 @@ export default class BuildHeap extends Mixins(NumericHeapAlgorithmMixin) {
     await heap.BuildHeap()
   }
 
-  Run() {
+  async Run() {
     let observer = $olink.Get<Heap<any>>(this.heap.id)!
-    this.RunBuild(observer)
+    await this.RunBuild(observer)
+    this.OnComplete()
   }
 
   mounted() {

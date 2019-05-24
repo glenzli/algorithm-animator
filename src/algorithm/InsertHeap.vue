@@ -31,9 +31,10 @@ export default class InsertHeap extends Mixins(NumericHeapAlgorithmMixin) {
     }
   }
 
-  Run() {
+  async Run() {
     let observer = $olink.Get<Heap<any>>(this.heap.id)!
-    this.RunInsert(observer)
+    await this.RunInsert(observer)
+    this.OnComplete()
   }
 
   mounted() {

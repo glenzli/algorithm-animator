@@ -83,10 +83,11 @@ export default class MergeSort extends Mixins(NumericArrayAlgorithmMixin) {
     }
   }
 
-  Run() {
+  async Run() {
     let observer = $olink.Get<ObservableArray<any>>(this.array.id)!
     let auxObserver = $olink.Get<ObservableArray<any>>(this.auxArray.id)!
-    this.RunMergesort(observer, 0, observer.length - 1, auxObserver)
+    await this.RunMergesort(observer, 0, observer.length - 1, auxObserver)
+    this.OnComplete()
   }
 
   mounted() {

@@ -58,9 +58,10 @@ export default class HeapSort extends Mixins(NumericArrayAlgorithmMixin) {
     }
   }
 
-  Run() {
+  async Run() {
     let observer = $olink.Get<ObservableArray<any>>(this.array.id)!
-    this.RunHeapsort(observer)
+    await this.RunHeapsort(observer)
+    this.OnComplete()
   }
 
   mounted() {

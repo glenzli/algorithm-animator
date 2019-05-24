@@ -47,9 +47,10 @@ export default class SelectionSort extends Mixins(NumericArrayAlgorithmMixin) {
     array.Restore()
   }
 
-  Run() {
+  async Run() {
     let observer = $olink.Get<ObservableArray<any>>(this.array.id)!
-    this.RunSelectionsort(observer)
+    await this.RunSelectionsort(observer)
+    this.OnComplete()
   }
 
   mounted() {

@@ -29,9 +29,10 @@ export default class DeleteHeap extends Mixins(NumericHeapAlgorithmMixin) {
     }
   }
 
-  Run() {
+  async Run() {
     let observer = $olink.Get<Heap<any>>(this.heap.id)!
-    this.RunDelete(observer)
+    await this.RunDelete(observer)
+    this.OnComplete()
   }
 
   mounted() {

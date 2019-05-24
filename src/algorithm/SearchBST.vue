@@ -32,9 +32,10 @@ export default class SearchBST extends Mixins(NumericBSTAlgorithmMixin) {
     this.searchNode.value = Number.NaN
   }
 
-  Run() {
+  async Run() {
     let observer = $olink.Get<BinaryTree<any>>(this.id)!
-    this.RunBuild(observer)
+    await this.RunBuild(observer)
+    this.OnComplete()
   }
 
   mounted() {

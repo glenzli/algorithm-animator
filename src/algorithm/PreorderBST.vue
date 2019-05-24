@@ -18,9 +18,10 @@ export default class PreorderBST extends Mixins(NumericBSTAlgorithmMixin) {
     tree.Preorder()
   }
 
-  Run() {
+  async Run() {
     let observer = $olink.Get<BinaryTree<any>>(this.id)!
-    this.RunBuild(observer)
+    await this.RunBuild(observer)
+    this.OnComplete()
   }
 
   mounted() {

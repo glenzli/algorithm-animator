@@ -1,23 +1,50 @@
 <template>
   <div id="app">
-    <p-canvas :autosize="true" @resize="OnResize"></p-canvas>
-    <component :is="algorithm" :n="n" :key="key" :paused="paused" :delay="delay"></component>
-    <div class="panel">
-      <div class="config">
-        <div class="button g" :class="{ selected: delay === 1000 }" @click="SetDelay(1000)">Slower</div>
-        <div class="button g" :class="{ selected: delay === 500 }" @click="SetDelay(500)">Slow</div>
-        <div class="button g" :class="{ selected: delay === 300 }" @click="SetDelay(300)">Normal</div>
-        <div class="button g" :class="{ selected: delay === 100 }" @click="SetDelay(100)">Fast</div>
-        <div class="button g" :class="{ selected: delay === 50 }" @click="SetDelay(50)">Faster</div>
-        <div class="button" @click="ToggleAnimation">{{ paused ? 'Continue' : 'Pause' }}</div>
-        <div class="button" @click="Restart">Restart</div>
-      </div>
-      <div class="list">
-        <div class="category" v-for="(category, index) in categories" :key="index" :class="{ selected: index === activeCategory }" @click="SelectCategory(index)">{{category}}</div>
-        <div class="seperator"></div>
-        <div class="tag" v-for="(tag, index) in candidateAlgorithms" :key="`a${index}`" :class="{ selected: index === activeAlgorithm }" @click="SelectAlgorithm(index)">{{tag.name}}</div>
-      </div>
-    </div>
+    <v-app>
+      <v-navigation-drawer fxied v-model="drawer" app>
+        <v-list dense>
+          <v-list-group v-for="(cAlgorithms, category) in algorithms" :key="category">
+            <template v-slot:activator>
+              <v-list-tile>
+                <v-list-tile-content>
+                  <v-list-tile-title class="category">{{category}}</v-list-tile-title>
+                </v-list-tile-content>
+              </v-list-tile>
+            </template>
+            <v-list-tile v-for="algorithm in cAlgorithms" :key="algorithm.id" @click="Select(algorithm.id, category)">
+              <v-list-tile-content>
+                <v-list-tile-title>{{algorithm.name}}</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+          </v-list-group>
+        </v-list>
+      </v-navigation-drawer>
+      <v-toolbar color="indigo darken-2" fixed app dark>
+        <v-toolbar-side-icon @click.stop="ToggleDrawer"></v-toolbar-side-icon>
+        <v-toolbar-title>{{readableAlgorithmName}}</v-toolbar-title>
+      </v-toolbar>
+      <v-content>
+        <v-container fluid fill-height full-width pa-0>
+          <p-canvas :autosize="true" @resize="OnResize"></p-canvas>
+          <component v-if="currentAlgorithmId" :is="currentAlgorithmId" :n="n" :key="key" :paused="paused" :delay="delay" @complete="Complete"></component>
+        </v-container>
+      </v-content>
+      <v-footer app fixed height="64">
+        <v-container fluid fill-width fill-height>
+          <v-layout align-center>
+            <v-btn icon @click="Toggle">
+              <v-icon>{{ paused ? 'play_arrow' : 'pause' }}</v-icon>
+            </v-btn>
+            <v-btn icon @click="Replay">
+              <v-icon>replay</v-icon>
+            </v-btn>
+            <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            <v-slider v-model="speed" :min="1" :max="12" thumb-label="always" ticks prepend-icon="directions_walk" append-icon="directions_run"></v-slider>
+            <v-spacer></v-spacer>
+          </v-layout>
+        </v-container>
+      </v-footer>
+    </v-app>
   </div>
 </template>
 
@@ -30,54 +57,65 @@ import { AlgorithmComponents, AlgorithmCategories } from './algorithm'
   components: { ...AlgorithmComponents },
 })
 export default class App extends Vue {
-  activeCategory = 0
-  activeAlgorithm = 0
   paused = false
-  delay = 500
+  complete = false
+  speed = 6
   n = 50
   key = 0
+  drawer = false
+  currentCategory = ''
+  currentAlgorithmId = ''
 
-  get categories() {
-    return Object.keys(AlgorithmCategories)
+  get algorithms() {
+    return AlgorithmCategories
   }
 
-  get candidateAlgorithms() {
-    return AlgorithmCategories[this.categories[this.activeCategory]]
+  get readableAlgorithmName() {
+    let name = this.currentAlgorithmId.substr(0, this.currentAlgorithmId.length - this.currentCategory.length)
+    return `${this.currentCategory}::${name}`
   }
 
-  get algorithm() {
-    return this.candidateAlgorithms[this.activeAlgorithm].id
+  get delay() {
+    return Math.pow(2, (12 - this.speed) / 2) * 15
   }
 
-  SelectCategory(index: number) {
-    this.activeCategory = index
-    this.SelectAlgorithm(0)
+  ToggleDrawer() {
+    this.drawer = !this.drawer
   }
 
-  SelectAlgorithm(index: number) {
-    this.activeAlgorithm = index
+  Select(id: string, category: string) {
+    this.currentCategory = category
+    this.currentAlgorithmId = id
     this.paused = false
   }
 
-  ToggleAnimation() {
-    this.paused = !this.paused
+  Toggle() {
+    if (!this.complete) {
+      this.paused = !this.paused
+    } else {
+      this.Replay()
+    }
   }
 
-  Restart() {
+  Complete() {
+    this.paused = true
+    this.complete = true
+  }
+
+  Replay() {
     ++this.key
-  }
-
-  SetDelay(delay: number) {
-    this.delay = delay
+    this.complete = false
+    this.paused = false
   }
 
   OnResize(size: any) {
-    this.n = Math.ceil(size.width * 0.8 / 48)
+    this.n = Math.ceil(size.width / 48)
     ++this.key
   }
 
   mounted() {
-    this.SetDelay(300)
+    this.currentCategory = Object.keys(this.algorithms)[0]
+    this.currentAlgorithmId = this.algorithms[this.currentCategory][0].id
   }
 }
 </script>
@@ -100,88 +138,8 @@ html, body {
   width: 100%;
 }
 
-.panel {
-  position: fixed;
-  left: 50%;
-  bottom: 5%;
-  transform: translate(-50%, 0);
-  display: flex;
-  flex-direction: column;
-}
-
-.config {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  .button {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    background: #333;
-    color: #eee;
-    user-select: none;
-    cursor: pointer;
-    border-radius: 0.5rem;
-    padding: 0.5rem 1rem;
-    margin: 0 1rem;
-
-    &:hover {
-      background: #555;
-    }
-
-    &.g {
-      margin: 0;
-      border-radius: 0;
-      padding: 0.5rem;
-
-      &.selected {
-        background: #962222;
-      }
-    }
-  }
-
-  margin: 1rem;
-}
-
-.list {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  flex: 1;
-
-  .category, .tag {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    background: #333;
-    color: #eee;
-    user-select: none;
-    cursor: pointer;
-
-    &.selected {
-      background: #962222;
-    }
-
-    &:hover {
-      background: #555;
-    }
-  }
-
-  .category {
-    padding: 0.5rem 1rem;
-  }
-
-  .tag {
-    border-radius: 0.25rem;
-    margin: 0.25rem;
-    padding: 0.25rem 0.5rem;
-  }
-
-  .seperator {
-    width: 2rem;
-  }
+.category {
+  font-weight: bold;
+  font-size: 1.1rem;
 }
 </style>

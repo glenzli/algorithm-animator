@@ -38,9 +38,10 @@ export default class BubbleSort extends Mixins(NumericArrayAlgorithmMixin) {
     array.Restore()
   }
 
-  Run() {
+  async Run() {
     let observer = $olink.Get<ObservableArray<any>>(this.array.id)!
-    this.RunBubblesort(observer)
+    await this.RunBubblesort(observer)
+    this.OnComplete()
   }
 
   mounted() {

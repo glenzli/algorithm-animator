@@ -64,9 +64,10 @@ export default class QuickSort extends Mixins(NumericArrayAlgorithmMixin) {
     }
   }
 
-  Run() {
+  async Run() {
     let observer = $olink.Get<ObservableArray<any>>(this.array.id)!
-    this.RunQuicksort(observer, 0, observer.length - 1)
+    await this.RunQuicksort(observer, 0, observer.length - 1)
+    this.OnComplete()
   }
 
   mounted() {

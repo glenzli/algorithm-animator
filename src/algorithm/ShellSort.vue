@@ -71,9 +71,10 @@ export default class ShellSort extends Mixins(NumericArrayAlgorithmMixin) {
     this.state.seperators = [-1]
   }
 
-  Run() {
+  async Run() {
     let observer = $olink.Get<ObservableArray<any>>(this.array.id)!
-    this.RunShellSort(observer)
+    await this.RunShellSort(observer)
+    this.OnComplete()
   }
 
   mounted() {

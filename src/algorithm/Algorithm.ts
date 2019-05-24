@@ -19,4 +19,8 @@ export class AlgorithmMixin extends Vue {
       }
     })
   }
+
+  OnComplete() {
+    this.$emit('complete')
+  }
 }

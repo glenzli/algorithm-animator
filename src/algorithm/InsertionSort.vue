@@ -44,9 +44,10 @@ export default class InsertionSort extends Mixins(NumericArrayAlgorithmMixin) {
     this.state.seperators = [-1]
   }
 
-  Run() {
+  async Run() {
     let observer = $olink.Get<ObservableArray<any>>(this.array.id)!
-    this.RunInsertionsort(observer)
+    await this.RunInsertionsort(observer)
+    this.OnComplete()
   }
 
   mounted() {
