@@ -10,7 +10,7 @@ export function GetArrayItemOffset(length: number) {
 }
 
 export const HEAP_NODE_SIZE = 36
-export const HEAP_NODE_SPACE_X = 8
+export const HEAP_NODE_SPACE_X = 2
 export const HEAP_NODE_SPACE_Y = 24
 export const HEAP_NODE_TEXT = 24
 
@@ -26,10 +26,10 @@ export function GetHeapNodeOffset(index: number, count: number) {
   return Point(x, y)
 }
 
-export const BINARY_NODE_SIZE = 30
+export const BINARY_NODE_SIZE = 36
 export const BINARY_NODE_SPACE_X = 2
-export const BINARY_NODE_SPACE_Y = 6
-export const BINARY_NODE_TEXT = 21
+export const BINARY_NODE_SPACE_Y = 24
+export const BINARY_NODE_TEXT = 24
 
 export function GetBinaryChildrenOffsets(position: PointObject, maxHeight: number, level: number) {
   let y = position.y + BINARY_NODE_SPACE_Y + BINARY_NODE_SIZE

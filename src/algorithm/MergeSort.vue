@@ -9,7 +9,7 @@
 import Vue from 'vue'
 import { Component, Mixins } from 'vue-property-decorator'
 import { ArrayRenderer, ARRAY_ITEM_TOTAL } from '../components'
-import { ArrayItem, ObservableArrayState, ObservableArray, $olink, Sleep, Operation } from '../model'
+import { ArrayItem, ObservableArrayState, ObservableArray, $olink, Sleep, ArrayItemState } from '../model'
 import { Point } from 'paper-vueify'
 import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 
@@ -43,11 +43,11 @@ export default class MergeSort extends Mixins(NumericArrayAlgorithmMixin) {
       let val2 = auxArray.Get(index2)
       if (val2 == null || (val1 != null && val1! < val2!)) {
         array.Set(i + from, val1!)
-        auxArray.State(Operation.Selected, index1)
+        auxArray.State(ArrayItemState.Selected, index1)
         Vue.set(this.auxState.locators!, 0, index1 + 1 < partition ? (index1 + 1) : auxArray.length)
       } else {
         array.Set(i + from, val2)
-        auxArray.State(Operation.Selected, index2)
+        auxArray.State(ArrayItemState.Selected, index2)
         Vue.set(this.auxState.locators!, 1, index2 + 1)
       }
       await Sleep(this.delay)
@@ -60,7 +60,7 @@ export default class MergeSort extends Mixins(NumericArrayAlgorithmMixin) {
   }
 
   async RunMergesort(array: ObservableArray<number>, from: number, to: number, auxArray: ObservableArray<number>) {
-    array.PartialRestore(Operation.Accessed)
+    array.PartialRestore(ArrayItemState.Accessed)
     if (to - from > 1) {
       let mid = Math.floor((to - from) / 2 + from)
       this.state.partition = [0, 0]
@@ -72,11 +72,11 @@ export default class MergeSort extends Mixins(NumericArrayAlgorithmMixin) {
       await this.Merge(array, from, to, mid, auxArray)
       await this.Continue()
     } else {
-      if (to > from && array.Get(from, Operation.Accessed)! > array.Get(to, Operation.Accessed)!) {
+      if (to > from && array.Get(from, ArrayItemState.Accessed)! > array.Get(to, ArrayItemState.Accessed)!) {
         await array.Swap(from, to)
         await this.Continue()
       } else {
-        array.State(Operation.Accessed, from)
+        array.State(ArrayItemState.Accessed, from)
         await Sleep(this.delay)
         await this.Continue()
       }

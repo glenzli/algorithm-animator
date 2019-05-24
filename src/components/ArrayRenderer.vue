@@ -18,7 +18,7 @@ import { Component, Prop, Watch } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
 import { RegularPolygonItem, PolylineItem, RectangleItem, GroupItem, SolidBrush, NoneBrush, PointObject, Color$, Stroke, Coordinate, Point } from 'paper-vueify'
 import ArrayItemRenderer from './ArrayItemRenderer.vue'
-import { ArrayItem, ObservableArrayState, Operation } from '../model'
+import { ArrayItem, ObservableArrayState, ArrayItemState } from '../model'
 import { ARRAY_ITEM_SIZE, ARRAY_ITEM_TOTAL, GetArrayItemOffset, ARRAY_ITEM_SPACE } from './defs'
 
 const SHARE_BRUSH = SolidBrush(Color$.ToColor('#405f60'))
@@ -92,33 +92,35 @@ export default class ArrayRenderer extends Vue {
     let indexes = Arrayex.Create(this.array.length, index => index)
     let dynamics = indexes.filter(index => {
       let state = this.array[index].state
-      return state >= Operation.Swapping && state <= Operation.MovingTo
+      return state >= ArrayItemState.Swapping && state <= ArrayItemState.MovingTo
     })
     if (dynamics.length === 2) {
-      let from = this.array[dynamics[0]].state === Operation.MovingFrom ? 0 : 1
-      let isMoving = this.array[dynamics[0]].state !== Operation.Swapping
+      let from = this.array[dynamics[0]].state === ArrayItemState.MovingFrom ? 0 : 1
+      let isMoving = this.array[dynamics[0]].state !== ArrayItemState.Swapping
       let xFrom = this.offset + dynamics[from] * ARRAY_ITEM_TOTAL
       let xTo = this.offset + (dynamics[1 - from]  - (isMoving ? 0.5 : 0)) * ARRAY_ITEM_TOTAL
-      // create indicator
-      let spline = PolylineItem({
-        points: [Point(xFrom, -ARRAY_ITEM_SIZE / 2), Point(xFrom, -ARRAY_ITEM_TOTAL), Point(xTo, -ARRAY_ITEM_TOTAL), Point(xTo, -ARRAY_ITEM_SIZE / 2)],
-        stroke: SHARE_STROKE_SOLID,
-      })
-      let arrowTo = RegularPolygonItem({
-        radius: ARRAY_ITEM_SPACE,
-        sides: 3,
-        coordinate: Coordinate({ position: Point(xTo, -ARRAY_ITEM_SIZE / 2 - Math.ceil(ARRAY_ITEM_SPACE / 2 * Math.sqrt(3))), rotation: Math.PI }),
-        brush: SHARE_BRUSH,
-        stroke: SHARE_STROKE_SOLID,
-      })
-      let arrowFrom = isMoving ? null : RegularPolygonItem({
-        radius: ARRAY_ITEM_SPACE,
-        sides: 3,
-        coordinate: Coordinate({ position: Point(xFrom, -ARRAY_ITEM_SIZE / 2 - Math.ceil(ARRAY_ITEM_SPACE / 2 * Math.sqrt(3))), rotation: Math.PI }),
-        brush: SHARE_BRUSH,
-        stroke: SHARE_STROKE_SOLID,
-      })
-      return GroupItem({ children: Arrayex.NonNull([spline, arrowFrom, arrowTo]), coordinate: Coordinate({ position: this.position }) })
+      if (Math.abs(xTo - xFrom) > ARRAY_ITEM_TOTAL || !isMoving) {
+        // create indicator
+        let spline = PolylineItem({
+          points: [Point(xFrom, -ARRAY_ITEM_SIZE / 2), Point(xFrom, -ARRAY_ITEM_TOTAL), Point(xTo, -ARRAY_ITEM_TOTAL), Point(xTo, -ARRAY_ITEM_SIZE / 2)],
+          stroke: SHARE_STROKE_SOLID,
+        })
+        let arrowTo = RegularPolygonItem({
+          radius: ARRAY_ITEM_SPACE,
+          sides: 3,
+          coordinate: Coordinate({ position: Point(xTo, -ARRAY_ITEM_SIZE / 2 - Math.ceil(ARRAY_ITEM_SPACE / 2 * Math.sqrt(3))), rotation: Math.PI }),
+          brush: SHARE_BRUSH,
+          stroke: SHARE_STROKE_SOLID,
+        })
+        let arrowFrom = isMoving ? null : RegularPolygonItem({
+          radius: ARRAY_ITEM_SPACE,
+          sides: 3,
+          coordinate: Coordinate({ position: Point(xFrom, -ARRAY_ITEM_SIZE / 2 - Math.ceil(ARRAY_ITEM_SPACE / 2 * Math.sqrt(3))), rotation: Math.PI }),
+          brush: SHARE_BRUSH,
+          stroke: SHARE_STROKE_SOLID,
+        })
+        return GroupItem({ children: Arrayex.NonNull([spline, arrowFrom, arrowTo]), coordinate: Coordinate({ position: this.position }) })
+      }
     }
     return null
   }

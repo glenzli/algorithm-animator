@@ -9,7 +9,7 @@
 import { Component, Mixins, Watch } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
 import { Point, Point$ } from 'paper-vueify'
-import { ObservableArray, ArrayItem, $olink, ObservableArrayState, Operation, HeapNode, HeapState, Sleep, Heap } from '../model'
+import { ObservableArray, ArrayItem, $olink, ObservableArrayState, HeapNodeState, HeapNode, HeapState, Sleep, Heap } from '../model'
 import { ArrayRenderer, HeapRenderer, HEAP_NODE_SIZE, HEAP_NODE_SPACE_Y, ARRAY_ITEM_TOTAL } from '../components'
 import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 
@@ -52,7 +52,7 @@ export default class HeapSort extends Mixins(NumericArrayAlgorithmMixin) {
       await Sleep(this.delay)
       await this.Continue()
       await heapObserver.Delete()
-      heapObserver.State(Operation.Selected, 1)
+      heapObserver.State(HeapNodeState.Selected, 1)
       await Sleep(this.delay)
       await this.Continue()
     }

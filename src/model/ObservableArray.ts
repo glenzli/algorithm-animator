@@ -1,7 +1,16 @@
 import Vue from 'vue'
 import { $olink } from './ObjectLink'
 import { Arrayex } from 'arrayex'
-import { Sleep, Operation } from './utils'
+import { Sleep } from './utils'
+
+export enum ArrayItemState {
+  None = 0,
+  Accessed,
+  Selected,
+  Swapping,
+  MovingFrom,
+  MovingTo,
+}
 
 export interface ArrayItem<T> {
   value: T,
@@ -9,7 +18,7 @@ export interface ArrayItem<T> {
 }
 
 function CreateArrayItem<T>(value: T) {
-  return { value, state: Operation.None } as ArrayItem<T>
+  return { value, state: ArrayItemState.None } as ArrayItem<T>
 }
 
 declare global {
@@ -69,13 +78,13 @@ export class ObservableArray<T> {
   }
 
   Restore() {
-    this._array.forEach(item => { item.state = Operation.None })
+    this._array.forEach(item => { item.state = ArrayItemState.None })
   }
 
   PartialRestore(state: number) {
     this._array.forEach(item => {
       if (item.state === state) {
-        item.state = Operation.None
+        item.state = ArrayItemState.None
       }
     })
   }
@@ -113,11 +122,11 @@ export class ObservableArray<T> {
     this._array.splice(0, this._array.length, ...Arrayex.Create(n, () => CreateArrayItem(value)))
   }
 
-  async Swap(from: number, to: number, restoreState = Operation.Accessed) {
+  async Swap(from: number, to: number, restoreState = ArrayItemState.Accessed) {
     if (from !== to) {
       let temp = this._array[from]
       // state
-      this.State(Operation.Swapping, from, to)
+      this.State(ArrayItemState.Swapping, from, to)
       await Sleep(this._delay)
       await this._continue()
       Vue.set(this._array, from, this._array[to])
@@ -129,10 +138,10 @@ export class ObservableArray<T> {
     }
   }
 
-  async Move(from: number, to: number, restoreState = Operation.None) {
+  async Move(from: number, to: number, restoreState = ArrayItemState.None) {
     if (from !== to) {
-      this.State(Operation.MovingFrom, from)
-      this.State(Operation.MovingTo, to)
+      this.State(ArrayItemState.MovingFrom, from)
+      this.State(ArrayItemState.MovingTo, to)
       await Sleep(this._delay)
       await this._continue()
       this._array.splice(to, 0, this._array.splice(from, 1)[0])

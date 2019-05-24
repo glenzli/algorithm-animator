@@ -9,13 +9,13 @@ import { Component, Mixins } from 'vue-property-decorator'
 import { Point } from 'paper-vueify'
 import { NumericBSTAlgorithmMixin } from './NumericBSTAlgorithm'
 import { BinaryTreeRenderer } from '../components'
-import { $olink, Sleep, BinaryTree, BinaryNode, Operation } from '../model'
+import { $olink, Sleep, BinaryTree, BinaryNode, BinaryNodeState } from '../model'
 
 @Component({
   components: { BinaryTreeRenderer },
 })
 export default class InsertBST extends Mixins(NumericBSTAlgorithmMixin) {
-  insertNode: BinaryNode<number> = { value: Number.NaN, left: [], right: [], level: 0, state: Operation.Swapping }
+  insertNode: BinaryNode<number> = { value: Number.NaN, left: [], right: [], level: 0, state: BinaryNodeState.Swapping }
 
   get insertExtra() {
     return Number.isNaN(this.insertNode.value) ? null : this.insertNode
@@ -23,7 +23,7 @@ export default class InsertBST extends Mixins(NumericBSTAlgorithmMixin) {
 
   async RunBuild(tree: BinaryTree<any>) {
     await Sleep(this.delay)
-    let data = BinaryTree.NumericData(this.n - 1, this.range)
+    let data = BinaryTree.NumericData(this.ReduceN(this.n) - 1, this.range)
     for (let value of data) {
       this.insertNode.value = value
       await tree.Insert(value)

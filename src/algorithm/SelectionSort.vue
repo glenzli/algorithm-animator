@@ -7,7 +7,7 @@
 <script lang="ts">
 import { Component, Mixins, Vue } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
-import { ObservableArray, ArrayItem, $olink, ObservableArrayState, Sleep, Operation } from '../model'
+import { ObservableArray, ArrayItem, $olink, ObservableArrayState, Sleep, ArrayItemState } from '../model'
 import { ArrayRenderer } from '../components'
 import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 
@@ -19,15 +19,16 @@ export default class SelectionSort extends Mixins(NumericArrayAlgorithmMixin) {
 
   async SelectMin(array: ObservableArray<number>, startIndex: number) {
     let minIndex = startIndex
-    let min = array.Get(startIndex, Operation.Accessed)
+    let min = array.Get(startIndex, ArrayItemState.Accessed)
     for (let i = startIndex; i < array.length; ++i) {
-      if (array.Get(i, Operation.Accessed)! < array.Get(minIndex)!) {
+      if (array.Get(i, ArrayItemState.Accessed)! < array.Get(minIndex)!) {
         minIndex = i
       }
     }
+    this.OnNotify(`[0, ${startIndex}] is sorted; Find the minimum in [${startIndex}, ${array.length - 1}]; [${minIndex}]=${min} is minimum; Swap with [${startIndex}].`)
     await Sleep(this.delay)
     array.Restore()
-    array.State(Operation.Selected, minIndex)
+    array.State(ArrayItemState.Selected, minIndex)
     Vue.set(this.state.locators!, 0, minIndex)
     await Sleep(this.delay)
     return minIndex
@@ -37,7 +38,7 @@ export default class SelectionSort extends Mixins(NumericArrayAlgorithmMixin) {
     for (let i = 0; i < array.length; ++i) {
       let minIndex = await this.SelectMin(array, i)
       if (minIndex !== i) {
-        await array.Swap(i, minIndex, Operation.None)
+        await array.Swap(i, minIndex, ArrayItemState.None)
       }
       Vue.set(this.state.seperators!, 0, i)
       Vue.set(this.state.locators!, 0, i)

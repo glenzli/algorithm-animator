@@ -5,7 +5,7 @@
 <script lang="ts">
 import { Component, Prop, Vue, Inject } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
-import { HeapNode, Operation, Heap } from '../model'
+import { HeapNode, HeapNodeState, Heap } from '../model'
 import { CircleItem, PointTextItem, GroupItem, PolylineItem, Point, PointObject, Point$, SolidBrush, Color$, Stroke, Coordinate } from 'paper-vueify'
 import { GetHeapNodeOffset, HEAP_NODE_SIZE, HEAP_NODE_TEXT, ToLabel } from './defs'
 
@@ -16,7 +16,7 @@ export default class HeapNodeRenderer extends Vue {
   @Prop({ required: true }) index!: number
   @Prop({ required: true }) count!: number
   @Prop({ default: () => Point(0, 0) }) position!: PointObject
-  @Prop({ default: () => ['#3c6387', '#ad2020', '#d15a10', '#764891', '#764891', '#764891'] }) colors!: Array<string>
+  @Prop({ default: () => ['#3c6387', '#ad2020', '#d15a10', '#764891'] }) colors!: Array<string>
 
   @Inject({ default: null }) quantizer!: ((val: any) => number) | null
 
@@ -50,7 +50,7 @@ export default class HeapNodeRenderer extends Vue {
 
   get isActiveWithParent() {
     if (this.index > 1) {
-      return this.node.state > Operation.None && this.node.state === this.heap[Math.floor(this.index / 2)].state
+      return this.node.state > HeapNodeState.None && this.node.state === this.heap[Math.floor(this.index / 2)].state
     }
     return false
   }
@@ -59,7 +59,7 @@ export default class HeapNodeRenderer extends Vue {
     if (this.index > 1) {
       let direction = Point$.Subtract(this.parentOffset!, this.offset)
       let terminal = Point$.Add(Point$.Multiply(Point$.Normalize(direction), Point$.Length(direction) - HEAP_NODE_SIZE / 2), this.offset)
-      let state = this.isActiveWithParent ? this.node.state : Operation.None
+      let state = this.isActiveWithParent ? this.node.state : HeapNodeState.None
       return PolylineItem({
         points: [this.offset, terminal],
         stroke: Stroke({ thickness: this.isActiveWithParent ? 3 : 1, brush: SolidBrush(Color$.ToColor(this.colors[state])) }),

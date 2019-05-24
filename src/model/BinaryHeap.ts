@@ -1,7 +1,14 @@
 import Vue from 'vue'
 import { $olink } from './ObjectLink'
 import { Arrayex } from 'arrayex'
-import { Sleep, Operation } from './utils'
+import { Sleep } from './utils'
+
+export enum HeapNodeState {
+  None = 0,
+  Accessed,
+  Selected,
+  Swapping,
+}
 
 export interface HeapNode<T> {
   value: T,
@@ -9,7 +16,7 @@ export interface HeapNode<T> {
 }
 
 function CreateHeapNode<T>(value: T) {
-  return { value, state: Operation.None } as HeapNode<T>
+  return { value, state: HeapNodeState.None } as HeapNode<T>
 }
 
 export interface HeapState {
@@ -90,7 +97,7 @@ export class Heap<T> {
     return this.Get(0)
   }
 
-  Get(index: number, state?: Operation) {
+  Get(index: number, state?: number) {
     let node = this._heap[index + 1]
     if (node) {
       if (state != null) {
@@ -101,7 +108,7 @@ export class Heap<T> {
     return undefined
   }
 
-  Set(index: number, value: T, state?: Operation) {
+  Set(index: number, value: T, state?: number) {
     let node = this._heap[index + 1]
     if (node) {
       node.value = value
@@ -121,23 +128,23 @@ export class Heap<T> {
 
   Restore() {
     for (let i = 1; i <= this._state.count; ++i) {
-      this._heap[i].state = Operation.None
+      this._heap[i].state = HeapNodeState.None
     }
   }
 
   PartialRestore(state: number) {
     for (let i = 1; i <= this._state.count; ++i) {
       if (this._heap[i].state === state) {
-        this._heap[i].state = Operation.None
+        this._heap[i].state = HeapNodeState.None
       }
     }
   }
 
-  async Swap(from: number, to: number, restoreState = Operation.Accessed) {
+  async Swap(from: number, to: number, restoreState = HeapNodeState.Accessed) {
     if (from !== to) {
       let temp = this._heap[from]
       // state
-      this.State(Operation.Swapping, from, to)
+      this.State(HeapNodeState.Swapping, from, to)
       await Sleep(this._delay)
       await this._continue()
       Vue.set(this._heap, from, this._heap[to])
@@ -175,18 +182,18 @@ export class Heap<T> {
     while (descendant <= this._state.count) {
       let parent = this.Parent(descendant)
       let sibling = this.NextSibling(descendant)
-      this.State(Operation.Accessed, descendant, sibling)
+      this.State(HeapNodeState.Accessed, descendant, sibling)
       await Sleep(this._delay)
       await this._continue()
       if (descendant < this._state.count && this._compare(this._heap[descendant], this._heap[sibling]) < 0) {
-        this.State(Operation.None, descendant)
+        this.State(HeapNodeState.None, descendant)
         descendant = sibling
       } else {
-        this.State(Operation.None, sibling)
+        this.State(HeapNodeState.None, sibling)
       }
       await Sleep(this._delay)
       await this._continue()
-      this.State(Operation.Accessed, parent)
+      this.State(HeapNodeState.Accessed, parent)
       if (this._compare(this._heap[descendant], this._heap[parent]) > 0) {
         await this.Swap(descendant, parent)
         await this._continue()
@@ -194,7 +201,7 @@ export class Heap<T> {
       } else {
         break
       }
-      this.State(Operation.None, parent)
+      this.State(HeapNodeState.None, parent)
     }
   }
 
@@ -214,11 +221,11 @@ export class Heap<T> {
     }
     let descendant = ++this._state.count
     this._heap[descendant].value = value
-    this.State(Operation.Accessed, descendant)
+    this.State(HeapNodeState.Accessed, descendant)
     await Sleep(this._delay)
     await this._continue()
     let parent = Math.floor(descendant / 2)
-    this.State(Operation.Accessed, parent)
+    this.State(HeapNodeState.Accessed, parent)
     while (descendant > 1 && this._compare(this._heap[descendant], this._heap[parent]) > 0) {
       await this.Swap(descendant, parent)
       await this._continue()
@@ -232,7 +239,7 @@ export class Heap<T> {
     // cache
     let retValue = this._heap[1].value
     // swap
-    this.State(Operation.Accessed, this._state.count, 1)
+    this.State(HeapNodeState.Accessed, this._state.count, 1)
     await this.Swap(1, this._state.count)
     await Sleep(this._delay)
     await this._continue()

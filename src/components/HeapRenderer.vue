@@ -9,7 +9,7 @@ import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
 import { PointObject, Point } from 'paper-vueify'
 import HeapNodeRenderer from './HeapNodeRenderer.vue'
-import { HeapNode, Operation, HeapState } from '../model'
+import { HeapNode, HeapState } from '../model'
 
 @Component({
   components: { HeapNodeRenderer },

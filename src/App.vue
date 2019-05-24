@@ -26,9 +26,10 @@
       <v-content>
         <v-container fluid fill-height full-width pa-0>
           <p-canvas :autosize="true" @resize="OnResize"></p-canvas>
-          <component v-if="currentAlgorithmId" :is="currentAlgorithmId" :n="n" :key="key" :paused="paused" :delay="delay" @complete="Complete"></component>
+          <component v-if="currentAlgorithmId" :is="currentAlgorithmId" :n="n" :key="key" :paused="paused" :delay="delay" @complete="Complete" @notify="Notify"></component>
         </v-container>
       </v-content>
+      <div class="description">{{notify}}</div>
       <v-footer app fixed height="64">
         <v-container fluid fill-width fill-height>
           <v-layout align-center>
@@ -65,6 +66,7 @@ export default class App extends Vue {
   drawer = false
   currentCategory = ''
   currentAlgorithmId = ''
+  notify = ''
 
   get algorithms() {
     return AlgorithmCategories
@@ -87,6 +89,7 @@ export default class App extends Vue {
     this.currentCategory = category
     this.currentAlgorithmId = id
     this.paused = false
+    this.notify = ''
   }
 
   Toggle() {
@@ -100,12 +103,17 @@ export default class App extends Vue {
   Complete() {
     this.paused = true
     this.complete = true
+    this.notify = ''
   }
 
   Replay() {
     ++this.key
     this.complete = false
     this.paused = false
+  }
+
+  Notify(message: string) {
+    this.notify = message
   }
 
   OnResize(size: any) {
@@ -141,5 +149,13 @@ html, body {
 .category {
   font-weight: bold;
   font-size: 1.1rem;
+}
+
+.description {
+  position: absolute;
+  left: 10%;
+  bottom: 128px;
+  font-size: 1.5rem;
+  width: 80%;
 }
 </style>

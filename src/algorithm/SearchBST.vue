@@ -9,13 +9,13 @@ import { Component, Mixins } from 'vue-property-decorator'
 import { Point } from 'paper-vueify'
 import { NumericBSTAlgorithmMixin } from './NumericBSTAlgorithm'
 import { BinaryTreeRenderer } from '../components'
-import { $olink, Sleep, BinaryTree, BinaryNode, Operation } from '../model'
+import { $olink, Sleep, BinaryTree, BinaryNode, BinaryNodeState } from '../model'
 
 @Component({
   components: { BinaryTreeRenderer },
 })
 export default class SearchBST extends Mixins(NumericBSTAlgorithmMixin) {
-  searchNode: BinaryNode<number> = { value: Number.NaN, left: [], right: [], level: 0, state: Operation.Swapping }
+  searchNode: BinaryNode<number> = { value: Number.NaN, left: [], right: [], level: 0, state: BinaryNodeState.Swapping }
 
   get insertExtra() {
     return Number.isNaN(this.searchNode.value) ? null : this.searchNode

@@ -8,7 +8,7 @@
 import Vue from 'vue'
 import { Component, Mixins } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
-import { ObservableArray, ArrayItem, $olink, ObservableArrayState, Sleep, Operation } from '../model'
+import { ObservableArray, ArrayItem, $olink, ObservableArrayState, Sleep, ArrayItemState } from '../model'
 import { ArrayRenderer } from '../components'
 import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 
@@ -23,13 +23,13 @@ export default class QuickSort extends Mixins(NumericArrayAlgorithmMixin) {
       this.state.partition = to - from < array.length - 1 ? [from, to] : [0, 0]
       await Sleep(this.delay)
       await this.Continue()
-      let pivot = array.Get(from, Operation.Selected)!
+      let pivot = array.Get(from, ArrayItemState.Selected)!
       Vue.set(this.state.seperators!, 0, from)
       await Sleep(this.delay)
       await this.Continue()
       Vue.set(this.state.locators!, 0, from + 1)
       for (let i = from + 1; i <= to; ++i) {
-        if (array.Get(i, Operation.Accessed)! < pivot) {
+        if (array.Get(i, ArrayItemState.Accessed)! < pivot) {
           if (i !== this.state.locators![0]) {
             await Sleep(this.delay)
             await this.Continue()
@@ -49,12 +49,12 @@ export default class QuickSort extends Mixins(NumericArrayAlgorithmMixin) {
         await Sleep(this.delay)
         await this.Continue()
       }
-      array.PartialRestore(Operation.Accessed)
-      array.State(Operation.Selected, this.state.locators![0] - 1)
+      array.PartialRestore(ArrayItemState.Accessed)
+      array.State(ArrayItemState.Selected, this.state.locators![0] - 1)
       this.state.seperators = [this.state.locators![0] - 2, this.state.locators![0] - 1]
       await Sleep(this.delay)
       await this.Continue()
-      array.State(Operation.None, this.state.locators![0] - 1)
+      array.State(ArrayItemState.None, this.state.locators![0] - 1)
       this.state.partition = [0, 0]
       this.state.seperators = [-1, -1]
       await this.RunQuicksort(array, from, this.state.locators![0] - 2)

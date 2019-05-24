@@ -1,5 +1,4 @@
-import { Operation } from '../utils'
-import { Heap, HeapState } from '../BinaryHeap'
+import { Heap, HeapState, HeapNodeState } from '../BinaryHeap'
 
 describe('BinaryHeap', () => {
   const data = [1, 2, 3, 4, 5, 6, 7, 8]
@@ -15,35 +14,35 @@ describe('BinaryHeap', () => {
   })
 
   test('Raw', () => {
-    expect(oh1.Raw(0)).toEqual({ value: 1, state: Operation.None })
+    expect(oh1.Raw(0)).toEqual({ value: 1, state: HeapNodeState.None })
   })
 
   test('Get', () => {
-    expect(oh1.Get(0, Operation.Accessed)).toEqual(1)
-    expect(oh1.Raw(0).state).toEqual(Operation.Accessed)
+    expect(oh1.Get(0, HeapNodeState.Accessed)).toEqual(1)
+    expect(oh1.Raw(0).state).toEqual(HeapNodeState.Accessed)
   })
 
   test('Set', () => {
-    oh1.Set(1, 2.5, Operation.Accessed)
-    expect(oh1.Raw(1)).toEqual({ value: 2.5, state: Operation.Accessed })
+    oh1.Set(1, 2.5, HeapNodeState.Accessed)
+    expect(oh1.Raw(1)).toEqual({ value: 2.5, state: HeapNodeState.Accessed })
   })
 
   test('State', () => {
-    oh1.State(Operation.Selected, 3)
-    expect(oh1.Raw(2).state).toEqual(Operation.Selected)
+    oh1.State(HeapNodeState.Selected, 3)
+    expect(oh1.Raw(2).state).toEqual(HeapNodeState.Selected)
   })
 
   test('PartialRestore', () => {
-    expect(oh1.data.some(v => v.state === Operation.Accessed)).toBeTruthy()
-    expect(oh1.data.some(v => v.state === Operation.Selected)).toBeTruthy()
-    oh1.PartialRestore(Operation.Accessed)
-    expect(oh1.data.some(v => v.state === Operation.Accessed)).toBeFalsy()
-    expect(oh1.data.some(v => v.state === Operation.Selected)).toBeTruthy()
+    expect(oh1.data.some(v => v.state === HeapNodeState.Accessed)).toBeTruthy()
+    expect(oh1.data.some(v => v.state === HeapNodeState.Selected)).toBeTruthy()
+    oh1.PartialRestore(HeapNodeState.Accessed)
+    expect(oh1.data.some(v => v.state === HeapNodeState.Accessed)).toBeFalsy()
+    expect(oh1.data.some(v => v.state === HeapNodeState.Selected)).toBeTruthy()
   })
 
   test('Restore', () => {
     oh1.Restore()
-    expect(oh1.data.every(v => v.state === Operation.None)).toBeTruthy()
+    expect(oh1.data.every(v => v.state === HeapNodeState.None)).toBeTruthy()
   })
 
   test('InstantBuildHeap', () => {
@@ -53,8 +52,8 @@ describe('BinaryHeap', () => {
 
   test('Swap', async () => {
     await oh1.Swap(1, 2)
-    expect(oh1.Raw(0)).toEqual({ value: 5, state: Operation.Accessed })
-    expect(oh1.Raw(1)).toEqual({ value: 8, state: Operation.Accessed })
+    expect(oh1.Raw(0)).toEqual({ value: 5, state: HeapNodeState.Accessed })
+    expect(oh1.Raw(1)).toEqual({ value: 8, state: HeapNodeState.Accessed })
   })
 
   test('BuildHeap', async () => {

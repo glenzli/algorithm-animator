@@ -7,7 +7,7 @@
 <script lang="ts">
 import { Component, Mixins, Vue } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
-import { ObservableArray, ArrayItem, $olink, ObservableArrayState, Sleep, Operation } from '../model'
+import { ObservableArray, ArrayItem, $olink, ObservableArrayState, Sleep, ArrayItemState } from '../model'
 import { ArrayRenderer } from '../components'
 import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 
@@ -21,13 +21,13 @@ export default class InsertionSort extends Mixins(NumericArrayAlgorithmMixin) {
     for (let i = 1; i < array.length; ++i) {
       Vue.set(this.state.locators!, 0, i - 1)
       Vue.set(this.state.seperators!, 0, i - 1)
-      let current = array.Get(i, Operation.Accessed)!
+      let current = array.Get(i, ArrayItemState.Accessed)!
       await Sleep(this.delay)
       await this.Continue()
       let j = i - 1
       for (; j >= 0; --j) {
-        if (current > array.Get(j, Operation.Accessed)!) {
-          array.State(Operation.None, j)
+        if (current > array.Get(j, ArrayItemState.Accessed)!) {
+          array.State(ArrayItemState.None, j)
           break
         }
       }
@@ -37,7 +37,7 @@ export default class InsertionSort extends Mixins(NumericArrayAlgorithmMixin) {
         await array.Move(i, j + 1)
         await this.Continue()
       }
-      array.PartialRestore(Operation.Accessed)
+      array.PartialRestore(ArrayItemState.Accessed)
       await this.Continue()
     }
     this.state.locators = [-1]
