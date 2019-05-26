@@ -17,11 +17,12 @@ const imports = require.context('.', false, /\.vue$/)
 imports.keys().forEach(key => {
   let id = key.replace(/(\.\/|\.vue)/g, '')
   AlgorithmComponents[id] = imports(key).default
+  let code = imports(key).PseudoCode || ''
   let [name, category] = Decompose(id)
   if (!AlgorithmCategories[category]) {
     AlgorithmCategories[category] = []
   }
-  AlgorithmCategories[category].push({ name, id })
+  AlgorithmCategories[category].push({ name, id, code })
 })
 
 export { AlgorithmComponents, AlgorithmCategories }

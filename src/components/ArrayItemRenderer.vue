@@ -6,7 +6,7 @@
 import { Component, Prop, Vue, Inject } from 'vue-property-decorator'
 import { ArrayItem } from '../model'
 import { RectangleItem, PointTextItem, GroupItem, Point, SolidBrush, Color$, Stroke, Coordinate, PointObject } from 'paper-vueify'
-import { ARRAY_ITEM_SIZE, ARRAY_ITEM_TOTAL, ARRAY_ITEM_TEXT, GetArrayItemOffset, ToLabel } from './defs'
+import { NODESIZE, NODESIZE_X_PLUS, NODETEXT, GetArrayItemOffset, ToLabel } from './defs'
 
 @Component
 export default class ArrayItemRenderer extends Vue {
@@ -23,12 +23,12 @@ export default class ArrayItemRenderer extends Vue {
   }
 
   get x() {
-    return this.offset + ARRAY_ITEM_TOTAL * this.index
+    return this.offset + NODESIZE_X_PLUS * this.index
   }
 
   get box() {
     return RectangleItem({
-      size: Point(ARRAY_ITEM_SIZE, ARRAY_ITEM_SIZE),
+      size: Point(NODESIZE, NODESIZE),
       brush: SolidBrush(Color$.ToColor(this.colors[this.item.state])),
       stroke: Stroke({ thickness: 0 }),
       coordinate: Coordinate({ position: Point(this.x, 0) }),
@@ -37,17 +37,17 @@ export default class ArrayItemRenderer extends Vue {
 
   get label() {
     return PointTextItem({
-      fontSize: ARRAY_ITEM_TEXT,
+      fontSize: NODETEXT,
       fontFamily: 'Titillium Web',
       justification: 'center',
       content: ToLabel(this.item.value),
       brush: SolidBrush(Color$.ToColor('#eee')),
-      coordinate: Coordinate({ position: Point(this.x, Math.ceil(ARRAY_ITEM_TEXT / 3)) }),
+      coordinate: Coordinate({ position: Point(this.x, Math.ceil(NODETEXT / 3)) }),
     })
   }
 
   get visual() {
-    let opacity = this.quantizer ? (this.quantizer(this.item.value) * 0.5 + 0.5) : 1
+    let opacity = this.quantizer ? (this.quantizer(this.item.value) * 0.8 + 0.2) : 1
     return GroupItem({ children: [this.box, this.label], opacity, coordinate: Coordinate({ position: this.position }) })
   }
 }

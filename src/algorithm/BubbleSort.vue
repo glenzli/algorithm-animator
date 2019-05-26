@@ -1,6 +1,6 @@
 <template>
   <div>
-    <array-renderer :array="array"></array-renderer>
+    <array-renderer :array="array" :position="rendererOffset"></array-renderer>
   </div>
 </template>
 
@@ -17,22 +17,33 @@ import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 export default class BubbleSort extends Mixins(NumericArrayAlgorithmMixin) {
   async RunBubblesort(array: ObservableArray<number>) {
     for (let i = 0; i < array.length; ++i) {
+      this.PointCode(0)
+      await Sleep(this.delay)
       let terminal = array.length - 1 - i
       let noSwap = true
+      this.PointCode(1)
+      await Sleep(this.delay)
       for (let j = 0; j < terminal; ++j) {
+        this.PointCode(2)
+        await Sleep(this.delay)
+        this.PointCode(3)
         if (array.Get(j, ArrayItemState.Accessed)! > array.Get(j + 1, ArrayItemState.Accessed)!) {
-          this.OnNotify(`[${terminal}, ${array.length - 1}] is sorted; Loop [0, ${terminal}), comparing [${j}]=${array.Get(j)} to [${j + 1}]=${array.Get(j + 1)}; [${j}]=${array.Get(j)} is larger; Swap.`)
+          await Sleep(this.delay)
+          this.PointCode(4)
           await array.Swap(j, j + 1)
+          this.PointCode(5)
           await this.Continue()
+          await Sleep(this.delay)
           noSwap = false
         }
       }
       array.PartialRestore(ArrayItemState.Accessed)
       array.State(ArrayItemState.Selected, terminal)
+      this.PointCode(6)
       await Sleep(this.delay)
       await this.Continue()
       if (noSwap) {
-        this.OnNotify(`Everything get sorted when sorting [0, ${terminal}], break`)
+        this.PointCode(7)
         await Sleep(this.delay)
         break
       }
@@ -52,4 +63,17 @@ export default class BubbleSort extends Mixins(NumericArrayAlgorithmMixin) {
     this.Run()
   }
 }
+
+export const PseudoCode = `
+{bubbleSort} (A):
+  {for} i ∈ [0, array.length):
+    noSwap ← {true}
+    {for} j ∈ [0, array.length - 1 - i):
+      {if} A[j] > A[j + 1]:
+        {swap}(j, j + 1)
+        noSwap ← {false}
+    {if} noSwap = {true}:
+      {break}
+`
+
 </script>

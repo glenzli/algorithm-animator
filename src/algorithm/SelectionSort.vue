@@ -25,7 +25,6 @@ export default class SelectionSort extends Mixins(NumericArrayAlgorithmMixin) {
         minIndex = i
       }
     }
-    this.OnNotify(`[0, ${startIndex}] is sorted; Find the minimum in [${startIndex}, ${array.length - 1}]; [${minIndex}]=${min} is minimum; Swap with [${startIndex}].`)
     await Sleep(this.delay)
     array.Restore()
     array.State(ArrayItemState.Selected, minIndex)
@@ -36,8 +35,14 @@ export default class SelectionSort extends Mixins(NumericArrayAlgorithmMixin) {
 
   async RunSelectionsort(array: ObservableArray<number>) {
     for (let i = 0; i < array.length; ++i) {
+      this.PointCode(0)
+      await Sleep(this.delay)
+      this.PointCode(1)
       let minIndex = await this.SelectMin(array, i)
+      this.PointCode(2)
+      await Sleep(this.delay)
       if (minIndex !== i) {
+        this.PointCode(3)
         await array.Swap(i, minIndex, ArrayItemState.None)
       }
       Vue.set(this.state.seperators!, 0, i)
@@ -59,4 +64,13 @@ export default class SelectionSort extends Mixins(NumericArrayAlgorithmMixin) {
     this.Run()
   }
 }
+
+export const PseudoCode = `
+{selectionSort} (A):
+  {for} i ∈ [0, array.length):
+    minIndex ← {selecMin}(i, array.length)
+    {if} minIndex ≠ i:
+      {swap}(minIndex, i)
+`
+
 </script>

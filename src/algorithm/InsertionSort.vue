@@ -19,6 +19,7 @@ export default class InsertionSort extends Mixins(NumericArrayAlgorithmMixin) {
 
   async RunInsertionsort(array: ObservableArray<number>) {
     for (let i = 1; i < array.length; ++i) {
+      this.PointCode(0)
       Vue.set(this.state.locators!, 0, i - 1)
       Vue.set(this.state.seperators!, 0, i - 1)
       let current = array.Get(i, ArrayItemState.Accessed)!
@@ -26,16 +27,24 @@ export default class InsertionSort extends Mixins(NumericArrayAlgorithmMixin) {
       await this.Continue()
       let j = i - 1
       for (; j >= 0; --j) {
+        this.PointCode(1)
+        await Sleep(this.delay)
         if (current > array.Get(j, ArrayItemState.Accessed)!) {
+          this.PointCode(2)
+          await Sleep(this.delay)
           array.State(ArrayItemState.None, j)
+          if (j !== i - 1) {
+            this.PointCode(3)
+            await Sleep(this.delay)
+            await this.Continue()
+            this.PointCode(4)
+            await array.Move(i, j + 1)
+            await this.Continue()
+          }
+          this.PointCode(5)
+          await Sleep(this.delay)
           break
         }
-      }
-      if (j !== i - 1) {
-        await Sleep(this.delay)
-        await this.Continue()
-        await array.Move(i, j + 1)
-        await this.Continue()
       }
       array.PartialRestore(ArrayItemState.Accessed)
       await this.Continue()
@@ -55,4 +64,15 @@ export default class InsertionSort extends Mixins(NumericArrayAlgorithmMixin) {
     this.Run()
   }
 }
+
+export const PseudoCode = `
+{insertionSort} (A):
+  {for} i ∈ (0, array.length):
+    {for} j ∈ [i - 1, 0]:
+      {if} A[i] > A[j]:
+        {if} j ≠ i - 1:
+          {moveTo}(i, j + 1)
+        {break}
+`
+
 </script>

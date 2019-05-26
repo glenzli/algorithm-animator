@@ -7,7 +7,7 @@ import { Component, Prop, Vue, Inject } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
 import { HeapNode, HeapNodeState, Heap } from '../model'
 import { CircleItem, PointTextItem, GroupItem, PolylineItem, Point, PointObject, Point$, SolidBrush, Color$, Stroke, Coordinate } from 'paper-vueify'
-import { GetHeapNodeOffset, HEAP_NODE_SIZE, HEAP_NODE_TEXT, ToLabel } from './defs'
+import { GetHeapNodeOffset, NODESIZE, NODETEXT, ToLabel } from './defs'
 
 @Component
 export default class HeapNodeRenderer extends Vue {
@@ -30,7 +30,7 @@ export default class HeapNodeRenderer extends Vue {
 
   get box() {
     return CircleItem({
-      radius: HEAP_NODE_SIZE / 2,
+      radius: NODESIZE / 2,
       brush: SolidBrush(Color$.ToColor(this.colors[this.node.state])),
       stroke: Stroke({ thickness: 0 }),
       coordinate: Coordinate({ position: this.offset }),
@@ -39,12 +39,12 @@ export default class HeapNodeRenderer extends Vue {
 
   get label() {
     return PointTextItem({
-      fontSize: HEAP_NODE_TEXT,
+      fontSize: NODETEXT,
       fontFamily: 'Titillium Web',
       justification: 'center',
       content: ToLabel(this.node.value),
       brush: SolidBrush(Color$.ToColor('#eee')),
-      coordinate: Coordinate({ position: Point(this.offset.x, Math.ceil(HEAP_NODE_TEXT / 3) + this.offset.y) }),
+      coordinate: Coordinate({ position: Point(this.offset.x, Math.ceil(NODETEXT / 3) + this.offset.y) }),
     })
   }
 
@@ -58,7 +58,7 @@ export default class HeapNodeRenderer extends Vue {
   get link() {
     if (this.index > 1) {
       let direction = Point$.Subtract(this.parentOffset!, this.offset)
-      let terminal = Point$.Add(Point$.Multiply(Point$.Normalize(direction), Point$.Length(direction) - HEAP_NODE_SIZE / 2), this.offset)
+      let terminal = Point$.Add(Point$.Multiply(Point$.Normalize(direction), Point$.Length(direction) - NODESIZE / 2), this.offset)
       let state = this.isActiveWithParent ? this.node.state : HeapNodeState.None
       return PolylineItem({
         points: [this.offset, terminal],
@@ -69,7 +69,7 @@ export default class HeapNodeRenderer extends Vue {
   }
 
   get visual() {
-    let opacity = this.quantizer ? (this.quantizer(this.node.value) * 0.5 + 0.5) : 1
+    let opacity = this.quantizer ? (this.quantizer(this.node.value) * 0.8 + 0.2) : 1
     return GroupItem({ children: Arrayex.NonNull([this.link, this.box, this.label]), opacity })
   }
 }

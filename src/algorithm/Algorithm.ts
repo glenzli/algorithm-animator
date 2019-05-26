@@ -24,7 +24,7 @@ export class AlgorithmMixin extends Vue {
     this.$emit('complete')
   }
 
-  OnNotify(message: string) {
-    this.$emit('notify', message)
+  PointCode(pointer: number) {
+    this.$emit('point', pointer)
   }
 }

@@ -11,7 +11,7 @@ import { Component, Prop, Vue, Inject } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
 import { CircleItem, PointTextItem, GroupItem, PolylineItem, Point, PointObject, Point$, SolidBrush, Color$, Stroke, Coordinate } from 'paper-vueify'
 import { BinaryNode, BinaryNodeState, BinaryTreeState } from '../model'
-import { BINARY_NODE_SIZE, BINARY_NODE_TEXT, GetBinaryChildrenOffsets, ToLabel } from './defs'
+import { NODESIZE, NODETEXT, GetBinaryChildrenOffsets, ToLabel } from './defs'
 
 @Component({
   name: 'binary-node-renderer',
@@ -32,7 +32,7 @@ export default class BinaryNodeRenderer extends Vue {
 
   get box() {
     return CircleItem({
-      radius: BINARY_NODE_SIZE / 2,
+      radius: NODESIZE / 2,
       brush: SolidBrush(Color$.ToColor(this.colors[this.node.state])),
       stroke: Stroke({ thickness: 0 }),
       coordinate: Coordinate({ position: this.position }),
@@ -41,25 +41,25 @@ export default class BinaryNodeRenderer extends Vue {
 
   get label() {
     return PointTextItem({
-      fontSize: BINARY_NODE_TEXT,
+      fontSize: NODETEXT,
       fontFamily: 'Titillium Web',
       justification: 'center',
       content: ToLabel(this.node.value),
       brush: SolidBrush(Color$.ToColor('#eee')),
-      coordinate: Coordinate({ position: Point(this.position.x, Math.ceil(BINARY_NODE_TEXT / 3) + this.position.y) }),
+      coordinate: Coordinate({ position: Point(this.position.x, Math.ceil(NODETEXT / 3) + this.position.y) }),
     })
   }
 
   get compareLabel() {
     if (this.node.state >= BinaryNodeState.Less) {
-      let content = this.node.state === BinaryNodeState.Less ? '<' : '>'
+      let content = this.node.state === BinaryNodeState.Less ? '<' : '≥'
       return PointTextItem({
-        fontSize: BINARY_NODE_TEXT,
+        fontSize: NODETEXT,
         fontFamily: 'Titillium Web',
         justification: 'center',
         content,
         brush: SolidBrush(Color$.ToColor(this.colors[this.node.state])),
-        coordinate: Coordinate({ position: Point(this.position.x, Math.ceil(BINARY_NODE_TEXT / 3) + this.position.y - BINARY_NODE_SIZE) }),
+        coordinate: Coordinate({ position: Point(this.position.x, Math.ceil(NODETEXT / 3) + this.position.y - NODESIZE) }),
       })
     }
     return null
@@ -75,7 +75,7 @@ export default class BinaryNodeRenderer extends Vue {
   get link() {
     if (this.node.level > 0) {
       let direction = Point$.Subtract(this.parentPosition, this.position)
-      let terminal = Point$.Add(Point$.Multiply(Point$.Normalize(direction), Point$.Length(direction) - BINARY_NODE_SIZE / 2), this.position)
+      let terminal = Point$.Add(Point$.Multiply(Point$.Normalize(direction), Point$.Length(direction) - NODESIZE / 2), this.position)
       let state = this.isActiveWithParent ? this.node.state : BinaryNodeState.None
       return PolylineItem({
         points: [this.position, terminal],
@@ -85,7 +85,7 @@ export default class BinaryNodeRenderer extends Vue {
   }
 
   get visual() {
-    let opacity = this.quantizer ? (this.quantizer(this.node.value) * 0.5 + 0.5) : 1
+    let opacity = this.quantizer ? (this.quantizer(this.node.value) * 0.8 + 0.2) : 1
     return GroupItem({ children: Arrayex.NonNull([this.link, this.box, this.label, this.compareLabel]), opacity })
   }
 }

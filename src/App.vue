@@ -11,7 +11,7 @@
                 </v-list-tile-content>
               </v-list-tile>
             </template>
-            <v-list-tile v-for="algorithm in cAlgorithms" :key="algorithm.id" @click="Select(algorithm.id, category)">
+            <v-list-tile v-for="algorithm in cAlgorithms" :key="algorithm.id" @click="Select(algorithm.id, category, algorithm.code)">
               <v-list-tile-content>
                 <v-list-tile-title>{{algorithm.name}}</v-list-tile-title>
               </v-list-tile-content>
@@ -21,18 +21,27 @@
       </v-navigation-drawer>
       <v-toolbar color="indigo darken-2" fixed app dark>
         <v-toolbar-side-icon @click.stop="ToggleDrawer"></v-toolbar-side-icon>
+        <v-spacer></v-spacer>
         <v-toolbar-title>{{readableAlgorithmName}}</v-toolbar-title>
+        <v-spacer></v-spacer>
       </v-toolbar>
       <v-content>
         <v-container fluid fill-height full-width pa-0>
-          <p-canvas :autosize="true" @resize="OnResize"></p-canvas>
-          <component v-if="currentAlgorithmId" :is="currentAlgorithmId" :n="n" :key="key" :paused="paused" :delay="delay" @complete="Complete" @notify="Notify"></component>
+          <v-layout column>
+            <v-flex>
+              <p-canvas :autosize="true" @resize="OnResize"></p-canvas>
+              <component v-if="currentAlgorithmId" :is="currentAlgorithmId" :n="n" :key="key" :paused="paused" :delay="delay" @complete="Complete" @point="PointCode"></component>
+            </v-flex>
+            <v-layout column align-center class="codebox">
+              <code-renderer :rawCode="currentAlogorithmCode" :pointer="codePointer"></code-renderer>
+            </v-layout>
+          </v-layout>
         </v-container>
       </v-content>
-      <div class="description">{{notify}}</div>
       <v-footer app fixed height="64">
         <v-container fluid fill-width fill-height>
           <v-layout align-center>
+            <v-spacer></v-spacer>
             <v-btn icon @click="Toggle">
               <v-icon>{{ paused ? 'play_arrow' : 'pause' }}</v-icon>
             </v-btn>
@@ -40,7 +49,7 @@
               <v-icon>replay</v-icon>
             </v-btn>
             <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
-            <v-slider v-model="speed" :min="1" :max="12" thumb-label="always" ticks prepend-icon="directions_walk" append-icon="directions_run"></v-slider>
+            <v-slider v-model="speed" :min="1" :max="12" thumb-label ticks prepend-icon="directions_walk" append-icon="directions_run"></v-slider>
             <v-spacer></v-spacer>
           </v-layout>
         </v-container>
@@ -53,9 +62,11 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
 import { AlgorithmComponents, AlgorithmCategories } from './algorithm'
+import { CodeRenderer } from './components'
+import { NODESIZE_X_PLUS } from './components'
 
 @Component({
-  components: { ...AlgorithmComponents },
+  components: { ...AlgorithmComponents, CodeRenderer },
 })
 export default class App extends Vue {
   paused = false
@@ -66,7 +77,8 @@ export default class App extends Vue {
   drawer = false
   currentCategory = ''
   currentAlgorithmId = ''
-  notify = ''
+  currentAlogorithmCode = '' as string | undefined
+  codePointer = -1
 
   get algorithms() {
     return AlgorithmCategories
@@ -85,11 +97,12 @@ export default class App extends Vue {
     this.drawer = !this.drawer
   }
 
-  Select(id: string, category: string) {
+  Select(id: string, category: string, code: string) {
     this.currentCategory = category
     this.currentAlgorithmId = id
+    this.currentAlogorithmCode = code
     this.paused = false
-    this.notify = ''
+    this.codePointer = -1
   }
 
   Toggle() {
@@ -103,7 +116,7 @@ export default class App extends Vue {
   Complete() {
     this.paused = true
     this.complete = true
-    this.notify = ''
+    this.codePointer = -1
   }
 
   Replay() {
@@ -112,18 +125,19 @@ export default class App extends Vue {
     this.paused = false
   }
 
-  Notify(message: string) {
-    this.notify = message
+  PointCode(pointer: number) {
+    this.codePointer = pointer
   }
 
   OnResize(size: any) {
-    this.n = Math.ceil(size.width / 48)
+    this.n = Math.floor(size.width / NODESIZE_X_PLUS) - 1
     ++this.key
   }
 
   mounted() {
     this.currentCategory = Object.keys(this.algorithms)[0]
     this.currentAlgorithmId = this.algorithms[this.currentCategory][0].id
+    this.currentAlogorithmCode = this.algorithms[this.currentCategory][0].code
   }
 }
 </script>
@@ -155,7 +169,13 @@ html, body {
   position: absolute;
   left: 10%;
   bottom: 128px;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   width: 80%;
+}
+
+.codebox {
+  flex: none!important;
+  background: #333;
+  padding: 1rem 0;
 }
 </style>

@@ -8,7 +8,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { Component, Mixins } from 'vue-property-decorator'
-import { ArrayRenderer, ARRAY_ITEM_TOTAL } from '../components'
+import { ArrayRenderer, NODESIZE_X_PLUS } from '../components'
 import { ArrayItem, ObservableArrayState, ObservableArray, $olink, Sleep, ArrayItemState } from '../model'
 import { Point } from 'paper-vueify'
 import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
@@ -23,7 +23,7 @@ export default class MergeSort extends Mixins(NumericArrayAlgorithmMixin) {
   auxPosition = Point(0, 100)
 
   async Merge(array: ObservableArray<number>, from: number, to: number, mid: number, auxArray: ObservableArray<number>) {
-    this.auxPosition.x = -(this.array.length - from - to - 1) / 2 * ARRAY_ITEM_TOTAL
+    this.auxPosition.x = -(this.array.length - from - to - 1) / 2 * NODESIZE_X_PLUS
     auxArray.Fill(to - from + 1, Number.NaN)
     let partition = mid - from + 1
     this.auxState.locators = [0, partition]

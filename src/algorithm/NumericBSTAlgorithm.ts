@@ -2,7 +2,7 @@ import { Component, Prop, Mixins, Provide, Watch } from 'vue-property-decorator'
 import { Point } from 'paper-vueify'
 import { BinaryNode, BinaryTree, $olink, BinaryNodeState, BinaryTreeState } from '../model'
 import { AlgorithmMixin } from './Algorithm'
-import { BINARY_NODE_SIZE, BINARY_NODE_SPACE_Y } from '../components'
+import { NODESIZE, NODESPACE_Y } from '../components'
 
 @Component
 export class NumericBSTAlgorithmMixin extends Mixins(AlgorithmMixin) {
@@ -20,12 +20,12 @@ export class NumericBSTAlgorithmMixin extends Mixins(AlgorithmMixin) {
   }
 
   get position() {
-    let offsetY = -this.state.height * (BINARY_NODE_SIZE + BINARY_NODE_SPACE_Y) / 2
+    let offsetY = -this.state.height * (NODESIZE + NODESPACE_Y) / 2
     return Point(0, offsetY)
   }
 
   ReduceN(n: number) {
-    return Math.max(Math.round(n * 0.5), 7)
+    return Math.max(Math.round(n * 0.5), 9)
   }
 
   CreateBST(n = 0) {

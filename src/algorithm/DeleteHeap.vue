@@ -8,7 +8,7 @@
 import { Component, Prop, Mixins } from 'vue-property-decorator'
 import { Point } from 'paper-vueify'
 import { NumericHeapAlgorithmMixin } from './NumericHeapAlgorithm'
-import { HeapRenderer, HEAP_NODE_SPACE_Y, HEAP_NODE_SIZE } from '../components'
+import { HeapRenderer, NODESPACE_Y, NODESIZE } from '../components'
 import { $olink, Heap, Sleep } from '../model'
 
 @Component({
@@ -16,7 +16,7 @@ import { $olink, Heap, Sleep } from '../model'
 })
 export default class DeleteHeap extends Mixins(NumericHeapAlgorithmMixin) {
   get position() {
-    let yOffset = -Math.floor(Math.ceil(Math.log2(this.state.count)) / 2 * (HEAP_NODE_SIZE + HEAP_NODE_SPACE_Y))
+    let yOffset = -Math.floor(Math.ceil(Math.log2(this.state.count)) / 2 * (NODESIZE + NODESPACE_Y))
     return Point(0, yOffset)
   }
 

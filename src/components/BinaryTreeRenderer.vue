@@ -10,7 +10,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { PointObject, Point } from 'paper-vueify'
 import BinaryNodeRenderer from './BinaryNodeRenderer.vue'
 import { BinaryNode, BinaryTreeState } from '../model'
-import { BINARY_NODE_SPACE_Y, BINARY_NODE_SIZE } from './defs'
+import { NODESPACE_Y, NODESIZE } from './defs'
 
 @Component({
   components: { BinaryNodeRenderer },
@@ -22,7 +22,7 @@ export default class BinaryTreeRenderer extends Vue {
   @Prop({ default: () => Point(0, 0) }) position!: PointObject
 
   get extraPosition() {
-    let y = this.position.y - BINARY_NODE_SPACE_Y - BINARY_NODE_SIZE * 2
+    let y = this.position.y - NODESPACE_Y - NODESIZE * 2
     return Point(this.position.x, y)
   }
 }
