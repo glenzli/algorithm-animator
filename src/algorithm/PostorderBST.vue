@@ -29,4 +29,6 @@ export default class PostorderBST extends Mixins(NumericBSTAlgorithmMixin) {
     this.Run()
   }
 }
+
+export const PseudoCode = BinaryTree.postorderPseudoCode
 </script>

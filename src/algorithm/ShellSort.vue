@@ -32,19 +32,19 @@ export default class ShellSort extends Mixins(NumericArrayAlgorithmMixin) {
   }
 
   async RunShellSort(array: ObservableArray<number>) {
-    this.PointCode(0)
+    this.PointTo(0)
     let interval = array.length
     await Sleep(this.delay)
     while (interval > 2) {
-      this.PointCode(1)
+      this.PointTo(1)
       await Sleep(this.delay)
-      this.PointCode(2)
+      this.PointTo(2)
       interval = Math.ceil(interval / 2)
       await Sleep(this.delay)
       for (let i = 0; i < interval; ++i) {
-        this.PointCode(3)
+        this.PointTo(3)
         await Sleep(this.delay)
-        this.PointCode(4)
+        this.PointTo(4)
         await this.ShellSortOnce(array, interval, i)
       }
     }
@@ -93,9 +93,9 @@ export default class ShellSort extends Mixins(NumericArrayAlgorithmMixin) {
 
 export const PseudoCode = `
 {shellSort} (A):
-  d ← array.length
+  d ← A.{length}
   {while} d > 1:
-    d = d / 2
+    d = ⌈d / 2⌉
     {for} i ∈ [0, d):
       {insertionSort}(A[i; i + d; ...; i + k * d; ...])
 `

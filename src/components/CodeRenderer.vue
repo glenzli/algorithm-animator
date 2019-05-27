@@ -44,6 +44,7 @@ export default class CodeRenderer extends Vue {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  padding-bottom: 64px;
 
   .at {
     color: #f7a01d;

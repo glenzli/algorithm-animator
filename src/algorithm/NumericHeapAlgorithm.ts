@@ -14,6 +14,7 @@ export class NumericHeapAlgorithmMixin extends Mixins(AlgorithmMixin) {
 
   CreateHeap() {
     this.heap = Heap.Numeric(this.n, this.range, this.state, this.Continue)
+    $olink.Get<Heap<number>>(this.heap.id)!.pointTo = this.PointTo
     this.OnDelayChanged()
   }
 

@@ -29,4 +29,6 @@ export default class InorderBST extends Mixins(NumericBSTAlgorithmMixin) {
     this.Run()
   }
 }
+
+export const PseudoCode = BinaryTree.inorderPseudoCode
 </script>

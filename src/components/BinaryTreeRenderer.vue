@@ -22,7 +22,7 @@ export default class BinaryTreeRenderer extends Vue {
   @Prop({ default: () => Point(0, 0) }) position!: PointObject
 
   get extraPosition() {
-    let y = this.position.y - NODESPACE_Y - NODESIZE * 2
+    let y = this.position.y - NODESPACE_Y * 2 - NODESIZE
     return Point(this.position.x, y)
   }
 }

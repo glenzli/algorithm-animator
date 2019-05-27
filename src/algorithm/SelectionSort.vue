@@ -35,14 +35,14 @@ export default class SelectionSort extends Mixins(NumericArrayAlgorithmMixin) {
 
   async RunSelectionsort(array: ObservableArray<number>) {
     for (let i = 0; i < array.length; ++i) {
-      this.PointCode(0)
+      this.PointTo(0)
       await Sleep(this.delay)
-      this.PointCode(1)
+      this.PointTo(1)
       let minIndex = await this.SelectMin(array, i)
-      this.PointCode(2)
+      this.PointTo(2)
       await Sleep(this.delay)
       if (minIndex !== i) {
-        this.PointCode(3)
+        this.PointTo(3)
         await array.Swap(i, minIndex, ArrayItemState.None)
       }
       Vue.set(this.state.seperators!, 0, i)
@@ -67,8 +67,8 @@ export default class SelectionSort extends Mixins(NumericArrayAlgorithmMixin) {
 
 export const PseudoCode = `
 {selectionSort} (A):
-  {for} i ∈ [0, array.length):
-    minIndex ← {selecMin}(i, array.length)
+  {for} i ∈ [0, A.{length}):
+    minIndex ← {selecMin}(i, A.{length})
     {if} minIndex ≠ i:
       {swap}(minIndex, i)
 `

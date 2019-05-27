@@ -35,6 +35,7 @@ export class NumericBSTAlgorithmMixin extends Mixins(AlgorithmMixin) {
     let { id, root } = BinaryTree.Numeric(n, this.range, this.state)
     this.roots = root
     this.id = id
+    $olink.Get<BinaryTree<number>>(id)!.pointTo = this.PointTo
     this.OnDelayChanged()
   }
 

@@ -42,4 +42,6 @@ export default class InsertHeap extends Mixins(NumericHeapAlgorithmMixin) {
     this.Run()
   }
 }
+
+export const PseudoCode = Heap.insertPseudoCode
 </script>

@@ -43,4 +43,6 @@ export default class SearchBST extends Mixins(NumericBSTAlgorithmMixin) {
     this.Run()
   }
 }
+
+export const PseudoCode = BinaryTree.searchPseudoCode
 </script>

@@ -17,21 +17,21 @@ import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 export default class BubbleSort extends Mixins(NumericArrayAlgorithmMixin) {
   async RunBubblesort(array: ObservableArray<number>) {
     for (let i = 0; i < array.length; ++i) {
-      this.PointCode(0)
+      this.PointTo(0)
       await Sleep(this.delay)
       let terminal = array.length - 1 - i
       let noSwap = true
-      this.PointCode(1)
+      this.PointTo(1)
       await Sleep(this.delay)
       for (let j = 0; j < terminal; ++j) {
-        this.PointCode(2)
+        this.PointTo(2)
         await Sleep(this.delay)
-        this.PointCode(3)
+        this.PointTo(3)
         if (array.Get(j, ArrayItemState.Accessed)! > array.Get(j + 1, ArrayItemState.Accessed)!) {
           await Sleep(this.delay)
-          this.PointCode(4)
+          this.PointTo(4)
           await array.Swap(j, j + 1)
-          this.PointCode(5)
+          this.PointTo(5)
           await this.Continue()
           await Sleep(this.delay)
           noSwap = false
@@ -39,11 +39,11 @@ export default class BubbleSort extends Mixins(NumericArrayAlgorithmMixin) {
       }
       array.PartialRestore(ArrayItemState.Accessed)
       array.State(ArrayItemState.Selected, terminal)
-      this.PointCode(6)
+      this.PointTo(6)
       await Sleep(this.delay)
       await this.Continue()
       if (noSwap) {
-        this.PointCode(7)
+        this.PointTo(7)
         await Sleep(this.delay)
         break
       }
@@ -66,9 +66,9 @@ export default class BubbleSort extends Mixins(NumericArrayAlgorithmMixin) {
 
 export const PseudoCode = `
 {bubbleSort} (A):
-  {for} i ∈ [0, array.length):
+  {for} i ∈ [0, A.{length}):
     noSwap ← {true}
-    {for} j ∈ [0, array.length - 1 - i):
+    {for} j ∈ [0, A.{length} - 1 - i):
       {if} A[j] > A[j + 1]:
         {swap}(j, j + 1)
         noSwap ← {false}

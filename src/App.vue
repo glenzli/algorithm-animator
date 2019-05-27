@@ -30,7 +30,7 @@
           <v-layout column>
             <v-flex>
               <p-canvas :autosize="true" @resize="OnResize"></p-canvas>
-              <component v-if="currentAlgorithmId" :is="currentAlgorithmId" :n="n" :key="key" :paused="paused" :delay="delay" @complete="Complete" @point="PointCode"></component>
+              <component v-if="currentAlgorithmId" :is="currentAlgorithmId" :n="n" :key="key" :paused="paused" :delay="delay" @complete="Complete" @point="PointTo"></component>
             </v-flex>
             <v-layout column align-center class="codebox">
               <code-renderer :rawCode="currentAlogorithmCode" :pointer="codePointer"></code-renderer>
@@ -103,6 +103,8 @@ export default class App extends Vue {
     this.currentAlogorithmCode = code
     this.paused = false
     this.codePointer = -1
+    // force canvas resize
+    window.dispatchEvent(new Event('resize'))
   }
 
   Toggle() {
@@ -125,7 +127,7 @@ export default class App extends Vue {
     this.paused = false
   }
 
-  PointCode(pointer: number) {
+  PointTo(pointer: number) {
     this.codePointer = pointer
   }
 
@@ -174,8 +176,8 @@ html, body {
 }
 
 .codebox {
-  flex: none!important;
+  flex: none;
   background: #333;
-  padding: 1rem 0;
+  overflow-y: auto;
 }
 </style>

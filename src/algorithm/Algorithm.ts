@@ -24,7 +24,7 @@ export class AlgorithmMixin extends Vue {
     this.$emit('complete')
   }
 
-  PointCode(pointer: number) {
+  PointTo(pointer: number) {
     this.$emit('point', pointer)
   }
 }

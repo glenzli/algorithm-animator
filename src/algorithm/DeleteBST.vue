@@ -44,4 +44,6 @@ export default class BuildHeap extends Mixins(NumericBSTAlgorithmMixin) {
     this.Run()
   }
 }
+
+export const PseudoCode = BinaryTree.deletePseudoCode
 </script>

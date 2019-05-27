@@ -31,6 +31,7 @@ export class Heap<T> {
   private _continue: () => Promise<any>
   private _nullValue: T
   private _delay: number
+  private _pointTo: (pointer: number) => void = () => {}
 
   private CalcHeapCapacity(n: number) {
     let level = Math.ceil(Math.log2(n + 1))
@@ -58,6 +59,14 @@ export class Heap<T> {
 
   static FromNumeric(data: Array<number>, state: HeapState, continuing?: () => Promise<any>) {
     return new Heap(data, state, Number.NaN, (n1, n2) => n1 - n2, Number.isNaN, continuing).data
+  }
+
+  get pointTo() {
+    return this._pointTo
+  }
+
+  set pointTo(value: (pointer: number) => void) {
+    this._pointTo = value
   }
 
   get data() {
@@ -177,15 +186,42 @@ export class Heap<T> {
     }
   }
 
-  private async Down(start: number) {
+  private static DownPseudoCode(i: string, indent = '') {
+    const code = `
+d ← 2 * ${i}
+{while} l ≤ count:
+  p ← ⌊d / 2⌋
+  r ← d + 1
+  {if} r ≤ count {and} heap[d] < heap[r]:
+    d ← s
+  {if} heap[d] > heap[p]:
+    {swap}(d, p)
+    d ← d * 2
+  {else}:
+    {break}
+`
+    return code.split('\n').filter(c => !!c).map((c, i) => `${i > 0 ? indent : ''}${c}`).join('\n')
+  }
+
+  private async Down(start: number, pointerOffset = 0) {
+    this.pointTo(pointerOffset)
     let descendant = this.Left(start)
+    await Sleep(this._delay)
     while (descendant <= this._state.count) {
+      this.pointTo(pointerOffset + 1)
+      await Sleep(this._delay)
+      this.pointTo(pointerOffset + 2)
+      await Sleep(this._delay)
       let parent = this.Parent(descendant)
+      this.pointTo(pointerOffset + 3)
+      await Sleep(this._delay)
       let sibling = this.NextSibling(descendant)
       this.State(HeapNodeState.Accessed, descendant, sibling)
+      this.pointTo(pointerOffset + 4)
       await Sleep(this._delay)
       await this._continue()
       if (descendant < this._state.count && this._compare(this._heap[descendant], this._heap[sibling]) < 0) {
+        this.pointTo(pointerOffset + 5)
         this.State(HeapNodeState.None, descendant)
         descendant = sibling
       } else {
@@ -194,53 +230,112 @@ export class Heap<T> {
       await Sleep(this._delay)
       await this._continue()
       this.State(HeapNodeState.Accessed, parent)
+      this.pointTo(pointerOffset + 6)
       if (this._compare(this._heap[descendant], this._heap[parent]) > 0) {
+        await Sleep(this._delay)
+        this.pointTo(pointerOffset + 7)
         await this.Swap(descendant, parent)
         await this._continue()
+        this.pointTo(pointerOffset + 8)
         descendant = this.Left(descendant)
       } else {
+        this.pointTo(pointerOffset + 10)
         break
       }
       this.State(HeapNodeState.None, parent)
+      await Sleep(this._delay)
     }
+  }
+
+  static get buildPseudoCode() {
+    return `
+{maxHeapify} ():
+  {for} i ∈ [capacity / 2, 0]:
+    ${this.DownPseudoCode('i', '    ')}
+    `
   }
 
   async BuildHeap() {
     for (let i = this._heap.length / 2; i > 0; --i) {
-      await this.Down(i)
+      this.pointTo(0)
+      await Sleep(this._delay)
+      await this.Down(i, 1)
       await Sleep(this._delay)
       await this._continue()
       this.Restore()
     }
   }
 
+  static get insertPseudoCode() {
+    return `
+{insert} (v):
+  {ensureCapacity}(count + 1)
+  d ← ++count
+  heap[d] ← v
+  p ← ⌊d / 2⌋
+  {while} d > 1 {and} heap[d] > heap[p]:
+    swap(d, p)
+    d ← count
+    p ← ⌊d / 2⌋
+`
+  }
+
   async Insert(value: T) {
+    this.pointTo(0)
+    await Sleep(this._delay)
     if (this._state.count + 1 >= this._heap.length) {
       let increase = this.CalcHeapCapacity(this._heap.length + 1) - this._heap.length
       this._heap.splice(this._heap.length, 0, ...Arrayex.Create(increase, () => CreateHeapNode(this._nullValue)))
     }
+    this.pointTo(1)
+    await Sleep(this._delay)
     let descendant = ++this._state.count
+    this.pointTo(2)
     this._heap[descendant].value = value
     this.State(HeapNodeState.Accessed, descendant)
     await Sleep(this._delay)
     await this._continue()
+    this.pointTo(3)
+    await Sleep(this._delay)
     let parent = Math.floor(descendant / 2)
     this.State(HeapNodeState.Accessed, parent)
     while (descendant > 1 && this._compare(this._heap[descendant], this._heap[parent]) > 0) {
+      this.pointTo(4)
+      await Sleep(this._delay)
+      this.pointTo(5)
       await this.Swap(descendant, parent)
       await this._continue()
+      this.pointTo(6)
+      await Sleep(this._delay)
       descendant = Math.floor(descendant / 2)
+      this.pointTo(7)
+      await Sleep(this._delay)
       parent = Math.floor(descendant / 2)
     }
     this.Restore()
   }
 
+  static get deletePseudoCode() {
+    return `
+{deleteMax} ():
+  maximum ← heap[1]
+  {swap}(1, count)
+  {delete} heap[count--]
+  ${this.DownPseudoCode('1', '    ')}
+  {return} maximum
+    `
+  }
+
   async Delete() {
     // cache
+    this.pointTo(0)
     let retValue = this._heap[1].value
+    await Sleep(this._delay)
     // swap
     this.State(HeapNodeState.Accessed, this._state.count, 1)
+    this.pointTo(1)
     await this.Swap(1, this._state.count)
+    this.pointTo(2)
     await Sleep(this._delay)
     await this._continue()
     this._heap[this._state.count].value = this._nullValue
@@ -248,7 +343,7 @@ export class Heap<T> {
     await Sleep(this._delay)
     await this._continue()
     // down
-    await this.Down(1)
+    await this.Down(1, 3)
     this.Restore()
     return retValue
   }

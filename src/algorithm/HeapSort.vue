@@ -30,6 +30,7 @@ export default class HeapSort extends Mixins(NumericArrayAlgorithmMixin) {
   }
 
   async RunHeapsort(array: ObservableArray<number>) {
+    this.PointTo(0)
     this.heap = Heap.FromNumeric(array.data.map(() => Number.NEGATIVE_INFINITY), this.heapState, this.Continue)
     this.OnDelayChanged()
     let heapObserver = $olink.Get<Heap<number>>(this.heap.id)!
@@ -46,11 +47,14 @@ export default class HeapSort extends Mixins(NumericArrayAlgorithmMixin) {
     await heapObserver.BuildHeap()
     // begin to remove
     while (this.heapState.count > 0) {
+      this.PointTo(1)
       await Sleep(this.delay)
+      this.PointTo(2)
       let maximum = heapObserver.Peek()!
       array.Set(this.heapState.count - 1, maximum)
       await Sleep(this.delay)
       await this.Continue()
+      this.PointTo(3)
       await heapObserver.Delete()
       heapObserver.State(HeapNodeState.Selected, 1)
       await Sleep(this.delay)
@@ -74,4 +78,12 @@ export default class HeapSort extends Mixins(NumericArrayAlgorithmMixin) {
     $olink.Get<Heap<number>>(this.heap.id)!.delay = this.delay
   }
 }
+
+export const PseudoCode = `
+{heapSort} (A):
+  maxHeap ← {createMaxHeap}(A)
+  {while} maxHeap.{empty} ≠ true:
+    A[maxHeap.{count} - 1] ← maxHeap.{peek}()
+    maximum ← maxHeap.{delete}()
+`
 </script>

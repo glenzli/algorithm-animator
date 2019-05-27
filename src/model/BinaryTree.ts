@@ -35,6 +35,7 @@ export class BinaryTree<T> {
   private _delay: number
   private _id: number
   private _state: BinaryTreeState
+  private _pointTo: (pointer: number) => void = () => {}
 
   constructor(array: Array<T> = [], state: BinaryTreeState, compare: (val1: T, val2: T) => number) {
     this._state = state
@@ -80,6 +81,14 @@ export class BinaryTree<T> {
   static FromNumeric(data: Array<number>, state: BinaryTreeState) {
     let tree = new BinaryTree(data, state, (n1, n2) => n1 - n2)
     return { id: tree._id, root: tree.root }
+  }
+
+  get pointTo() {
+    return this._pointTo
+  }
+
+  set pointTo(value: (pointer: number) => void) {
+    this._pointTo = value
   }
 
   get root() {
@@ -144,20 +153,47 @@ export class BinaryTree<T> {
     return result
   }
 
+  static get insertPseudoCode() {
+    return `
+{insert} (v):
+  p ← {root}
+  n ← v > p.{value} ? p.{right} : p.{left}
+  {while} n ≠ {nil}:
+    p ← n
+    n ← v > n.{value} ? n.{right} : n.{left}
+  {if} v > p.value:
+    p.{right} = {node}(v)
+  {else}
+    p.{left} = {node}(v)
+`
+  }
+
   async Insert(value: T) {
     if (this._root.length > 0) {
       let node = CreateBinaryNode(value)
+      this.pointTo(0)
       let parent = this._root[0]
+      await Sleep(this._delay)
+      this.pointTo(1)
       let current = await this.VisitCompare(node, parent) > 0 ? parent.right[0] : parent.left[0]
       while (current) {
+        this.pointTo(2)
+        await Sleep(this._delay)
         node.level++
+        this.pointTo(3)
+        await Sleep(this._delay)
         parent = current
+        this.pointTo(4)
         current = await this.VisitCompare(node, parent) > 0 ? parent.right[0] : parent.left[0]
       }
       node.level++
+      this.pointTo(5)
+      await Sleep(this._delay)
       if (this._compare(node, parent) > 0) {
+        this.pointTo(6)
         parent.right.push(node)
       } else {
+        this.pointTo(8)
         parent.left.push(node)
       }
       this.VisitNode(node)
@@ -173,20 +209,38 @@ export class BinaryTree<T> {
   private async SearchAt(node: BinaryNode<T>, value: T) {
     let fakeNode = CreateBinaryNode(value)
     let result = await this.VisitCompare(fakeNode, node)
+    this.pointTo(0)
+    await Sleep(this._delay)
     if (result > 0) {
+      this.pointTo(1)
+      await Sleep(this._delay)
       if (node.right.length > 0) {
         await this.SearchAt(node.right[0], value)
       }
     } else if (result < 0) {
+      this.pointTo(3)
+      await Sleep(this._delay)
       if (node.left.length > 0) {
         await this.SearchAt(node.left[0], value)
       }
     } else {
+      this.pointTo(5)
       this.State(BinaryNodeState.Selected, node)
       await Sleep(this._delay)
     }
   }
 
+  static get searchPseudoCode() {
+    return `
+{search} (v, n ← {root}):
+  {if} v > n.{value}:
+    {return} n.{right} ≠ {nil} ? {search}(v, n.{right}) : {nil}
+  {eif} v < n.{value}:
+    {return} n.{left} ≠ {nil} ? {search}(v, n.{left}) : {nil}
+  {else}:
+    {return} n
+`
+  }
   async Search(value: T, restored = true) {
     await this.SearchAt(this._root[0], value)
     if (restored) {
@@ -196,13 +250,33 @@ export class BinaryTree<T> {
   }
 
   private async PreorderInterval(node: BinaryNode<T>) {
+    this.pointTo(0)
     await this.VisitNode(node)
+    this.pointTo(1)
+    await Sleep(this._delay)
     if (node.left.length > 0) {
+      this.pointTo(2)
+      await Sleep(this._delay)
       await this.PreorderInterval(node.left[0])
     }
+    this.pointTo(3)
+    await Sleep(this._delay)
     if (node.right.length > 0) {
+      this.pointTo(4)
+      await Sleep(this._delay)
       await this.PreorderInterval(node.right[0])
     }
+  }
+
+  static get preorderPseudoCode() {
+    return `
+{preorder} (n ← {root}):
+  {visit}(n)
+  {if} n.{left} ≠ {nil}:
+    {preorder}(n.{left})
+  {if} n.{right} ≠ {nil}:
+    {preorder}(n.{right})
+`
   }
 
   async Preorder() {
@@ -212,13 +286,34 @@ export class BinaryTree<T> {
   }
 
   private async PostorderInterval(node: BinaryNode<T>) {
+    this.pointTo(0)
+    await Sleep(this._delay)
     if (node.left.length > 0) {
+      this.pointTo(1)
+      await Sleep(this._delay)
       await this.PostorderInterval(node.left[0])
     }
+    this.pointTo(2)
+    await Sleep(this._delay)
     if (node.right.length > 0) {
+      await Sleep(this._delay)
+      this.pointTo(3)
+      await Sleep(this._delay)
       await this.PostorderInterval(node.right[0])
     }
+    this.pointTo(4)
     await this.VisitNode(node)
+  }
+
+  static get postorderPseudoCode() {
+    return `
+{postorder} (n ← {root}):
+  {if} n.{left} ≠ {nil}:
+    {postorder}(n.{left})
+  {if} n.{right} ≠ {nil}:
+    {postorder}(n.{right})
+  {visit}(n)
+`
   }
 
   async Postorder() {
@@ -228,13 +323,34 @@ export class BinaryTree<T> {
   }
 
   private async InorderInterval(node: BinaryNode<T>) {
+    this.pointTo(0)
+    await Sleep(this._delay)
     if (node.left.length > 0) {
+      this.pointTo(1)
+      await Sleep(this._delay)
       await this.InorderInterval(node.left[0])
     }
+    this.pointTo(2)
+    await Sleep(this._delay)
     await this.VisitNode(node)
+    this.pointTo(3)
+    await Sleep(this._delay)
     if (node.right.length > 0) {
+      this.pointTo(4)
+      await Sleep(this._delay)
       await this.InorderInterval(node.right[0])
     }
+  }
+
+  static get inorderPseudoCode() {
+    return `
+{inorder} (n ← {root}):
+  {if} n.{left} ≠ {nil}:
+    {inorder}(n.{left})
+  {visit}(n)
+  {if} n.{right} ≠ {nil}:
+    {inorder}(n.{right})
+`
   }
 
   async Inorder() {
@@ -279,16 +395,41 @@ export class BinaryTree<T> {
     }
   }
 
+  static get deletePseudoCode() {
+    return `
+{delete} (v):
+  n ← search(v)
+  {if} n ≠ {nil}:
+    {if} n.{left} ≠ {nil} {and} n.{right} ≠ {nil}:
+      s ← n.{right}.{left}...{left}
+      {replace}(s, s.{right})
+      s.{left} = n.{left}
+      s.{right} = n.{right}
+      {replace}(n, s)
+    {eif} n.{left} ≠ {nil} {or} n.{right} ≠ {nil}:
+      {replace}(n, n.{left} {or} n.{right})
+    {else}:
+      {replace}(n, {nil})
+`
+  }
+
   async Delete(value: T) {
+    this.pointTo(0)
+    let cached = this.pointTo
+    this.pointTo = () => {}
     await this.Search(value, false)
+    this.pointTo = cached
     let result = this.InstantSearchAt(this._root[0], null, value)
-    while (result) {
+    this.pointTo(1)
+    if (result) {
       await this.VisitNode(result.node, BinaryNodeState.Selected)
       let { node, parentNode } = result
       let branches = node.left.length + node.right.length
+      this.pointTo(2)
       if (branches > 1) {
         let ps = node
         let successor = node.right[0]
+        this.pointTo(3)
         await this.VisitNode(successor)
         let probe = successor.left[0]
         while (probe) {
@@ -298,27 +439,35 @@ export class BinaryTree<T> {
           probe = probe.left[0]
         }
         this.State(BinaryNodeState.Swapping, node, successor)
-        await Sleep(this._delay)
         // successor should have no left child but possible right child, isolate successor
         let right = successor.right.splice(0)
+        this.pointTo(4)
+        await Sleep(this._delay)
         if (ps !== node) {
           ps.left.splice(0, 1, ...right)
         } else {
           ps.right.splice(0, 1, ...right)
         }
         // now the successor is isolated
+        this.pointTo(5)
+        await Sleep(this._delay)
+        this.pointTo(6)
+        await Sleep(this._delay)
         successor.left.push(...node.left.splice(0))
         successor.right.push(...node.right.splice(0))
+        this.pointTo(7)
         await this.SpliceNode(parentNode, node, successor)
       } else if (branches > 0) {
+        this.pointTo(9)
         let branchNode = node.left.length > 0 ? node.left[0] : node.right[0]
         this.State(BinaryNodeState.Swapping, node, branchNode)
         await Sleep(this._delay)
         await this.SpliceNode(parentNode, node, branchNode)
       } else {
+        this.pointTo(11)
         await this.SpliceNode(parentNode, node)
       }
-      result = this._root.length > 0 ? this.InstantSearchAt(this._root[0], null, value) : null
+      // result = this._root.length > 0 ? this.InstantSearchAt(this._root[0], null, value) : null
       if (this._root.length > 0) {
         this.Restore(this._root[0])
       }

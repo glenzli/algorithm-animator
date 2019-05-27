@@ -43,4 +43,6 @@ export default class InsertBST extends Mixins(NumericBSTAlgorithmMixin) {
     this.Run()
   }
 }
+
+export const PseudoCode = BinaryTree.insertPseudoCode
 </script>
