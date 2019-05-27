@@ -1,6 +1,6 @@
 {
   "name": "algorithm-animator",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -46,7 +46,7 @@
     "coverageThreshold": {
       "global": {
         "branches": 50,
-        "functions": 80,
+        "functions": 70,
         "lines": 50,
         "satements": 50
       }
