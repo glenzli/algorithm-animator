@@ -38,7 +38,7 @@ export default class InsertHeap extends Mixins(NumericHeapAlgorithmMixin) {
   }
 
   mounted() {
-    this.CreateHeap()
+    this.CreateHeap(Math.floor(this.n / 2))
     this.Run()
   }
 }

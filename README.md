@@ -1,4 +1,4 @@
-# Algorithm Animator
+# <img src="./public/favicon.ico" width="22"/> Algorithm Animator
 ![Build State](https://img.shields.io/travis/luz-alphacode/algorithm-animator.svg?style=flat-square)
 ![Coverage](https://img.shields.io/codecov/c/github/luz-alphacode/algorithm-animator.svg?style=flat-square)
 ![License](https://img.shields.io/github/license/luz-alphacode/algorithm-animator.svg?color=%23333&style=flat-square)

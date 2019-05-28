@@ -21,7 +21,6 @@
       </v-navigation-drawer>
       <v-toolbar color="indigo darken-2" fixed app dark>
         <v-toolbar-side-icon @click.stop="ToggleDrawer"></v-toolbar-side-icon>
-        <v-spacer></v-spacer>
         <v-toolbar-title>{{readableAlgorithmName}}</v-toolbar-title>
         <v-spacer></v-spacer>
       </v-toolbar>
