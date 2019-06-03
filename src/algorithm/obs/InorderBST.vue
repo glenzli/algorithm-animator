@@ -7,8 +7,8 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import { NumericBSTAlgorithmMixin } from './NumericBSTAlgorithm'
-import { BinaryTreeRenderer } from '../components'
-import { $olink, BinaryTree } from '../model'
+import { BinaryTreeRenderer } from '../../components'
+import { $olink, BinaryTree } from '../../model'
 
 @Component({
   components: { BinaryTreeRenderer },

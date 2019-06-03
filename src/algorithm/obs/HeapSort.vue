@@ -9,8 +9,8 @@
 import { Component, Mixins, Watch } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
 import { Point, Point$ } from 'paper-vueify'
-import { ObservableArray, ArrayItem, $olink, ObservableArrayState, HeapNodeState, HeapNode, HeapState, Sleep, Heap } from '../model'
-import { ArrayRenderer, HeapRenderer, NODESIZE, NODESPACE_Y, NODESIZE_X_PLUS } from '../components'
+import { ObservableArray, ArrayItem, $olink, ObservableArrayState, HeapNodeState, HeapNode, HeapState, Sleep, Heap } from '../../model'
+import { ArrayRenderer, HeapRenderer, NODESIZE, NODESPACE_Y, NODESIZE_X_PLUS } from '../../components'
 import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 
 @Component({

@@ -8,8 +8,8 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import { Point } from 'paper-vueify'
 import { NumericBSTAlgorithmMixin } from './NumericBSTAlgorithm'
-import { BinaryTreeRenderer } from '../components'
-import { $olink, Sleep, BinaryTree, BinaryNode, BinaryNodeState } from '../model'
+import { BinaryTreeRenderer } from '../../components'
+import { $olink, Sleep, BinaryTree, BinaryNode, BinaryNodeState } from '../../model'
 
 @Component({
   components: { BinaryTreeRenderer },

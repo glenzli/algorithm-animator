@@ -8,28 +8,29 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import { Point } from 'paper-vueify'
 import { NumericBSTAlgorithmMixin } from './NumericBSTAlgorithm'
-import { BinaryTreeRenderer } from '../components'
-import { $olink, Sleep, BinaryTree, BinaryNode, BinaryNodeState } from '../model'
+import { BinaryTreeRenderer } from '../../components'
+import { $olink, Sleep, BinaryTree, BinaryNode, BinaryNodeState } from '../../model'
 
 @Component({
   components: { BinaryTreeRenderer },
 })
-export default class InsertBST extends Mixins(NumericBSTAlgorithmMixin) {
-  insertNode: BinaryNode<number> = { value: Number.NaN, left: [], right: [], level: 0, state: BinaryNodeState.Swapping }
+export default class BuildHeap extends Mixins(NumericBSTAlgorithmMixin) {
+  searchNode: BinaryNode<number> = { value: Number.NaN, left: [], right: [], level: 0, state: BinaryNodeState.Swapping }
 
   get insertExtra() {
-    return Number.isNaN(this.insertNode.value) ? null : this.insertNode
+    return Number.isNaN(this.searchNode.value) ? null : this.searchNode
   }
 
   async RunBuild(tree: BinaryTree<any>) {
     await Sleep(this.delay)
-    let data = BinaryTree.NumericData(this.ReduceN(this.n) - 1, this.range)
+    let data = BinaryTree.NumericData(Math.ceil((this.n + 1) / 2), this.range)
+    data = [tree.root[0].value, ...data]
     for (let value of data) {
-      this.insertNode.value = value
-      await tree.Insert(value)
+      this.searchNode.value = value
+      await tree.Delete(value)
       await this.Continue()
     }
-    this.insertNode.value = Number.NaN
+    this.searchNode.value = Number.NaN
   }
 
   async Run() {
@@ -39,10 +40,10 @@ export default class InsertBST extends Mixins(NumericBSTAlgorithmMixin) {
   }
 
   mounted() {
-    this.CreateBST(1)
+    this.CreateBST()
     this.Run()
   }
 }
 
-export const PseudoCode = BinaryTree.insertPseudoCode
+export const PseudoCode = BinaryTree.deletePseudoCode
 </script>

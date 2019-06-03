@@ -11,7 +11,7 @@
                 </v-list-tile-content>
               </v-list-tile>
             </template>
-            <v-list-tile v-for="algorithm in cAlgorithms" :key="algorithm.id" @click="Select(algorithm.id, category, algorithm.code)">
+            <v-list-tile v-for="(algorithm, index) in cAlgorithms" :key="algorithm.id" @click="Select(index, category)">
               <v-list-tile-content>
                 <v-list-tile-title>{{algorithm.name}}</v-list-tile-title>
               </v-list-tile-content>
@@ -29,10 +29,10 @@
           <v-layout column>
             <v-flex>
               <p-canvas :autosize="true" @resize="OnResize"></p-canvas>
-              <component v-if="currentAlgorithmId" :is="currentAlgorithmId" :n="n" :key="key" :paused="paused" :delay="delay" @complete="Complete" @point="PointTo"></component>
+              <component v-if="currentAlgorithm" :is="currentAlgorithm.id" :n="n" :key="version"></component>
             </v-flex>
             <v-layout column align-center class="codebox">
-              <code-renderer :rawCode="currentAlogorithmCode" :pointer="codePointer"></code-renderer>
+              <code-renderer v-if="currentAlgorithm" :rawCode="currentAlgorithm.code"></code-renderer>
             </v-layout>
           </v-layout>
         </v-container>
@@ -58,34 +58,38 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
-import { AlgorithmComponents, AlgorithmCategories } from './algorithm'
-import { CodeRenderer } from './components'
-import { NODESIZE_X_PLUS } from './components'
+import { Algorithms, AlgorithmComponents } from './algorithm'
+import { ITEM_SIZES, CodeRenderer } from './renderer'
+import { Interact } from './model'
 
 @Component({
   components: { ...AlgorithmComponents, CodeRenderer },
 })
 export default class App extends Vue {
   paused = false
-  complete = false
   speed = 6
   n = 50
-  key = 0
+  version = 0
   drawer = false
   currentCategory = ''
-  currentAlgorithmId = ''
-  currentAlogorithmCode = '' as string | undefined
-  codePointer = -1
+  currentAlgorithmIndex = 0
 
   get algorithms() {
-    return AlgorithmCategories
+    return Algorithms
+  }
+
+  get currentAlgorithm() {
+    return this.currentCategory ? this.algorithms[this.currentCategory][this.currentAlgorithmIndex] : null
   }
 
   get readableAlgorithmName() {
-    let name = this.currentAlgorithmId.substr(0, this.currentAlgorithmId.length - this.currentCategory.length)
-    return `${this.currentCategory}::${name}`
+    if (this.currentCategory && this.currentAlgorithm) {
+      return `${this.currentCategory}::${this.currentAlgorithm.name}`
+    } else {
+      return 'Algorithm'
+    }
   }
 
   get delay() {
@@ -96,49 +100,36 @@ export default class App extends Vue {
     this.drawer = !this.drawer
   }
 
-  Select(id: string, category: string, code: string) {
+  Select(index: number, category: string) {
     this.currentCategory = category
-    this.currentAlgorithmId = id
-    this.currentAlogorithmCode = code
-    this.paused = false
-    this.codePointer = -1
+    this.currentAlgorithmIndex = index
+    Interact.paused = false
     // force canvas resize
     window.dispatchEvent(new Event('resize'))
   }
 
   Toggle() {
-    if (!this.complete) {
-      this.paused = !this.paused
-    } else {
-      this.Replay()
-    }
-  }
-
-  Complete() {
-    this.paused = true
-    this.complete = true
-    this.codePointer = -1
+    Interact.paused = !Interact.paused
   }
 
   Replay() {
-    ++this.key
-    this.complete = false
-    this.paused = false
-  }
-
-  PointTo(pointer: number) {
-    this.codePointer = pointer
+    Interact.paused = false
+    ++this.version
   }
 
   OnResize(size: any) {
-    this.n = Math.floor(size.width / NODESIZE_X_PLUS) - 1
-    ++this.key
+    this.n = Math.floor(size.width / ITEM_SIZES.DIAMETER_SPACED) - 1
+    ++this.version
+  }
+
+  @Watch('delay')
+  OnDelayChanged(delay: number) {
+    Interact.delay = delay
   }
 
   mounted() {
     this.currentCategory = Object.keys(this.algorithms)[0]
-    this.currentAlgorithmId = this.algorithms[this.currentCategory][0].id
-    this.currentAlogorithmCode = this.algorithms[this.currentCategory][0].code
+    Interact.OnPaused(paused => { this.paused = paused })
   }
 }
 </script>

@@ -1,5 +1,5 @@
 import { Component, Prop, Mixins, Provide, Watch } from 'vue-property-decorator'
-import { ArrayItem, ObservableArray, $olink } from '../model'
+import { ArrayItem, ObservableArray, $olink } from '../../model'
 import { AlgorithmMixin } from './Algorithm'
 
 @Component

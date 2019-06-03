@@ -8,8 +8,8 @@
 <script lang="ts">
 import Vue from 'vue'
 import { Component, Mixins } from 'vue-property-decorator'
-import { ArrayRenderer, NODESIZE_X_PLUS } from '../components'
-import { ArrayItem, ObservableArrayState, ObservableArray, $olink, Sleep, ArrayItemState } from '../model'
+import { ArrayRenderer, NODESIZE_X_PLUS } from '../../components'
+import { ArrayItem, ObservableArrayState, ObservableArray, $olink, Sleep, ArrayItemState } from '../../model'
 import { Point } from 'paper-vueify'
 import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 

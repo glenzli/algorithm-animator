@@ -1,8 +1,8 @@
 import { Component, Prop, Mixins, Provide, Watch } from 'vue-property-decorator'
 import { Point } from 'paper-vueify'
-import { BinaryNode, BinaryTree, $olink, BinaryNodeState, BinaryTreeState } from '../model'
+import { BinaryNode, BinaryTree, $olink, BinaryNodeState, BinaryTreeState } from '../../model'
 import { AlgorithmMixin } from './Algorithm'
-import { NODESIZE, NODESPACE_Y } from '../components'
+import { NODESIZE, NODESPACE_Y } from '../../components'
 
 @Component
 export class NumericBSTAlgorithmMixin extends Mixins(AlgorithmMixin) {

@@ -1,5 +1,5 @@
 import { Component, Prop, Mixins, Provide, Watch } from 'vue-property-decorator'
-import { HeapNode, Heap, HeapState, $olink } from '../model'
+import { HeapNode, Heap, HeapState, $olink } from '../../model'
 import { AlgorithmMixin } from './Algorithm'
 
 @Component

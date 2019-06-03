@@ -7,8 +7,8 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import { Arrayex } from 'arrayex'
-import { ObservableArray, ArrayItem, $olink, ObservableArrayState, ArrayItemState, Sleep } from '../model'
-import { ArrayRenderer } from '../components'
+import { ObservableArray, ArrayItem, $olink, ObservableArrayState, ArrayItemState, Sleep } from '../../model'
+import { ArrayRenderer } from '../../components'
 import { NumericArrayAlgorithmMixin } from './NumericArrayAlgorithm'
 
 @Component({

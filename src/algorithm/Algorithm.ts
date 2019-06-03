@@ -1,30 +1,20 @@
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Vue } from 'vue-property-decorator'
+import { Algorithm, AbstractData, ADT, Interact } from '../model'
 
 @Component
 export class AlgorithmMixin extends Vue {
-  @Prop({ default: 500 }) delay!: number
-  @Prop({ default: false }) paused!: boolean
+  abstractData: AbstractData = { id: -1 }
 
-  async Continue() {
-    return new Promise(resolve => {
-      if (this.paused) {
-        let handle = setInterval(() => {
-          if (!this.paused) {
-            clearInterval(handle)
-            resolve()
-          }
-        }, 250)
-      } else {
-        resolve()
-      }
-    })
+  Init() {}
+
+  async Run() {
+    let algorithm = Algorithm.From<Algorithm<AbstractData, ADT<AbstractData>>>(this.abstractData.id)
+    this.abstractData = algorithm.Init()
+    await algorithm.Run()
   }
 
-  OnComplete() {
-    this.$emit('complete')
-  }
-
-  PointTo(pointer: number) {
-    this.$emit('point', pointer)
+  mounted() {
+    this.Init()
+    this.Run()
   }
 }

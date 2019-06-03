@@ -1,0 +1,29 @@
+import { Algorithm } from '../Algorithm'
+import { ArrayADT, ArrayData } from '../adt'
+
+export abstract class SortAlgorithm<T> extends Algorithm<ArrayData<T>, ArrayADT<T>> {
+  private _generator: () => T
+  private _n = 10
+
+  constructor(generator: () => T, compare?: (val1: T, val2: T) => number) {
+    super(new ArrayADT(compare))
+    this._generator = generator
+  }
+
+  get data() {
+    return this._adt.data
+  }
+
+  get n() {
+    return this._n
+  }
+
+  set n(value: number) {
+    this._n = value
+  }
+
+  Init(): ArrayData<T> {
+    this._adt.Replace(new Array(this._n).fill(0).map(() => this._generator()))
+    return this._adt.data
+  }
+}

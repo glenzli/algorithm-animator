@@ -8,8 +8,8 @@
 import { Component, Prop, Mixins } from 'vue-property-decorator'
 import { Point } from 'paper-vueify'
 import { NumericHeapAlgorithmMixin } from './NumericHeapAlgorithm'
-import { HeapRenderer, NODESPACE_Y, NODESIZE } from '../components'
-import { $olink, Heap } from '../model'
+import { HeapRenderer, NODESPACE_Y, NODESIZE } from '../../components'
+import { $olink, Heap } from '../../model'
 
 @Component({
   components: { HeapRenderer },
