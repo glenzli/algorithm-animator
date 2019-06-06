@@ -3,41 +3,32 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { Component, Prop, Inject } from 'vue-property-decorator'
-import { PointObject, Point, Coordinate, RectangleItem, PointTextItem, GroupItem } from 'paper-vueify'
-import { ValueItem } from '../model'
-import { ItemHelpers, ITEM_SIZES, STATE_BRUSHES, TEXT_BRUSH, EMPTY_STROKE } from './Defs'
+import { Component, Mixins } from 'vue-property-decorator'
+import { Point, Point$, Coordinate, RectangleItem, PointTextItem } from 'paper-vueify'
+import { ITEM_SIZES } from './Defs'
+import { GenericItemMixin } from './GenericItem'
 
 @Component
-export default class ValueItemRenderer extends Vue {
-  @Prop({ required: true }) item!: ValueItem<any>
-  @Prop({ required: true }) position!: PointObject
-
-  @Inject({ default: null }) quantizer!: ((val: any) => number) | null
-
+export default class ValueItemRenderer extends Mixins(GenericItemMixin) {
   get box() {
     return RectangleItem({
-      size: Point(ITEM_SIZES.DIAMETER, ITEM_SIZES.DIAMETER),
-      brush: STATE_BRUSHES[this.item.action],
-      stroke: EMPTY_STROKE,
+      size: Point(ITEM_SIZES.DIAMETER, this.diameter),
+      ...this.boxStyle,
     })
   }
 
-  get label() {
-    return PointTextItem({
-      fontSize: ITEM_SIZES.TEXT,
-      fontFamily: 'Titillium Web',
-      justification: 'center',
-      content: ItemHelpers.ToLabel(this.item.value),
-      brush: TEXT_BRUSH,
-      coordinate: ITEM_SIZES.TEXT_BIAS,
-    })
+  get stateLabel() {
+    if (this.stateLabelProps) {
+      return PointTextItem({
+        ...this.stateLabelProps,
+        coordinate: Coordinate({ position: Point$.Add(ITEM_SIZES.TEXT_BIAS.position, Point(0, ITEM_SIZES.DIAMETER + ITEM_SIZES.SPACE.x)) }),
+      })
+    }
+    return null
   }
 
-  get visual() {
-    let opacity = this.quantizer ? (this.quantizer(this.item.value) * 0.8 + 0.2) : 1
-    return GroupItem({ children: [this.box, this.label], opacity, coordinate: Coordinate({ position: this.position }) })
+  get parts() {
+    return [this.box, this.label, this.stateLabel]
   }
 }
 </script>

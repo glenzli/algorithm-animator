@@ -6,16 +6,24 @@
           <v-list-group v-for="(cAlgorithms, category) in algorithms" :key="category">
             <template v-slot:activator>
               <v-list-tile>
-                <v-list-tile-content>
-                  <v-list-tile-title class="category">{{category}}</v-list-tile-title>
-                </v-list-tile-content>
+                <v-list-tile-title class="category">{{category}}</v-list-tile-title>
               </v-list-tile>
             </template>
-            <v-list-tile v-for="(algorithm, index) in cAlgorithms" :key="algorithm.id" @click="Select(index, category)">
-              <v-list-tile-content>
+            <template v-for="(algorithm, index) in cAlgorithms">
+              <v-list-tile v-if="algorithm.id" :key="index" @click="Select(index, category)">
                 <v-list-tile-title>{{algorithm.name}}</v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
+              </v-list-tile>
+              <v-list-group v-else :key="index" sub-group no-action>
+                <template v-slot:activator>
+                  <v-list-tile>
+                    <v-list-tile-title class="category sub">{{index}}</v-list-tile-title>
+                  </v-list-tile>
+                </template>
+                <v-list-tile v-for="(subAlgorithm, subIndex) in algorithm" :key="subIndex" @click="Select(subIndex, category, index)">
+                  <v-list-tile-title>{{subAlgorithm.name}}</v-list-tile-title>
+                </v-list-tile>
+              </v-list-group>
+            </template>
           </v-list-group>
         </v-list>
       </v-navigation-drawer>
@@ -74,6 +82,7 @@ export default class App extends Vue {
   version = 0
   drawer = false
   currentCategory = ''
+  currentSubCategory = ''
   currentAlgorithmIndex = 0
 
   get algorithms() {
@@ -81,7 +90,13 @@ export default class App extends Vue {
   }
 
   get currentAlgorithm() {
-    return this.currentCategory ? this.algorithms[this.currentCategory][this.currentAlgorithmIndex] : null
+    if (this.currentCategory) {
+      if (this.currentSubCategory) {
+        return (this.algorithms[this.currentCategory] as { [index: string]: Array<{ name: string, id: string, code: string }> })[this.currentSubCategory][this.currentAlgorithmIndex]
+      }
+      return (this.algorithms[this.currentCategory] as Array<{ name: string, id: string, code: string }>)[this.currentAlgorithmIndex]
+    }
+    return null
   }
 
   get readableAlgorithmName() {
@@ -100,8 +115,9 @@ export default class App extends Vue {
     this.drawer = !this.drawer
   }
 
-  Select(index: number, category: string) {
+  Select(index: number, category: string, subCategory = '') {
     this.currentCategory = category
+    this.currentSubCategory = subCategory
     this.currentAlgorithmIndex = index
     Interact.paused = false
     // force canvas resize
@@ -109,7 +125,12 @@ export default class App extends Vue {
   }
 
   Toggle() {
-    Interact.paused = !Interact.paused
+    if (Interact.paused && Interact.running === 0) {
+      ++this.version
+      Interact.paused = false
+    } else {
+      Interact.paused = !Interact.paused
+    }
   }
 
   Replay() {
@@ -144,7 +165,7 @@ html, body {
 }
 
 #app {
-  font-family: 'Titillium Web', sans-serif;;
+  font-family: 'Titillium Web', Consolas, 'Microsoft YaHei', sans-serif;;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
@@ -155,6 +176,10 @@ html, body {
 .category {
   font-weight: bold;
   font-size: 1.1rem;
+
+  &.sub {
+    font-size: 1rem;
+  }
 }
 
 .description {

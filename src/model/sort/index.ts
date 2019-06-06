@@ -1,3 +1,7 @@
 export * from './Sort'
 export * from './BubbleSort'
 export * from './SelectionSort'
+export * from './InsertionSort'
+export * from './QuickSort'
+export * from './MergeSort'
+export * from './ShellSort'

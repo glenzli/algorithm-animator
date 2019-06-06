@@ -19,10 +19,10 @@ export abstract class SortAlgorithm<T> extends Algorithm<ArrayData<T>, ArrayADT<
   }
 
   set n(value: number) {
-    this._n = value
+    this._n = Math.max(value, 1)
   }
 
-  Init(): ArrayData<T> {
+  Init() {
     this._adt.Replace(new Array(this._n).fill(0).map(() => this._generator()))
     return this._adt.data
   }

@@ -3,8 +3,8 @@ import { SortAlgorithm } from './Sort'
 
 PseudoCode.Pseudo('SelectionSort', `
 selectionSort(A):
-  for i ∈ [0, A.length):
-    minIndex ← selectMin(A[i...])
+  for i ∈ [0, A.size):
+    minIndex ← selectMin(A[i, ⋯])
     if minIndex ≠ i:
       swap(minIndex, i)
 `)
@@ -24,8 +24,9 @@ export class SelectionSort<T> extends SortAlgorithm<T> {
   }
 
   protected async RunCore() {
+    PseudoCode.RunAt(0)
     for (let i = 0; i < this._adt.length; ++i) {
-      this._adt.Partition(i, this._adt.length - 1)
+      this._adt.Partition(i)
       PseudoCode.RunAt(1)
       let min = await this.SelectMin(i)
       if (min !== i) {
@@ -34,6 +35,6 @@ export class SelectionSort<T> extends SortAlgorithm<T> {
       }
       this._adt.Restore()
     }
-    this._adt.Partition()
+    this._adt.Reset()
   }
 }

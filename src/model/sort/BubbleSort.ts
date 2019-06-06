@@ -3,9 +3,9 @@ import { SortAlgorithm } from './Sort'
 
 PseudoCode.Pseudo('BubbleSort', `
 bubbleSort(A):
-  for i ∈ [0, A.length):
+  for i ∈ [0, A.size):
     noSwap ← true
-    for j ∈ [0, A.length - 1 - i):
+    for j ∈ [0, A.size - i - 1):
       if A[j] > A[j + 1]:
         swap(j, j + 1)
         noSwap ← false
@@ -15,6 +15,7 @@ bubbleSort(A):
 
 export class BubbleSort<T> extends SortAlgorithm<T> {
   protected async RunCore() {
+    PseudoCode.RunAt(0)
     for (let i = 0; i < this._adt.length; ++i) {
       await PseudoCode.RunAt(1)
       let noSwap = true
@@ -36,7 +37,6 @@ export class BubbleSort<T> extends SortAlgorithm<T> {
         break
       }
     }
-    this._adt.Partition()
-    this._adt.Restore()
+    this._adt.Reset()
   }
 }

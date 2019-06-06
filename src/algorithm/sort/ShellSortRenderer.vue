@@ -7,13 +7,13 @@
 <script lang="ts">
 import Vue from 'vue'
 import { Component, Mixins } from 'vue-property-decorator'
-import { SelectionSort } from '../../model'
+import { ShellSort } from '../../model'
 import { SortAlgorithmMixin } from './Sort'
 
 @Component
-export default class SelectionSortRenderer extends Mixins(SortAlgorithmMixin) {
+export default class ShellSortRenderer extends Mixins(SortAlgorithmMixin) {
   InitSort(generator: () => any) {
-    return new SelectionSort(generator)
+    return new ShellSort(generator)
   }
 }
 </script>

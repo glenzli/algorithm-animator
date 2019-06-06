@@ -1,5 +1,6 @@
 class Interactor {
   private _delay = 100
+  private _memorizedDelay = 0
   private _paused = false
   private _aborting = false
   private _running = 0
@@ -11,7 +12,22 @@ class Interactor {
   }
 
   set delay(value: number) {
-    this._delay = value
+    if (!this.immediate) {
+      this._delay = value
+    }
+  }
+
+  get immediate() {
+    return this._delay === 0
+  }
+
+  set immediate(value: boolean) {
+    if (value && this._delay > 0) {
+      this._memorizedDelay = this._delay
+      this._delay = 0
+    } else if (!value && this._delay === 0) {
+      this._delay = this._memorizedDelay
+    }
   }
 
   get paused() {
@@ -51,7 +67,7 @@ class Interactor {
   }
 
   private Continue() {
-    return new Promise(resolve => {
+    return new Promise<void>(resolve => {
       if (this._paused) {
         let pausePoll = setInterval(() => {
           if (!this._paused) {
@@ -67,10 +83,12 @@ class Interactor {
 
   async Doze(n = 1) {
     if (this._aborting) {
-      throw new Error('Abort')
+      throw new Error('Abort ' + Math.floor(1e8 * Math.random()))
     } else {
-      await this.Continue()
-      return new Promise(resolve => setTimeout(resolve, this._delay * n))
+      if (!this.immediate) {
+        await this.Continue()
+      }
+      return new Promise<void>(resolve => setTimeout(resolve, this._delay * n))
     }
   }
 
@@ -88,6 +106,18 @@ class Interactor {
         resolve()
       }
     })
+  }
+
+  async ImmediateExecute<T>(f: () => Promise<T>) {
+    this.immediate = true
+    let result: any
+    try {
+      result = await f()
+    } catch (e) {
+    } finally {
+      this.immediate = false
+    }
+    return result
   }
 }
 

@@ -1,5 +1,6 @@
 import { ADT, AbstractData } from './adt'
 import { Interact } from './Interact'
+import { PseudoCode } from './PseudoCode'
 
 export abstract class Algorithm<TData extends AbstractData, TADT extends ADT<TData>> {
   protected _adt: TADT
@@ -13,9 +14,14 @@ export abstract class Algorithm<TData extends AbstractData, TADT extends ADT<TDa
     return this._adt.data.id
   }
 
+  get adt() {
+    return this._adt
+  }
+
   abstract Init(): TData
 
   async Run() {
+    PseudoCode.enabled = true
     if (Interact.running > 0) {
       Interact.aborting = true
     }
@@ -26,6 +32,7 @@ export abstract class Algorithm<TData extends AbstractData, TADT extends ADT<TDa
         ++Interact.running
         await this.RunCore()
         Interact.paused = true
+        --Interact.running
       } catch (e) {
         if (--Interact.running === 0) {
           Interact.aborting = false

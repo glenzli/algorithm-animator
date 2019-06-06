@@ -55,13 +55,30 @@ export default class CodeRenderer extends Vue {
     padding-right: 0.25rem;
   }
 
+  .partial {
+    padding-right: 0;
+  }
+
   .keyword {
     font-weight: bold;
     color: #82af42;
   }
 
   .function {
-    color: #ffcd6b
+    color: #ffcd6b;
+    padding-right: 0;
+  }
+
+  .object {
+    padding-right: 0;
+  }
+
+  .property {
+    color: #91bbff;
+  }
+
+  .operator {
+    color: #df4f4f;;
   }
 
   .indent(@n, @i: 1) when (@i =< @n) {
