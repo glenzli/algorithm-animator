@@ -5,7 +5,7 @@ PseudoCode.Pseudo('InsertionSort', `
 insertionSort(A):
   for i ∈ (0, A.size):
     for j ∈ [0, i):
-      if A[i] < A[j]:
+      if A[i] ≺ A[j]:
         move(i, j)
         break
 `)

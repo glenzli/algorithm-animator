@@ -105,9 +105,10 @@ class PseudoCodeTranslator {
   }
 
   async SilentExecute<T>(f: () => Promise<T>) {
+    let currentState = this._enabled
     this.enabled = false
     let result = await f()
-    this.enabled = true
+    this.enabled = currentState
     return result
   }
 }

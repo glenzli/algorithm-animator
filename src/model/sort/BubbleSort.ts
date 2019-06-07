@@ -6,7 +6,7 @@ bubbleSort(A):
   for i ∈ [0, A.size):
     noSwap ← true
     for j ∈ [0, A.size - i - 1):
-      if A[j] > A[j + 1]:
+      if A[j] ≻ A[j + 1]:
         swap(j, j + 1)
         noSwap ← false
     if noSwap = true:

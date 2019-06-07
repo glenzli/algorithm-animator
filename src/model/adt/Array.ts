@@ -21,10 +21,10 @@ export class ArrayADT<T> extends ADT<ArrayData<T>> {
     return this._data.array.length
   }
 
-  private Act(state: UniqueAction, ...indexes: Array<number>) {
+  private Act(action: UniqueAction, ...indexes: Array<number>) {
     let origins = indexes.map(index => this._data.array[index].action)
-    indexes.forEach(index => this._data.array[index].action = state)
-    return () => { indexes.map((idx, i) => this._data.array[idx].action = origins[i]) }
+    indexes.forEach(index => this._data.array[index].action = action)
+    return () => { indexes.forEach((idx, i) => this._data.array[idx].action = origins[i]) }
   }
 
   Restore() {

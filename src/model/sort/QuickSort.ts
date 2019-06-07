@@ -8,7 +8,7 @@ quickSort(A):
   if A.size > 0:
     pivot ← 0
     for i ∈ (0, A.size):
-      if A[i] < A[0]:
+      if A[i] ≺ A[0]:
         swap(i, ↑pivot)
     if pivot ≠ 0:
       swap(0, pivot)

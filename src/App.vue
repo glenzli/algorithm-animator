@@ -150,6 +150,7 @@ export default class App extends Vue {
 
   mounted() {
     this.currentCategory = Object.keys(this.algorithms)[0]
+    Interact.delay = this.delay
     Interact.OnPaused(paused => { this.paused = paused })
   }
 }

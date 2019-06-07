@@ -1,9 +1,9 @@
 import { Algorithm } from '../../Algorithm'
 import { HeapADT, HeapData } from '../../adt'
 
-export abstract class HeapAlgorithm<T> extends Algorithm<HeapData<T>, HeapADT<T>> {
-  private _generator: () => T
-  private _n = 10
+export class HeapAlgorithm<T> extends Algorithm<HeapData<T>, HeapADT<T>> {
+  protected _generator: () => T
+  protected _n = 10
   private _heapify = true
 
   constructor(generator: () => T, heapify = true, compare?: (val1: T, val2: T) => number) {
@@ -32,4 +32,6 @@ export abstract class HeapAlgorithm<T> extends Algorithm<HeapData<T>, HeapADT<T>
     this._adt.Replace(new Array(this._n).fill(0).map(() => this._generator()), this._heapify)
     return this._adt.data
   }
+
+  protected async RunCore() {}
 }

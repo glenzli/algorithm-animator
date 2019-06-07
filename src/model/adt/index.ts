@@ -1,5 +1,6 @@
 export * from './Defs'
 export * from './ADT'
 export * from './Array'
-export * from './TreeForm'
 export * from './Heap'
+export * from './TreeForm'
+export * from './BinaryTree'

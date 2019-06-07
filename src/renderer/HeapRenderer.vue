@@ -8,9 +8,9 @@
 import Vue from 'vue'
 import { Component, Prop } from 'vue-property-decorator'
 import { Point, PointObject, Point$ } from 'paper-vueify'
-import HeapNodeItemRenderer from './HeapNodeItemRenderer.vue'
 import { HeapData, HeapAlgorithm, HeapADT } from '../model'
 import { ItemHelpers, ITEM_SIZES } from './Defs'
+import HeapNodeItemRenderer from './HeapNodeItemRenderer.vue'
 
 @Component({
   components: { HeapNodeItemRenderer },

@@ -5,6 +5,7 @@ import paper from 'paper'
 import Vuetify from 'vuetify'
 
 Vue.config.productionTip = false
+Vue.config.devtools = true
 Vue.use(Vuetify)
 Vue.use(PaperVueify, paper)
 

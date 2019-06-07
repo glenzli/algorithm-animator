@@ -10,12 +10,12 @@ mergeSort(A):
     mergeSort(A[mid + 1, ⋯])
     Aux ← copy(A)
     for k ∈ [0, A.size), i ← 0, j ← mid + 1:
-      if (i > mid ⋁ (j < A.size ⋀ Aux[j] < Aux[i])):
+      if (i > mid ⋁ (j < A.size ⋀ Aux[j] ≺ Aux[i])):
         A[k] ← Aux[j↑]
       else:
         A[k] ← Aux[i↑]
   else if A.size > 1:
-    if A[0] > A[1]:
+    if A[0] ≻ A[1]:
       swap(0, 1)
 `)
 

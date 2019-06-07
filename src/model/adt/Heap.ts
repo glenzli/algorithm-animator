@@ -56,14 +56,14 @@ export class HeapADT<T> extends ADT<HeapData<T>> {
     this._data.count = array.length
     this._data.height = Math.log2(capacity + 1)
     if (heapify) {
-      this.InstantHeapify()
+      this.ImmediateHeapify()
     }
   }
 
-  private Act(state: UniqueAction, ...indexes: Array<number>) {
+  private Act(action: UniqueAction, ...indexes: Array<number>) {
     let origins = indexes.map(index => this._data.heap[index].action)
-    indexes.forEach(index => this._data.heap[index].action = state)
-    return () => { indexes.map((idx, i) => this._data.heap[idx].action = origins[i]) }
+    indexes.forEach(index => this._data.heap[index].action = action)
+    return () => { indexes.forEach((idx, i) => this._data.heap[idx].action = origins[i]) }
   }
 
   async Get(index: number) {
@@ -133,8 +133,8 @@ export class HeapADT<T> extends ADT<HeapData<T>> {
     return PseudoCode.Normalize(`
     down(H, i):
       while i < H.count:
-        j ← H[left(i)] > H[right(i)] ? left(i) : right(i)
-        if H[i] < H[j]:
+        j ← H[left(i)] ≻ H[right(i)] ? left(i) : right(i)
+        if H[i] ≺ H[j]:
           swap(i, j)
         i ← j
 
@@ -185,7 +185,7 @@ export class HeapADT<T> extends ADT<HeapData<T>> {
     this.Restore()
   }
 
-  InstantHeapify() {
+  ImmediateHeapify() {
     let firstLeaf = (this.capacity + 1) / 2 - 1
     for (let i = firstLeaf - 1; i >= 0; --i) {
       let j = i
@@ -211,7 +211,7 @@ export class HeapADT<T> extends ADT<HeapData<T>> {
       ensureCapacity(↑H.count)
       d ← H.count
       H[d] ← v
-      while d > 0 ⋀ heap[d] > heap[parent(d)]:
+      while d > 0 ⋀ heap[d] ≻ heap[parent(d)]:
         swap(d, parent(d))
         d ← parent(d)
 
