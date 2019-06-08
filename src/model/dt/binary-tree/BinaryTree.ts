@@ -27,6 +27,6 @@ export class BinaryTreeAlgorithm<T> extends Algorithm<TreeData<T>, BinaryTreeADT
     return this._adt.data
   }
 
-  protected async RunCore() {}
+  protected async RunCore(): Promise<any> {}
 }
 

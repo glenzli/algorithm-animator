@@ -10,9 +10,12 @@ export class HeapDelete<T> extends HeapAlgorithm<T> {
   }
 
   protected async RunCore() {
+    let deleted = []
     let count = Math.floor(this.n / 5)
     for (let i = 0; i < count; ++i) {
+      deleted.push(this._adt.root)
       await this._adt.Delete()
     }
+    return deleted
   }
 }

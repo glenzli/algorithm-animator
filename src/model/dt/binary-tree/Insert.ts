@@ -10,10 +10,14 @@ export class BinaryTreeInsert<T> extends BinaryTreeAlgorithm<T> {
   }
 
   protected async RunCore() {
+    let inserted = []
     let count = Math.floor(this.n / 5)
     for (let i = 0; i < count; ++i) {
-      await this._adt.Insert(this._generator())
+      let next = this._generator()
+      inserted.push(next)
+      await this._adt.Insert(next)
     }
+    return inserted
   }
 }
 

@@ -30,9 +30,10 @@ export abstract class Algorithm<TData extends AbstractData, TADT extends ADT<TDa
       try {
         Interact.aborting = false
         ++Interact.running
-        await this.RunCore()
+        let output = await this.RunCore()
         Interact.paused = true
         --Interact.running
+        return output
       } catch (e) {
         if (--Interact.running === 0) {
           Interact.aborting = false
@@ -41,7 +42,7 @@ export abstract class Algorithm<TData extends AbstractData, TADT extends ADT<TDa
     }
   }
 
-  protected abstract RunCore(): Promise<void>
+  protected abstract RunCore(): Promise<any>
 
   private static map = new Map<number, any>()
 

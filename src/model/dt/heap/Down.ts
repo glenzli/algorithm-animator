@@ -10,10 +10,15 @@ export class HeapDown<T> extends HeapAlgorithm<T> {
   }
 
   protected async RunCore() {
+    let deleted = []
+    let inserted = []
     let count = Math.floor(this.n / 5)
     for (let i = 0; i < count; ++i) {
+      deleted.push(this._adt.root)
+      inserted.push(this._adt.last)
       await this._adt.Set(0, this._adt.last)
       await this._adt.Down(0)
     }
+    return deleted.concat(inserted)
   }
 }

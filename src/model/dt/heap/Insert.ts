@@ -10,9 +10,12 @@ export class HeapInsert<T> extends HeapAlgorithm<T> {
   }
 
   protected async RunCore() {
+    let inserted = []
     let count = Math.floor(this.n / 5)
     for (let i = 0; i < count; ++i) {
+      inserted.push(this._adt.root)
       await this._adt.Insert(this._adt.root)
     }
+    return inserted
   }
 }

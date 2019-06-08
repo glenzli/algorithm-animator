@@ -33,5 +33,5 @@ export class HeapAlgorithm<T> extends Algorithm<HeapData<T>, HeapADT<T>> {
     return this._adt.data
   }
 
-  protected async RunCore() {}
+  protected async RunCore(): Promise<any> {}
 }

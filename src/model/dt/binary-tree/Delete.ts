@@ -10,13 +10,16 @@ export class BinaryTreeDelete<T> extends BinaryTreeAlgorithm<T> {
   }
 
   protected async RunCore() {
+    let deleted = []
     let count = Math.floor(this.n / 5)
     for (let i = 0; i < count; ++i) {
       let value = this._adt.RandomPick()
       if (value != null) {
+        deleted.push(value)
         await this._adt.Delete(value)
       }
     }
+    return deleted
   }
 }
 
