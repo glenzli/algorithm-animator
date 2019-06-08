@@ -11,13 +11,12 @@
   "dependencies": {
     "arrayex": "^1.0.6",
     "core-js": "^2.6.5",
-    "paper-vueify": "^1.1.4",
+    "paper-vueify": "^1.1.5",
     "vue": "^2.6.10",
     "vuetify": "^1.5.14"
   },
   "devDependencies": {
     "@types/jest": "^24.0.12",
-    "@types/paper": "^0.11.10",
     "@vue/cli-plugin-babel": "^3.6.0",
     "@vue/cli-plugin-typescript": "^3.6.0",
     "@vue/cli-service": "^3.6.0",
