@@ -78,7 +78,7 @@ class PseudoCodeTranslator {
   Compile(code: string) {
     let codeLines = code.split('\n').filter(codeLine => codeLine.length > 0)
     return codeLines.map(codeLine => {
-      let indent = /^\s*/.exec(codeLine)![0].length
+      let indent = /^\s*/.exec(codeLine)![0].length / 2
       let exprs = this.Format(codeLine.trim()).split(' ').filter(expr => !!expr)
       let tokens = Array.prototype.concat.apply([], exprs.map((t, i) => {
         if (this._keywords.has(t)) {

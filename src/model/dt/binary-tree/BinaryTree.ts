@@ -1,7 +1,7 @@
 import { Algorithm } from '../../Algorithm'
-import { BinaryTreeADT, BinaryTreeData } from '../../adt'
+import { BinaryTreeADT, TreeData } from '../../adt'
 
-export class BinaryTreeAlgorithm<T> extends Algorithm<BinaryTreeData<T>, BinaryTreeADT<T>> {
+export class BinaryTreeAlgorithm<T> extends Algorithm<TreeData<T>, BinaryTreeADT<T>> {
   protected _generator: () => T
   protected _n = 10
 

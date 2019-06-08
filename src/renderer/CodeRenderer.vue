@@ -83,7 +83,7 @@ export default class CodeRenderer extends Vue {
 
   .indent(@n, @i: 1) when (@i =< @n) {
     .indent-@{i} {
-      padding-left: (@i * 0.5rem);
+      padding-left: (@i * 1rem);
     }
     .indent(@n, (@i + 1));
   }

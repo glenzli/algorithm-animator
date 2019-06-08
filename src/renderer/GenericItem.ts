@@ -22,7 +22,7 @@ export class GenericItemMixin extends Vue {
   }
 
   get opacity() {
-    let factor = (this.item.attribute === UniqueAttribute.Ignore || !this.labelContent) ? 0.1 : 1
+    let factor = (this.item.attribute === UniqueAttribute.Ignore || !this.labelContent) ? 0.2 : 1
     return (this.quantizer ? (this.quantizer(this.item.value) * 0.6 + 0.4) : 1) * factor
   }
 

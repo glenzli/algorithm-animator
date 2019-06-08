@@ -1,6 +1,6 @@
 <template>
   <div>
-    <node-item-renderer v-for="(child, index) in children" :key="index" :item="child.item" :position="child.position" :parent="item" :parentPosition="child.parentPosition" :cIndex="child.index" @resize="OnChildResize"></node-item-renderer>
+    <node-item-renderer v-for="(child, index) in children" :key="index" :item="child.item" :position="child.position" :parentPosition="child.parentPosition" :cIndex="child.index" @resize="OnChildResize" @replace="BubbleUp"></node-item-renderer>
     <p-item :element="visual"></p-item>
   </div>
 </template>
@@ -13,15 +13,14 @@ import { ITEM_SIZES, ACTION_STROKES, ACTION_BRUSHES } from './Defs'
 import { GenericItemMixin } from './GenericItem'
 import { Algorithm, TreeNodeItem, AbstractData, UniqueAction } from '../model'
 
-const INDICATOR_BRUSH = ACTION_BRUSHES[UniqueAction.Swap]
+const INDICATOR_BRUSH = ACTION_BRUSHES[UniqueAction.Move]
 const INDICATOR_STROKE = Stroke({ thickness: 0 })
 
 @Component({
   name: 'node-item-renderer',
 })
 export default class NodeItemRenderer extends Mixins(GenericItemMixin) {
-  @Prop({ default: 0 }) cIndex!: number
-  @Prop({ default: null }) parent!: TreeNodeItem<any> | null
+  @Prop({ default: -1 }) cIndex!: number
   @Prop({ default: null }) parentPosition!: PointObject
   @Prop({ default: 2 }) branch!: number
 
@@ -36,7 +35,7 @@ export default class NodeItemRenderer extends Mixins(GenericItemMixin) {
 
   get stateLabel() {
     if (this.stateLabelProps) {
-      let xOffset = this.cIndex < this.branch / 2 ? ITEM_SIZES.SPACE.x : -ITEM_SIZES.SPACE.x
+      let xOffset = this.cIndex > 0 ? (this.cIndex < this.branch / 2 ? ITEM_SIZES.SPACE.x : -ITEM_SIZES.SPACE.x) : 0
       return PointTextItem({
         ...this.stateLabelProps,
         coordinate: Coordinate({ position: Point$.Subtract(ITEM_SIZES.TEXT_BIAS.position, Point(xOffset, ITEM_SIZES.DIAMETER / 2 + 2 * ITEM_SIZES.SPACE.x)) }),
@@ -86,33 +85,25 @@ export default class NodeItemRenderer extends Mixins(GenericItemMixin) {
   }
 
   get link() {
-    if (this.parentPosition && this.parent) {
+    if (this.parentPosition) {
       let terminal = Point$.Subtract(this.parentPosition, this.position)
-      let angle = Point$.Angle(terminal)
       let xFrom = Point$.Length(terminal) - ITEM_SIZES.DIAMETER / 2
       let xTo = ITEM_SIZES.DIAMETER / 2
       let children = [PolylineItem({
         points: [Point(xFrom, 0), Point(xTo, 0)],
-        stroke: this.item.action === this.parent.action ? ACTION_STROKES[this.item.action] : ACTION_STROKES[UniqueAction.None],
+        stroke: ACTION_STROKES[this.item.action === UniqueAction.Move ? UniqueAction.Move : UniqueAction.None],
       })] as Array<PaperItemObject>
-      if (this.item.action === UniqueAction.Swap && this.parent.action === UniqueAction.Swap) {
-        let arrowFrom = RegularPolygonItem({
+      if (this.item.action === UniqueAction.Move) {
+        let arrowTo = RegularPolygonItem({
           radius: ITEM_SIZES.SPACE.x,
           sides: 3,
           coordinate: Coordinate({ position: Point(xFrom - ITEM_SIZES.SPACE.x, 0), rotation: Math.PI / 2 }),
           brush: INDICATOR_BRUSH,
           stroke: INDICATOR_STROKE,
         })
-        let arrowTo = RegularPolygonItem({
-          radius: ITEM_SIZES.SPACE.x,
-          sides: 3,
-          coordinate: Coordinate({ position: Point(xTo + ITEM_SIZES.SPACE.x, 0), rotation: -Math.PI / 2 }),
-          brush: INDICATOR_BRUSH,
-          stroke: INDICATOR_STROKE,
-        })
-        children.push(arrowFrom, arrowTo)
+        children.push(arrowTo)
       }
-      return GroupItem({ children, coordinate: Coordinate({ rotation: angle }) })
+      return GroupItem({ children, coordinate: Coordinate({ rotation: Point$.Angle(terminal) }) })
     }
     return null
   }
@@ -124,6 +115,19 @@ export default class NodeItemRenderer extends Mixins(GenericItemMixin) {
   @Watch('width')
   OnResize(width: number) {
     this.$emit('resize', this.cIndex, width)
+  }
+
+  @Watch('item.action')
+  OnActionChanged(action: UniqueAction, preAction: UniqueAction) {
+    if (action === UniqueAction.Target) {
+      this.$emit('replace', true, this.position)
+    } else if (preAction === UniqueAction.Target) {
+      this.$emit('replace', false, this.position)
+    }
+  }
+
+  BubbleUp(state: boolean, position: PointObject) {
+    this.$emit('replace', state, position)
   }
 
   mounted() {
