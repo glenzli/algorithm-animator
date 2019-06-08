@@ -224,6 +224,7 @@ export class HeapADT<T> extends ADT<HeapData<T>> {
     if (++this._data.count > this.capacity) {
       let increase = this.ComputeCapacity(this.count) - this.capacity
       this._data.heap = this._data.heap.concat(new Array(increase).fill(null).map(val => ({ value: val, action: UniqueAction.None, state: UniqueState.None, attribute: UniqueAttribute.None })))
+      ++this._data.height
     }
     await PseudoCode.RunAt(1)
     let descendant = this.count - 1
