@@ -67,7 +67,6 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { Arrayex } from 'arrayex'
 import { Algorithms, AlgorithmComponents } from './algorithm'
 import { ITEM_SIZES, CodeRenderer } from './renderer'
 import { Interact } from './model'
@@ -101,7 +100,11 @@ export default class App extends Vue {
 
   get readableAlgorithmName() {
     if (this.currentCategory && this.currentAlgorithm) {
-      return `${this.currentCategory}::${this.currentAlgorithm.name}`
+      if (this.currentSubCategory) {
+        return `${this.currentCategory}::${this.currentSubCategory}::${this.currentAlgorithm.name}`
+      } else {
+        return `${this.currentCategory}::${this.currentAlgorithm.name}`
+      }
     } else {
       return 'Algorithm'
     }

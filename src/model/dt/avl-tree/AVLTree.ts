@@ -1,13 +1,13 @@
 import { Array$ } from 'js-corelib'
 import { Algorithm } from '../../Algorithm'
-import { BinaryTreeADT, TreeData } from '../../adt'
+import { AVLTreeADT, AVLTreeData } from '../../adt'
 
-export class BinaryTreeAlgorithm<T> extends Algorithm<TreeData<T>, BinaryTreeADT<T>> {
+export class AVLTreeAlgorithm<T> extends Algorithm<AVLTreeData<T>, AVLTreeADT<T>> {
   protected _generator: () => T
   protected _n = 10
 
   constructor(generator: () => T, compare?: (val1: T, val2: T) => number) {
-    super(new BinaryTreeADT(compare))
+    super(new AVLTreeADT(compare))
     this._generator = generator
   }
 
@@ -24,7 +24,7 @@ export class BinaryTreeAlgorithm<T> extends Algorithm<TreeData<T>, BinaryTreeADT
   }
 
   Init() {
-    this._adt.Replace(Array$.Create(this._n, () => this._generator()), false)
+    this._adt.Replace(Array$.Create(this._n, () => this._generator()))
     return this._adt.data
   }
 

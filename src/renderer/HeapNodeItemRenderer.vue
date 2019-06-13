@@ -39,28 +39,28 @@ export default class HeapNodeItemRenderer extends Mixins(GenericItemMixin) {
     if (this.parentPosition && this.parent) {
       let terminal = Point$.Subtract(this.parentPosition, this.position)
       let angle = Point$.Angle(terminal)
-      let xFrom = Point$.Length(terminal) - ITEM_SIZES.DIAMETER / 2
-      let xTo = ITEM_SIZES.DIAMETER / 2
+      let xFrom = ITEM_SIZES.DIAMETER / 2
+      let xTo = Point$.Length(terminal) - ITEM_SIZES.DIAMETER / 2
       let children = [PolylineItem({
-        points: [Point(xFrom, 0), Point(xTo, 0)],
+        points: [Point(xTo, 0), Point(xFrom, 0)],
         stroke: this.item.action === this.parent.action ? ACTION_STROKES[this.item.action] : ACTION_STROKES[UniqueAction.None],
       })] as Array<PaperItemObject>
       if (this.item.action === UniqueAction.Swap && this.parent.action === UniqueAction.Swap) {
-        let arrowFrom = RegularPolygonItem({
-          radius: ITEM_SIZES.SPACE.x,
-          sides: 3,
-          coordinate: Coordinate({ position: Point(xFrom - ITEM_SIZES.SPACE.x, 0), rotation: Math.PI / 2 }),
-          brush: INDICATOR_BRUSH,
-          stroke: INDICATOR_STROKE,
-        })
         let arrowTo = RegularPolygonItem({
           radius: ITEM_SIZES.SPACE.x,
           sides: 3,
-          coordinate: Coordinate({ position: Point(xTo + ITEM_SIZES.SPACE.x, 0), rotation: -Math.PI / 2 }),
+          coordinate: Coordinate({ position: Point(xTo - ITEM_SIZES.SPACE.x, 0), rotation: Math.PI / 2 }),
           brush: INDICATOR_BRUSH,
           stroke: INDICATOR_STROKE,
         })
-        children.push(arrowFrom, arrowTo)
+        let arrowFrom = RegularPolygonItem({
+          radius: ITEM_SIZES.SPACE.x,
+          sides: 3,
+          coordinate: Coordinate({ position: Point(xFrom + ITEM_SIZES.SPACE.x, 0), rotation: -Math.PI / 2 }),
+          brush: INDICATOR_BRUSH,
+          stroke: INDICATOR_STROKE,
+        })
+        children.push(arrowTo, arrowFrom)
       }
       return GroupItem({ children, coordinate: Coordinate({ rotation: angle }) })
     }

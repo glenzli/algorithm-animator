@@ -1,3 +1,4 @@
+import { Array$ } from 'js-corelib'
 import { Algorithm } from '../Algorithm'
 import { ArrayADT, ArrayData } from '../adt'
 
@@ -23,7 +24,7 @@ export abstract class SortAlgorithm<T> extends Algorithm<ArrayData<T>, ArrayADT<
   }
 
   Init() {
-    this._adt.Replace(new Array(this._n).fill(0).map(() => this._generator()))
+    this._adt.Replace(Array$.Create(this._n, () => this._generator()))
     return this._adt.data
   }
 }

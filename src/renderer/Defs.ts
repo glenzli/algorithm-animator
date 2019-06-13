@@ -8,16 +8,19 @@ const ACTION_COLORS = [
   '#6e3b9b',
   '#6c1c89',
   '#2c0b38',
+  '#87a835',
+  '#0f4910',
 ]
 
 const STATE_COLORS = [
   'rgba(0, 0, 0, 0)',
   '#7d8c35',
   '#7d8c35',
-  '#b73631',
-  '#b73631',
+  '#5e21ba',
+  '#5e21ba',
   '#638cb2',
   'rgba(0, 0, 0, 0)',
+  '#c11815',
 ]
 
 export const ACTION_BRUSHES = ACTION_COLORS.map(color => SolidBrush(Color$.ToColor(color)))

@@ -21,7 +21,7 @@ interface CodeLine {
 }
 
 class PseudoCodeTranslator {
-  private _keywords = new Set(['if', 'else', 'for', 'while', 'break', 'continue', 'true', 'false', 'nil', 'return'])
+  private _keywords = new Set(['if', 'else', 'for', 'while', 'break', 'continue', 'switch', 'case', 'true', 'false', 'nil', 'return'])
   private _translations = new Map<string, string>()
   private _pointTo: (ln: number) => void = () => { }
   private _enabled = true

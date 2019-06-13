@@ -1,10 +1,11 @@
 import Vue from 'vue'
+import { Array$ } from 'js-corelib'
 import { Component, Prop, Inject } from 'vue-property-decorator'
 import { PointObject, Coordinate, PointTextItem, GroupItem, PaperItemObject } from 'paper-vueify'
 import { ValueItem, UniqueAttribute } from '../model'
 import { ItemHelpers, ITEM_SIZES, ACTION_BRUSHES, TEXT_BRUSH, STATE_STROKES } from './Defs'
 
-const STATE_CONTENTS = ['', '≺', '≼', '≻', '≽', '=', '≈']
+const STATE_CONTENTS = ['', '≺', '≼', '≻', '≽', '=', '≈', '!']
 
 @Component
 export class GenericItemMixin extends Vue {
@@ -63,6 +64,6 @@ export class GenericItemMixin extends Vue {
   }
 
   get visual() {
-    return GroupItem({ children: this.parts.filter(c => !!c) as Array<PaperItemObject>, opacity: this.opacity, coordinate: Coordinate({ position: this.position }) })
+    return GroupItem({ children: Array$.NonNull(this.parts), opacity: this.opacity, coordinate: Coordinate({ position: this.position }) })
   }
 }

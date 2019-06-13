@@ -1,6 +1,6 @@
 <template>
   <div>
-    <node-item-renderer v-for="(child, index) in children" :key="index" :item="child.item" :position="child.position" :parentPosition="child.parentPosition" :cIndex="child.index" @resize="OnChildResize" @replace="BubbleUp"></node-item-renderer>
+    <node-item-renderer v-for="(child, index) in children" :key="index" :item="child.item" :position="child.position" :parentPosition="child.parentPosition" :parent="item" :cIndex="child.index" @resize="OnChildResize" @tag="BubbleUp"></node-item-renderer>
     <p-item :element="visual"></p-item>
   </div>
 </template>
@@ -11,16 +11,14 @@ import { Component, Prop, Mixins, Watch } from 'vue-property-decorator'
 import { Point, Point$, PointObject, Coordinate, CircleItem, PointTextItem, PolylineItem, RegularPolygonItem, GroupItem, PaperItemObject, Stroke } from 'paper-vueify'
 import { ITEM_SIZES, ACTION_STROKES, ACTION_BRUSHES } from './Defs'
 import { GenericItemMixin } from './GenericItem'
-import { Algorithm, TreeNodeItem, AbstractData, UniqueAction } from '../model'
-
-const INDICATOR_BRUSH = ACTION_BRUSHES[UniqueAction.Move]
-const INDICATOR_STROKE = Stroke({ thickness: 0 })
+import { Algorithm, TreeNode, AbstractData, UniqueAction, UniqueState, UniqueAttribute } from '../model'
 
 @Component({
   name: 'node-item-renderer',
 })
 export default class NodeItemRenderer extends Mixins(GenericItemMixin) {
   @Prop({ default: -1 }) cIndex!: number
+  @Prop({ default: null }) parent!: TreeNode<any>
   @Prop({ default: null }) parentPosition!: PointObject
   @Prop({ default: 2 }) branch!: number
 
@@ -49,12 +47,12 @@ export default class NodeItemRenderer extends Mixins(GenericItemMixin) {
   }
 
   get activeIndexes() {
-    let children = (this.item as TreeNodeItem<any>).children
+    let children = (this.item as TreeNode<any>).children
     return children.map((_, index) => index).filter(index => !!children[index])
   }
 
   get actualWidths() {
-    let children = (this.item as TreeNodeItem<any>).children
+    let children = (this.item as TreeNode<any>).children
     return children.map((child, index) => child ? (this.childWidths[index] || ITEM_SIZES.DIAMETER) : 2 * ITEM_SIZES.SPACE.x)
   }
 
@@ -78,7 +76,7 @@ export default class NodeItemRenderer extends Mixins(GenericItemMixin) {
     }
     return this.activeIndexes.map(index => ({
       index,
-      item: (this.item as TreeNodeItem<any>).children[index],
+      item: (this.item as TreeNode<any>).children[index],
       position: Point$.Add(this.position, Point(xs[index], ITEM_SIZES.DIAMETER + ITEM_SIZES.SPACE.y)),
       parentPosition: this.position,
     }))
@@ -87,21 +85,34 @@ export default class NodeItemRenderer extends Mixins(GenericItemMixin) {
   get link() {
     if (this.parentPosition) {
       let terminal = Point$.Subtract(this.parentPosition, this.position)
-      let xFrom = Point$.Length(terminal) - ITEM_SIZES.DIAMETER / 2
-      let xTo = ITEM_SIZES.DIAMETER / 2
+      let xFrom = ITEM_SIZES.DIAMETER / 2
+      let xTo = Point$.Length(terminal) - ITEM_SIZES.DIAMETER / 2
+      let isParentRotating = this.parent && this.parent.action === UniqueAction.Rotate
+      let isRotating = isParentRotating && this.item.action === UniqueAction.Rotate
       let children = [PolylineItem({
-        points: [Point(xFrom, 0), Point(xTo, 0)],
-        stroke: ACTION_STROKES[this.item.action === UniqueAction.Move ? UniqueAction.Move : UniqueAction.None],
+        points: [Point(xTo, 0), Point(xFrom, 0)],
+        stroke: ACTION_STROKES[(this.item.action === UniqueAction.Move || isRotating) ? this.item.action : UniqueAction.None],
+        opacity: this.item.action === UniqueAction.Isolate ? 0.1 : 1,
       })] as Array<PaperItemObject>
-      if (this.item.action === UniqueAction.Move) {
+      if (this.item.action === UniqueAction.Move || isRotating) {
         let arrowTo = RegularPolygonItem({
           radius: ITEM_SIZES.SPACE.x,
           sides: 3,
-          coordinate: Coordinate({ position: Point(xFrom - ITEM_SIZES.SPACE.x, 0), rotation: Math.PI / 2 }),
-          brush: INDICATOR_BRUSH,
-          stroke: INDICATOR_STROKE,
+          coordinate: Coordinate({ position: Point(xTo - ITEM_SIZES.SPACE.x, 0), rotation: Math.PI / 2 }),
+          brush: ACTION_BRUSHES[this.item.action],
+          stroke: ACTION_STROKES[this.item.action],
         })
         children.push(arrowTo)
+      }
+      if (!isRotating && isParentRotating && this.parent.children.some(c => !!c && c.action === UniqueAction.Rotate)) {
+        let arrowFrom = RegularPolygonItem({
+          radius: ITEM_SIZES.SPACE.x,
+          sides: 3,
+          coordinate: Coordinate({ position: Point((xTo + xFrom) / 2, 0), rotation: -Math.PI / 2 }),
+          brush: ACTION_BRUSHES[UniqueAction.Rotate],
+          stroke: ACTION_STROKES[UniqueAction.Rotate],
+        })
+        children.push(arrowFrom)
       }
       return GroupItem({ children, coordinate: Coordinate({ rotation: Point$.Angle(terminal) }) })
     }
@@ -117,17 +128,17 @@ export default class NodeItemRenderer extends Mixins(GenericItemMixin) {
     this.$emit('resize', this.cIndex, width)
   }
 
-  @Watch('item.action')
-  OnActionChanged(action: UniqueAction, preAction: UniqueAction) {
-    if (action === UniqueAction.Target) {
-      this.$emit('replace', true, this.position)
-    } else if (preAction === UniqueAction.Target) {
-      this.$emit('replace', false, this.position)
+  @Watch('item.tag')
+  OnExternal(tag: number, lastTag: number) {
+    if (tag > -1) {
+      this.$emit('tag', tag, this.position)
+    } else {
+      this.$emit('tag', lastTag)
     }
   }
 
-  BubbleUp(state: boolean, position: PointObject) {
-    this.$emit('replace', state, position)
+  BubbleUp(tag: number, position: PointObject) {
+    this.$emit('tag', tag, position)
   }
 
   mounted() {

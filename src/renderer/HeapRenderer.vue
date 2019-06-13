@@ -7,6 +7,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { Component, Prop } from 'vue-property-decorator'
+import { Array$ } from 'js-corelib'
 import { Point, PointObject, Point$ } from 'paper-vueify'
 import { HeapData, HeapAlgorithm, HeapADT } from '../model'
 import { ItemHelpers, ITEM_SIZES } from './Defs'
@@ -24,13 +25,11 @@ export default class HeapRenderer extends Vue {
       let leafCount = Math.pow(2, this.abstractData.height - 1)
       let leafWidth = ItemHelpers.GetWidth(leafCount)
       let offset = Point$.Add(Point(-leafWidth / 2, ItemHelpers.GetOffsetY(this.abstractData.height)), this.position)
-      let positions = Array.prototype.concat.apply([], new Array(this.abstractData.height).fill(null).map((_, level) => {
+      let positions = Array$.Flat(Array$.Create(this.abstractData.height, level => {
         let count = Math.pow(2, level)
         let y = (ITEM_SIZES.DIAMETER + ITEM_SIZES.SPACE.y) * level
-        return new Array(count).fill(null).map((_, index) => {
-          return Point$.Add(offset, Point((index + 0.5) * (leafCount / count) * ITEM_SIZES.DIAMETER_SPACED, y))
-        })
-      })) as Array<PointObject>
+        return Array$.Create(count, index => Point$.Add(offset, Point((index + 0.5) * (leafCount / count) * ITEM_SIZES.DIAMETER_SPACED, y)))
+      }))
       return positions
     }
     return null

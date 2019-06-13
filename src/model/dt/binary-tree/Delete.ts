@@ -13,7 +13,7 @@ export class BinaryTreeDelete<T> extends BinaryTreeAlgorithm<T> {
     let deleted = []
     let count = Math.floor(this.n / 5)
     for (let i = 0; i < count; ++i) {
-      let value = this._adt.RandomPick()
+      let value = this._adt.RandomPick().value!
       if (value != null) {
         deleted.push(value)
         await this._adt.Delete(value)

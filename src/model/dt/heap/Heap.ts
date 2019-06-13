@@ -1,3 +1,4 @@
+import { Array$ } from 'js-corelib'
 import { Algorithm } from '../../Algorithm'
 import { HeapADT, HeapData } from '../../adt'
 
@@ -29,7 +30,7 @@ export class HeapAlgorithm<T> extends Algorithm<HeapData<T>, HeapADT<T>> {
   }
 
   Init() {
-    this._adt.Replace(new Array(this._n).fill(0).map(() => this._generator()), this._heapify)
+    this._adt.Replace(Array$.Create(this._n, () => this._generator()), this._heapify)
     return this._adt.data
   }
 

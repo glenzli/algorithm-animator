@@ -1,5 +1,5 @@
-import { Interact, HeapAlgorithm, HeapInsert, HeapDown, HeapHeapify, HeapDelete, HeapData } from '../../model'
-import { VALUE_GENERATORS } from '../../algorithm/Defs'
+import { Interact, HeapAlgorithm, HeapInsert, HeapDown, HeapHeapify, HeapDelete, HeapData } from '../../src/model'
+import { VALUE_GENERATORS } from '../../src/algorithm/Defs'
 import { TestUtil$ } from '../Util'
 
 const GENERATOR = VALUE_GENERATORS[0]
@@ -34,10 +34,10 @@ function TestHeap<T extends HeapAlgorithm<number>>(Heap: new (...args: Array<any
 
     expect(CheckHeapConstraint(heap.data)).toBeTruthy()
     if (operator && output) {
-      let expected = operator(source, output as Array<number>).sort()
-      expect(expected).toEqual(ExtractHeapData(heap.data).sort())
+      let expected = operator(source, output as Array<number>).sort((m, n) => m - n)
+      expect(expected).toEqual(ExtractHeapData(heap.data).sort((m, n) => m - n))
     } else {
-      expect(source.sort()).toEqual(ExtractHeapData(heap.data).sort())
+      expect(source.sort((m, n) => m - n)).toEqual(ExtractHeapData(heap.data).sort((m, n) => m - n))
     }
   })
 }

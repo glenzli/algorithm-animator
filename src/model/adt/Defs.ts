@@ -6,6 +6,8 @@ export enum UniqueAction {
   Swap,
   Move,
   Target,
+  Rotate,
+  Isolate,
 }
 
 export enum UniqueState {
@@ -16,6 +18,7 @@ export enum UniqueState {
   GreaterOrEqual,
   Equal,
   ApproximateEqual,
+  Violate,
 }
 
 export enum UniqueAttribute {

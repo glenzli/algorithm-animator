@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import { Array$ } from 'js-corelib'
 import { Interact } from '../Interact'
 import { PseudoCode } from '../PseudoCode'
 import { AbstractData, ADT } from './ADT'
@@ -50,14 +51,15 @@ export class HeapADT<T> extends ADT<HeapData<T>> {
   }
 
   Replace(array: Array<T | null>, heapify = true) {
+    array = Array$.NonNull(array)
     let capacity = this.ComputeCapacity(array.length)
-    let empty = capacity > array.length ? new Array(capacity - array.length).fill(null) : []
-    this._data.heap.splice(0, this._data.heap.length, ...array.concat(empty).map(val => ({ value: val, action: UniqueAction.None, state: UniqueState.None, attribute: UniqueAttribute.None })))
+    if (heapify) {
+      array = array.sort((val1, val2) => this._compare(val2!, val1!))
+    }
+    let newHeap = Array$.Create(capacity, i => ({ value: array[i] !== undefined ? array[i] : null, action: UniqueAction.None, state: UniqueState.None, attribute: UniqueAttribute.None }))
+    this._data.heap.splice(0, this._data.heap.length, ...newHeap)
     this._data.count = array.length
     this._data.height = Math.log2(capacity + 1)
-    if (heapify) {
-      this.ImmediateHeapify()
-    }
   }
 
   private Act(action: UniqueAction, ...indexes: Array<number>) {
@@ -185,26 +187,6 @@ export class HeapADT<T> extends ADT<HeapData<T>> {
     this.Restore()
   }
 
-  ImmediateHeapify() {
-    let firstLeaf = (this.capacity + 1) / 2 - 1
-    for (let i = firstLeaf - 1; i >= 0; --i) {
-      let j = i
-      while (!this.IsLeaf(j)) {
-        let children = this.Children(j)
-        let child = children[1]
-        if (child == null || this._compare(this._data.heap[children[0]!].value!, this._data.heap[child].value!) > 0) {
-          child = children[0]!
-        }
-        if (this._compare(this._data.heap[j].value!, this._data.heap[child].value!) < 0) {
-          let temp = this._data.heap[child]
-          Vue.set(this._data.heap, child, this._data.heap[j])
-          Vue.set(this._data.heap, j, temp)
-        }
-        j = child
-      }
-    }
-  }
-
   static get insertPseudoCode() {
     return PseudoCode.Normalize(`
     insert(H, v):
@@ -223,7 +205,7 @@ export class HeapADT<T> extends ADT<HeapData<T>> {
     await PseudoCode.RunAt(0)
     if (++this._data.count > this.capacity) {
       let increase = this.ComputeCapacity(this.count) - this.capacity
-      this._data.heap = this._data.heap.concat(new Array(increase).fill(null).map(val => ({ value: val, action: UniqueAction.None, state: UniqueState.None, attribute: UniqueAttribute.None })))
+      this._data.heap = this._data.heap.concat(Array$.RepeatValue(increase, { value: null, action: UniqueAction.None, state: UniqueState.None, attribute: UniqueAttribute.None }))
       ++this._data.height
     }
     await PseudoCode.RunAt(1)
