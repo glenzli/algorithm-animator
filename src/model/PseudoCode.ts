@@ -1,3 +1,4 @@
+import { Array$ } from 'js-corelib'
 import { Interact } from './Interact'
 
 enum CodeCategory {
@@ -77,25 +78,28 @@ class PseudoCodeTranslator {
 
   Compile(code: string) {
     let codeLines = code.split('\n').filter(codeLine => codeLine.length > 0)
-    return codeLines.map(codeLine => {
+    return Array$.NonNull(codeLines.map(codeLine => {
       let indent = /^\s*/.exec(codeLine)![0].length / 2
       let exprs = this.Format(codeLine.trim()).split(' ').filter(expr => !!expr)
-      let tokens = Array.prototype.concat.apply([], exprs.map((t, i) => {
-        if (this._keywords.has(t)) {
-          return { category: CodeCategory.Keyword, expr: t } as CodeToken
-        } else if (exprs[i + 1] === '(' && this.IsVariable(t)) {
-          return { category: CodeCategory.Function, expr: t } as CodeToken
-        } else if (exprs[i + 1] === '[' && this.IsVariable(t)) {
-          return { category: CodeCategory.Object, expr: t } as CodeToken
-        } else if (t.includes('.')) {
-          let ts = t.split('.')
-          return [{ category: CodeCategory.Partial, expr: `${ts[0]}.` }, { category: CodeCategory.Property, expr: ts[1] }] as Array<CodeToken>
-        } else {
-          return { category: this.IsOperator(t) ? CodeCategory.Operator : CodeCategory.None, expr: t } as CodeToken
-        }
-      })) as Array<CodeToken>
-      return { tokens, indent } as CodeLine
-    })
+      if (exprs.length > 0) {
+        let tokens = Array$.Flat<CodeToken>(exprs.map((t, i) => {
+          if (this._keywords.has(t)) {
+            return { category: CodeCategory.Keyword, expr: t } as CodeToken
+          } else if (exprs[i + 1] === '(' && this.IsVariable(t)) {
+            return { category: CodeCategory.Function, expr: t } as CodeToken
+          } else if (exprs[i + 1] === '[' && this.IsVariable(t)) {
+            return { category: CodeCategory.Object, expr: t } as CodeToken
+          } else if (t.includes('.')) {
+            let ts = t.split('.')
+            return [{ category: CodeCategory.Partial, expr: `${ts[0]}.` }, { category: CodeCategory.Property, expr: ts[1] }] as Array<CodeToken>
+          } else {
+            return { category: this.IsOperator(t) ? CodeCategory.Operator : CodeCategory.None, expr: t } as CodeToken
+          }
+        }))
+        return { tokens, indent } as CodeLine
+      }
+      return null
+    }))
   }
 
   Normalize(code: string) {

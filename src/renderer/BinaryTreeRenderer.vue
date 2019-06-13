@@ -28,7 +28,7 @@ export default class BinaryTreeRenderer extends Vue {
   tags: ObjectArray<{ from: PointObject, to: PointObject, directional: boolean }> = {}
 
   get rootPosition() {
-    let y = ItemHelpers.GetOffsetY(this.abstractData.height)
+    let y = ItemHelpers.GetOffsetY(this.abstractData.height) + (ITEM_SIZES.DIAMETER - ITEM_SIZES.SPACE.y) / 2
     return Point$.Add(this.position, Point(0, y))
   }
 

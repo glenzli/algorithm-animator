@@ -48,7 +48,7 @@ export class AVLTreeADT<T> extends GenericBinaryTreeADT<T, AVLTreeNode<T>> {
   }
 
   PrepareRotateRightSample(generator: () => T) {
-    let values = Array$.Create(7, generator)
+    let values = Array$.Create(7, generator).sort(this._compare)
     let root = this.New(values[5], 4)
     root.children = [this.New(values[3], 3), this.New(values[6])]
     this.Left(root)!.children = [this.New(values[1], 2), this.New(values[4])]
@@ -95,7 +95,7 @@ export class AVLTreeADT<T> extends GenericBinaryTreeADT<T, AVLTreeNode<T>> {
   }
 
   PrepareRotateLeftSample(generator: () => T) {
-    let values = Array$.Create(7, generator)
+    let values = Array$.Create(7, generator).sort(this._compare)
     let root = this.New(values[1], 4)
     root.children = [this.New(values[0]), this.New(values[3], 3)]
     this.Right(root)!.children = [this.New(values[2]), this.New(values[5], 2)]
@@ -131,12 +131,48 @@ export class AVLTreeADT<T> extends GenericBinaryTreeADT<T, AVLTreeNode<T>> {
     await Interact.Doze(1)
   }
 
-  async RotateRightLeft(pivot: AVLTreeNode<T>, parent: AVLTreeNode<T>) {
+  static get rotateRightLeftPseudoCode() {
+    return PseudoCode.Normalize(`
+    rotateRightLeft(T, n):
+      rotateRight(T, n.right)
+      rotateLeft(T, n)
+    `)
+  }
+
+  PrepareRotateRightLeftSample(generator: () => T) {
+    let values = Array$.Create(7, generator).sort(this._compare)
+    let root = this.New(values[1], 4)
+    root.children = [this.New(values[0]), this.New(values[5], 3)]
+    this.Right(root)!.children = [this.New(values[3], 2), this.New(values[6])]
+    this.Left(this.Right(root)!)!.children = [this.New(values[2]), this.New(values[4])]
+    this._data.root = root
+    this._data.height = root.height
+  }
+
+  async RotateRightLeft(pivot: AVLTreeNode<T> = this._data.root, parent: AVLTreeNode<T> = this._sentinel) {
     await this.RotateRight(this.Right(pivot)!, pivot)
     await this.RotateLeft(pivot, parent)
   }
 
-  async RotateLeftRight(pivot: AVLTreeNode<T>, parent: AVLTreeNode<T>) {
+  static get rotateLeftRightPseudoCode() {
+    return PseudoCode.Normalize(`
+    rotateRightLeft(T, n):
+      rotateLeft(T, n.left)
+      rotateRight(T, n)
+    `)
+  }
+
+  PrepareRotateLeftRightSample(generator: () => T) {
+    let values = Array$.Create(7, generator).sort(this._compare)
+    let root = this.New(values[5], 4)
+    root.children = [this.New(values[1], 3), this.New(values[6])]
+    this.Left(root)!.children = [this.New(values[0]), this.New(values[3], 2)]
+    this.Right(this.Left(root)!)!.children = [this.New(values[2]), this.New(values[4])]
+    this._data.root = root
+    this._data.height = root.height
+  }
+
+  async RotateLeftRight(pivot: AVLTreeNode<T> = this._data.root, parent: AVLTreeNode<T> = this._sentinel) {
     await this.RotateLeft(this.Left(pivot)!, pivot)
     await this.RotateRight(pivot, parent)
   }
@@ -147,68 +183,77 @@ export class AVLTreeADT<T> extends GenericBinaryTreeADT<T, AVLTreeNode<T>> {
       if T.root = nil:
         T.root = node(v)
       else:
-        n ← v ≺ p.value ? p.left : p.right
-        if n ≠ nil:
-          insert(T, v, n), n ← v ≺ p.value ? p.left : p.right
-        else:
-          (v ≺ p.value ? p.left : p.right) ← node(v)
-        bp = balance(p), bn = balance(n)
-        switch bp, bn:
-          case bp = 2, bn ≺ 0: rotateLeftRight(p)
-          case bp = 2, bn ≽ 0: rotateRight(p)
-          case bp = -2, bn ≺ 0: rotateLeft(p)
-          case bp = -2, bn ≽ 0: rotateRightLeft(p)
+        if p.value ≠ v:
+          n ← v ≺ p.value ? p.left : p.right
+          if n ≠ nil:
+            insert(T, v, n), n ← v ≺ p.value ? p.left : p.right
+          else:
+            (v ≺ p.value ? p.left : p.right) ← node(v)
+          bp = balance(p), bn = balance(n)
+          switch bp, bn:
+            case bp = 2, bn ≺ 0: rotateLeftRight(p)
+            case bp = 2, bn ≽ 0: rotateRight(p)
+            case bp = -2, bn ≺ 0: rotateLeft(p)
+            case bp = -2, bn ≽ 0: rotateRightLeft(p)
     `)
   }
 
-  async Insert(value: T, node = this.root, parent = this._sentinel) {
+  async Insert(value: T, node = this.root, parent = this._sentinel): Promise<boolean> {
     if (node === this.root) {
       this.Active(value)
     }
+    let inserted = false
     await PseudoCode.RunAt(0)
     if (this.root === this._sentinel) {
       PseudoCode.RunAt(1)
       await this.Set(this._sentinel, 0, value)
+      inserted = true
     } else {
       PseudoCode.RunAt(3)
       let result = await this.Compare(value, node)
-      let child = result < 0 ? this.Left(node) : this.Right(node)
-      await PseudoCode.RunAt(4)
-      if (child) {
+      // AVL Tree do not support duplicate keys
+      if (result !== 0) {
+        PseudoCode.RunAt(4)
+        let child = result < 0 ? this.Left(node) : this.Right(node)
         await PseudoCode.RunAt(5)
-        await this.Insert(value, child, node)
-        child = result < 0 ? this.Left(node) : this.Right(node)
-      } else {
-        PseudoCode.RunAt(7)
-        await this.Set(node, result < 0 ? this.left : this.right, value)
-      }
-      await PseudoCode.RunAt(8)
-      this.Restore()
-      this.Act(UniqueAction.Peek, node)
-      let bf = this.GetBalanceFactor(node)
-      if (bf === 2) {
-        if (this.GetBalanceFactor(child!) < 0) {
-          PseudoCode.RunAt(10)
-          await PseudoCode.SilentExecute(() => this.RotateLeftRight(node, parent))
+        if (child) {
+          await PseudoCode.RunAt(6)
+          inserted = await this.Insert(value, child, node)
+          child = result < 0 ? this.Left(node) : this.Right(node)
         } else {
-          PseudoCode.RunAt(11)
-          await PseudoCode.SilentExecute(() => this.RotateRight(node, parent))
+          PseudoCode.RunAt(8)
+          await this.Set(node, result < 0 ? this.left : this.right, value)
+          inserted = true
         }
-      } else if (bf === -2) {
-        if (this.GetBalanceFactor(child!) < 0) {
-          PseudoCode.RunAt(12)
-          await PseudoCode.SilentExecute(() => this.RotateLeft(node, parent))
+        await PseudoCode.RunAt(9)
+        this.Restore()
+        this.Act(UniqueAction.Peek, node)
+        let bf = this.GetBalanceFactor(node)
+        if (bf === 2) {
+          if (this.GetBalanceFactor(child!) < 0) {
+            PseudoCode.RunAt(11)
+            await PseudoCode.SilentExecute(() => this.RotateLeftRight(node, parent))
+          } else {
+            PseudoCode.RunAt(12)
+            await PseudoCode.SilentExecute(() => this.RotateRight(node, parent))
+          }
+        } else if (bf === -2) {
+          if (this.GetBalanceFactor(child!) < 0) {
+            PseudoCode.RunAt(13)
+            await PseudoCode.SilentExecute(() => this.RotateLeft(node, parent))
+          } else {
+            PseudoCode.RunAt(14)
+            await PseudoCode.SilentExecute(() => this.RotateRightLeft(node, parent))
+          }
         } else {
-          PseudoCode.RunAt(13)
-          await PseudoCode.SilentExecute(() => this.RotateRightLeft(node, parent))
+          this.UpdateHeight(node)
         }
-      } else {
-        this.UpdateHeight(node)
       }
     }
     if (node === this.root) {
       this.data.height = this.root.height
       this.Restore()
     }
+    return inserted
   }
 }

@@ -11,13 +11,11 @@ export class AVLTreeInsert<T> extends AVLTreeAlgorithm<T> {
 
   protected async RunCore() {
     let inserted = [] as Array<any>
-    let count = Math.floor(this.n / 5)
+    let count = this._n / 2
     for (let i = 0; i < count; ++i) {
       let next = this._generator()
-      let nextCount = 1 + Math.floor(4 * Math.random())
-      for (let j = 0; j < nextCount; ++j) {
+      if (await this._adt.Insert(next)) {
         inserted.push(next)
-        await this._adt.Insert(next)
       }
     }
     return inserted
