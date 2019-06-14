@@ -9,7 +9,7 @@
 <br/>**Sort**: *Bubble Sort*, *Selection Sort*, *Insertion Sort*, *Shell Sort*, *Quick Sort*, *Heap Sort*, *Merge Sort*
 <br/>**Heap**: *Heapify*, *Insert*, *Delete*, *Down*
 <br/>**Binary Tree**: *Search*, *Insert*, *Delete*, *InOrder*, *PostOrder*, *PreOrder*, *Max*, *Min*, *Successor*, *Predecessor*
-<br/>**AVL Tree*: *Insert*, *RotateLeft*, *RotateRight*, *RotateLeftRight*, *RotateRightLeft*, *Balance*, *Delete*
+<br/>**AVL Tree**: *Insert*, *RotateLeft*, *RotateRight*, *RotateLeftRight*, *RotateRightLeft*, *Balance*, *Delete*
 <br/>Please visit this [Animation Page](https://luz-alphacode.github.io/algorithm-animator/) for algorithm animations.
 <br/>FYI, the animation of the project is based on [*paper-vueify*](https://github.com/luz-alphacode/paper-vueify/), it's an easy-to-use library for converting data to animations.
 
