@@ -9,10 +9,14 @@ export class AVLTreeInsert<T> extends AVLTreeAlgorithm<T> {
     super(generator, compare)
   }
 
+  Init() {
+    this._adt.Replace([this._generator()])
+    return this._adt.data
+  }
+
   protected async RunCore() {
     let inserted = [] as Array<any>
-    let count = this._n / 2
-    for (let i = 0; i < count; ++i) {
+    for (let i = 0; i < this._n; ++i) {
       let next = this._generator()
       if (await this._adt.Insert(next)) {
         inserted.push(next)

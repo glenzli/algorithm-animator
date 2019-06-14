@@ -10,20 +10,6 @@ export class BinaryTreeADT<T> extends GenericBinaryTreeADT<T> {
     super({}, compare)
   }
 
-  async ReplaceNode(parent: TreeNode<T>, node: TreeNode<T>, successor: TreeNode<T> | null) {
-    if (successor) {
-      this.Act(UniqueAction.Target, node)
-      this.Act(UniqueAction.Move, successor)
-    }
-    await Interact.Doze(3)
-    if (successor) {
-      this.Act(UniqueAction.None, successor)
-    }
-    this.ImmediateReplaceNode(parent, node, successor)
-    this.Act(UniqueAction.None, node)
-    this.Attribute(UniqueAttribute.None, node)
-  }
-
   static get insertPseudoCode() {
     return PseudoCode.Normalize(`
     insert(T, v):

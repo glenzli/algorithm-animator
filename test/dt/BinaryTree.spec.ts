@@ -52,6 +52,7 @@ function TestTreeResult<T extends BinaryTreeAlgorithm<number>>(Tree: new (...arg
     let source = ExtractTreeData(tree.data.root)
     let output = await Interact.ImmediateExecute(() => tree.Run())
 
+    expect(CheckBinaryTreeConstraint(tree.data.root)).toBeTruthy()
     expect(source).toEqual(ExtractTreeData(tree.data.root))
     if (validate) {
       expect(validate(output, source)).toBeTruthy()
@@ -59,7 +60,7 @@ function TestTreeResult<T extends BinaryTreeAlgorithm<number>>(Tree: new (...arg
   })
 }
 
-describe('Tree', () => {
+describe('BinaryTree', () => {
   TestTreeResult(BinaryTreeSearch)
   TestTree(BinaryTreePreOrder)
   TestTree(BinaryTreeInOrder)
@@ -70,7 +71,7 @@ describe('Tree', () => {
     values = values.sort((m, n) => m - n)
     return pairs.every(pair => {
       if (pair.length > 1) {
-        return values[values.indexOf(pair[0]) - 1] = pair[1]
+        return values[values.indexOf(pair[0]) - 1] === pair[1]
       } else {
         return pair[0] === Math.min(...values)
       }
@@ -80,7 +81,7 @@ describe('Tree', () => {
     values = values.sort((m, n) => m - n)
     return pairs.every(pair => {
       if (pair.length > 1) {
-        return values[values.indexOf(pair[0]) + 1] = pair[1]
+        return values[values.indexOf(pair[0]) + 1] === pair[1]
       } else {
         return pair[0] === Math.max(...values)
       }

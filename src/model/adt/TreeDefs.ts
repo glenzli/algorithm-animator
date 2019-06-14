@@ -6,8 +6,8 @@ export interface TreeNode<T> extends ValueItem<T> {
   tag: number
 }
 
-export interface TreeData<T, Node extends TreeNode<T> = TreeNode<T>> extends AbstractData {
-  root: Node,
+export interface TreeData<T, TNode extends TreeNode<T> = TreeNode<T>> extends AbstractData {
+  root: TNode,
   height: number,
   actives: Array<ValueItem<T>>,
 }
