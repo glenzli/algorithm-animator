@@ -25,6 +25,10 @@ export abstract class GenericBinaryTreeADT<T, TNode extends TreeNode<T> = TreeNo
     return this._data.height
   }
 
+  protected get nil(): TNode | null {
+    return null
+  }
+
   protected get left() {
     return 0
   }
@@ -33,66 +37,80 @@ export abstract class GenericBinaryTreeADT<T, TNode extends TreeNode<T> = TreeNo
     return 1
   }
 
-  static InOrderTraverse<T, TNode extends TreeNode<T> = TreeNode<T>>(action: (node: TNode) => void, node: TNode) {
+  InOrderTraverse(action: (node: TNode) => void, node: TNode) {
     let [left, right] = node.children
-    if (left) {
+    if (!this.IsNil(left as TNode | null)) {
       this.InOrderTraverse(action, left as TNode)
     }
     action(node)
-    if (right) {
+    if (!this.IsNil(right as TNode | null)) {
       this.InOrderTraverse(action, right as TNode)
     }
   }
 
-  static PostOrderTraverse<T, TNode extends TreeNode<T> = TreeNode<T>>(action: (node: TNode) => void, node: TNode) {
+  PostOrderTraverse(action: (node: TNode) => void, node: TNode) {
     let [left, right] = node.children
-    if (left) {
+    if (!this.IsNil(left as TNode | null)) {
       this.PostOrderTraverse(action, left as TNode)
     }
-    if (right) {
+    if (!this.IsNil(right as TNode | null)) {
       this.PostOrderTraverse(action, right as TNode)
     }
     action(node)
   }
 
-  static PreOrderTraverse<T, TNode extends TreeNode<T> = TreeNode<T>>(action: (node: TNode) => void, node: TNode) {
+  PreOrderTraverse(action: (node: TNode) => void, node: TNode) {
     action(node)
     let [left, right] = node.children
-    if (left) {
+    if (!this.IsNil(left as TNode | null)) {
       this.PreOrderTraverse(action, left as TNode)
     }
-    if (right) {
+    if (!this.IsNil(right as TNode | null)) {
       this.PreOrderTraverse(action, right as TNode)
     }
   }
 
-  static HeightOf<T, TNode extends TreeNode<T> = TreeNode<T>>(node: TNode | null): number {
-    if (node != null) {
-      return Math.max(...node.children.map(node => this.HeightOf(node))) + 1
+  protected IsNil(node: TNode | null) {
+    return node == null
+  }
+
+  HeightOf(node: TNode | null): number {
+    if (node) {
+      return Math.max(...node!.children.map(node => this.HeightOf(node as TNode | null))) + 1
     } else {
       return 0
     }
+  }
+
+  protected SetChildren(parent: TNode, left: TNode | null | undefined, right: TNode | null | undefined) {
+    if (left !== undefined) {
+      Vue.set(parent.children, this.left, left)
+    }
+    if (right !== undefined) {
+      Vue.set(parent.children, this.right, right)
+    }
+    parent.children.forEach(c => { if (c) { c.parent = parent } })
   }
 
   private CreateTree(n: number, perfect = true) {
     let nodes = Array$.Create(n, () => this.New(null))
     let nonLeafCount = Math.ceil(nodes.length / 2) - 1
     for (let i = 0; i < nonLeafCount; ++i) {
-      nodes[i].children = [nodes[2 * i + 1] || null, nodes[2 * i + 2] || null]
+      this.SetChildren(nodes[i], nodes[2 * i + 1], nodes[2 * i + 2])
     }
     if (!perfect) {
       while (Math.random() > 0.4) {
         let target = nodes[Math.floor(nonLeafCount * Math.random())]
         if (this.Left(target) && this.Right(target)) {
           let right = this.Right(target)!
-          Vue.set(target.children, this.right, null)
+          this.Assign(target, this.right, this.nil)
           let parent = this.Left(target)!
           let probe = this.Right(parent)
           while (probe) {
             parent = probe!
             probe = this.Right(probe)
           }
-          Vue.set(parent.children, this.right, right)
+          this.Assign(parent, this.right, right)
         }
       }
     }
@@ -105,19 +123,32 @@ export abstract class GenericBinaryTreeADT<T, TNode extends TreeNode<T> = TreeNo
     this._data.root = this.CreateTree(sorted.length, perfect)
     // set value
     let i = 0
-    GenericBinaryTreeADT.InOrderTraverse(n => { n.value = sorted[i++] }, this._data.root)
-    this._data.height = GenericBinaryTreeADT.HeightOf(this._data.root)
+    this.InOrderTraverse(n => { n.value = sorted[i++] }, this._data.root)
+    this._data.height = this.HeightOf(this._data.root)
   }
 
-  protected Traverse(action: (node: TNode) => void, node: TNode | null = this._data.root) {
+  protected PrepareSample(generator: () => T, n: number, creator: (values: Array<T>) => TNode) {
+    let set = new Set(Array$.Create(n, generator))
+    while (set.size < n) {
+      set.add(generator())
+    }
+    this._data.root = creator([...set].sort(this._compare))
+    this._data.height = this.HeightOf(this._data.root)
+  }
+
+  protected FullTraverse(action: (node: TNode, height: number) => void, node: TNode | null = this._data.root, height = 1) {
     if (node) {
-      action(node)
-      node.children.forEach(child => this.Traverse(action, child as TNode))
+      action(node!, height)
+      node!.children.forEach(child => this.FullTraverse(action, child as TNode, height + 1))
     }
   }
 
   IsLeaf(node: TNode) {
     return node.children.every(c => !c)
+  }
+
+  HasNonNilChildren(node: TNode) {
+    return node.children.some(c => !this.IsNil(node))
   }
 
   Left(node: TNode) {
@@ -128,8 +159,33 @@ export abstract class GenericBinaryTreeADT<T, TNode extends TreeNode<T> = TreeNo
     return node.children[this.right] as TNode | null
   }
 
+  IsLeft(node: TNode) {
+    return this.Left(node.parent as TNode) === node
+  }
+
+  IsRight(node: TNode) {
+    return this.Right(node.parent as TNode) === node
+  }
+
+  Sibling(node: TNode) {
+    return this.IsLeft(node) ? this.Right(node.parent as TNode) : this.Left(node.parent as TNode)
+  }
+
+  IsOutside(node: TNode) {
+    return this.IsLeft(node) === this.IsLeft(node.parent as TNode)
+  }
+
+  IsInside(node: TNode) {
+    return this.IsLeft(node) !== this.IsLeft(node.parent as TNode)
+  }
+
   protected New(value: T | null): TNode {
-    return { value, children: [null, null], tag: -1, action: UniqueAction.None, state: UniqueState.None, attribute: UniqueAttribute.None } as TNode
+    let children = [this.nil, this.nil]
+    let node = { value, parent: this._sentinel as TreeNode<T>, children, tag: -1, action: UniqueAction.None, state: UniqueState.None, attribute: UniqueAttribute.None } as TNode
+    node.children.forEach(c => { if (c) {
+      c.parent = node
+    } })
+    return node
   }
 
   protected Act(action: UniqueAction, ...nodes: Array<TNode | null>) {
@@ -147,8 +203,10 @@ export abstract class GenericBinaryTreeADT<T, TNode extends TreeNode<T> = TreeNo
     nodes.forEach(node => node.attribute = attribute)
   }
 
-  protected Active(value: T) {
-    this._data.actives.push({ value, action: UniqueAction.None, state: UniqueState.None, attribute: UniqueAttribute.None } as ValueItem<T>)
+  protected Active(value: T | null) {
+    if (value != null) {
+      this._data.actives.push({ value, action: UniqueAction.None, state: UniqueState.None, attribute: UniqueAttribute.None } as ValueItem<T>)
+    }
   }
 
   protected ActActive(action: UniqueAction, ...indexes: Array<number>) {
@@ -160,27 +218,38 @@ export abstract class GenericBinaryTreeADT<T, TNode extends TreeNode<T> = TreeNo
 
   protected Link(from: TNode | null, to: TNode | null, directional = true) {
     if (from && to) {
-      from.tag = ++this._tagger
-      to.tag = this._tagger + (directional ? 0.1 : -0.1)
+      from!.tag = ++this._tagger
+      to!.tag = this._tagger + (directional ? 0.1 : -0.1)
     }
   }
 
   protected Unlink(from: TNode | null, to: TNode | null) {
     if (from && to) {
-      from.tag = -1
-      to.tag = -1
+      from!.tag = -1
+      to!.tag = -1
     }
   }
 
-  protected ImmediateReplaceNode(parent: TNode, node: TNode, newNode: TNode | null) {
-    if (parent === this._sentinel) {
-      this.data.root = newNode!
+  protected Assign(parent: TNode, index: number, node: TNode | null) {
+    Vue.set(parent.children, index, node)
+    if (node) {
+      node.parent = parent
+    }
+  }
+
+  protected ImmediateReplaceNode(node: TNode, newNode: TNode | null) {
+    if (node.parent === this._sentinel) {
+      this._data.root = newNode || this._sentinel
+      if (newNode) {
+        newNode.parent = this._sentinel
+      }
     } else {
-      Vue.set(parent.children, this.Left(parent) === node ? this.left : this.right, newNode)
+      this.Assign(node.parent as TNode, this.IsLeft(node) ?  this.left : this.right, newNode)
     }
+    node.parent = this._sentinel
   }
 
-  async ReplaceNode(parent: TNode, node: TNode, successor: TNode | null) {
+  async ReplaceNode(node: TNode, successor: TNode | null) {
     if (successor) {
       this.Act(UniqueAction.Target, node)
       this.Act(UniqueAction.Move, successor)
@@ -189,13 +258,13 @@ export abstract class GenericBinaryTreeADT<T, TNode extends TreeNode<T> = TreeNo
     if (successor) {
       this.Act(UniqueAction.None, successor)
     }
-    this.ImmediateReplaceNode(parent, node, successor)
+    this.ImmediateReplaceNode(node, successor)
     this.Act(UniqueAction.None, node)
     this.Attribute(UniqueAttribute.None, node)
   }
 
   Restore() {
-    this.Traverse(node => {
+    this.FullTraverse(node => {
       node.action = UniqueAction.None
       node.state = UniqueState.None
       node.attribute = UniqueAttribute.None
@@ -220,6 +289,7 @@ export abstract class GenericBinaryTreeADT<T, TNode extends TreeNode<T> = TreeNo
       this._data.root = node as TNode
     } else {
       Vue.set(parent.children, index, node)
+      node.parent = parent
     }
     this.Act(UniqueAction.Update, node as TNode)
     await Interact.Doze()
@@ -248,7 +318,7 @@ export abstract class GenericBinaryTreeADT<T, TNode extends TreeNode<T> = TreeNo
   }
 
   RandomPick(node: TNode = this._data.root): TNode {
-    while (!this.IsLeaf(node) && Math.random() > 0.3) {
+    while (this.HasNonNilChildren(node) && Math.random() > 0.3) {
       let children = node.children.filter(c => !!c) as Array<TreeNode<T>>
       let next = children[Math.floor(children.length * Math.random())]
       return this.RandomPick(next as TNode)
@@ -266,19 +336,17 @@ export abstract class GenericBinaryTreeADT<T, TNode extends TreeNode<T> = TreeNo
     `)
   }
 
-  async Min(node: TNode = this._data.root, parent: TNode = this._sentinel) {
-    await PseudoCode.RunAt(0)
+  async Min(node: TNode = this._data.root) {
+    await PseudoCode.RunThrough(0)
     this.Act(UniqueAction.Peek, node)
     let minimum = node
-    PseudoCode.RunAt(1)
-    while (this.Left(minimum)) {
-      PseudoCode.RunAt(2)
-      parent = minimum
+    while (!this.IsNil(this.Left(minimum))) {
+      await PseudoCode.RunThrough(1, 2)
       minimum = (await this.Get(minimum, this.left))!
     }
     this.Act(UniqueAction.Select, minimum)
-    await PseudoCode.RunAt(3)
-    return [minimum, parent]
+    await PseudoCode.RunThrough(3)
+    return minimum
   }
 
   static get maxPseudoCode() {
@@ -291,33 +359,17 @@ export abstract class GenericBinaryTreeADT<T, TNode extends TreeNode<T> = TreeNo
     `)
   }
 
-  async Max(node: TNode = this._data.root, parent: TNode = this._sentinel) {
-    await PseudoCode.RunAt(0)
+  async Max(node: TNode = this._data.root) {
+    await PseudoCode.RunThrough(0)
     this.Act(UniqueAction.Peek, node)
     let maximum = node
-    PseudoCode.RunAt(1)
-    while (this.Right(maximum)) {
-      PseudoCode.RunAt(2)
-      parent = maximum
+    while (!this.IsNil(this.Right(maximum))) {
+      await PseudoCode.RunThrough(1, 2)
       maximum = (await this.Get(maximum, this.right))!
     }
     this.Act(UniqueAction.Select, maximum)
-    await PseudoCode.RunAt(3)
-    return [maximum, parent]
-  }
-
-  protected SearchNode(node: TNode) {
-    let path = []
-    let current = this._data.root
-    while (current && current !== node) {
-      path.push(current)
-      if (this._compare(node.value!, current.value!) < 0) {
-        current = this.Left(current)!
-      } else {
-        current = this.Right(current)!
-      }
-    }
-    return path
+    await PseudoCode.RunThrough(3)
+    return maximum
   }
 
   static get successorPseudoCode() {
@@ -326,37 +378,33 @@ export abstract class GenericBinaryTreeADT<T, TNode extends TreeNode<T> = TreeNo
       if n.right ≠ nil:
         return min(n.right)
       else:
-        while parent(n) ≠ nil ⋀ n = parent(n).right:
-          n ← parent(n)
-        return parent(n)
+        while n.parent ≠ nil ⋀ isRight(n):
+          n ← n.parent
+        return n.parent
     `)
   }
 
   async Successor(node: TNode) {
-    this.Active(node.value!)
+    this.Active(node.value)
     this.Act(UniqueAction.Select, node)
-    await PseudoCode.RunAt(0)
-    if (this.Right(node)) {
-      let successor = (await this.Min(this.Right(node)!))[0]
-      this.Active(successor.value!)
-      await PseudoCode.RunAt(1)
+    await PseudoCode.RunThrough(0)
+    if (!this.IsNil(this.Right(node))) {
+      PseudoCode.RunAt(1)
+      let successor = await this.Min(this.Right(node)!)
+      this.Active(successor.value)
       return successor
     } else {
-      let path = this.SearchNode(node)
-      let parent = path.pop() || null
-      this.Act(UniqueAction.Peek, parent)
-      while (parent && node === this.Right(parent)) {
-        node = parent
-        parent = path.pop() || null
-        this.Act(UniqueAction.Peek, parent)
-        await PseudoCode.RunAt(3)
+      await PseudoCode.RunThrough(2)
+      while (node.parent !== this._sentinel && this.IsRight(node)) {
+        await PseudoCode.RunThrough(3)
+        node = node.parent as TNode
+        this.Act(UniqueAction.Peek, node)
+        await PseudoCode.RunAt(4)
       }
-      this.Act(UniqueAction.Select, parent)
-      if (parent) {
-        this.Active(parent.value!)
-      }
-      await PseudoCode.RunAt(4)
-      return parent
+      this.Act(UniqueAction.Select, node.parent as TNode)
+      this.Active(node.parent.value)
+      await PseudoCode.RunThrough(5)
+      return node.parent as TNode
     }
   }
 
@@ -366,37 +414,33 @@ export abstract class GenericBinaryTreeADT<T, TNode extends TreeNode<T> = TreeNo
       if n.left ≠ nil:
         return max(n.left)
       else:
-        while parent(n) ≠ nil ⋀ n = parent(n).left:
-          n ← parent(n)
-        return parent(n)
+        while n.parent ≠ nil ⋀ isLeft(n):
+          n ← n.parent
+        return n.parent
     `)
   }
 
   async Predecessor(node: TNode) {
-    this.Active(node.value!)
+    this.Active(node.value)
     this.Act(UniqueAction.Select, node)
-    await PseudoCode.RunAt(0)
-    if (this.Left(node)) {
-      let predecessor = (await this.Max(this.Left(node)!))[0]
-      this.Active(predecessor.value!)
-      await PseudoCode.RunAt(1)
+    await PseudoCode.RunThrough(0)
+    if (!this.IsNil(this.Left(node))) {
+      PseudoCode.RunAt(1)
+      let predecessor = await this.Max(this.Left(node)!)
+      this.Active(predecessor.value)
       return predecessor
     } else {
-      let path = this.SearchNode(node)
-      let parent = path.pop() || null
-      this.Act(UniqueAction.Peek, parent)
-      while (parent && node === this.Left(parent)) {
-        node = parent
-        parent = path.pop() || null
-        this.Act(UniqueAction.Peek, parent)
-        await PseudoCode.RunAt(3)
+      await PseudoCode.RunThrough(2)
+      while (node.parent !== this._sentinel && this.IsLeft(node)) {
+        await PseudoCode.RunThrough(3)
+        node = node.parent as TNode
+        this.Act(UniqueAction.Peek, node)
+        await PseudoCode.RunAt(4)
       }
-      this.Act(UniqueAction.Select, parent)
-      if (parent) {
-        this.Active(parent.value!)
-      }
-      await PseudoCode.RunAt(4)
-      return parent
+      this.Act(UniqueAction.Select, node.parent as TNode)
+      this.Active(node.parent.value)
+      await PseudoCode.RunThrough(5)
+      return node.parent as TNode
     }
   }
 
@@ -412,17 +456,17 @@ export abstract class GenericBinaryTreeADT<T, TNode extends TreeNode<T> = TreeNo
   }
 
   async InOrder(node = this._data.root) {
-    PseudoCode.RunAt(0)
-    if (this.Left(node)) {
+    await PseudoCode.RunThrough(0)
+    if (!this.IsNil(this.Left(node))) {
       PseudoCode.RunAt(1)
       await this.InOrder(this.Left(node)!)
     }
     PseudoCode.RunAt(2)
     this.Act(UniqueAction.Peek, node)
-    this.Active(node.value!)
+    this.Active(node.value)
     await Interact.Doze()
-    PseudoCode.RunAt(3)
-    if (this.Right(node)) {
+    await PseudoCode.RunThrough(3)
+    if (!this.IsNil(this.Right(node))) {
       PseudoCode.RunAt(4)
       await this.InOrder(this.Right(node)!)
     }
@@ -440,19 +484,19 @@ export abstract class GenericBinaryTreeADT<T, TNode extends TreeNode<T> = TreeNo
   }
 
   async PostOrder(node = this._data.root) {
-    PseudoCode.RunAt(0)
-    if (this.Left(node)) {
+    await PseudoCode.RunThrough(0)
+    if (!this.IsNil(this.Left(node))) {
       PseudoCode.RunAt(1)
       await this.PostOrder(this.Left(node)!)
     }
-    PseudoCode.RunAt(2)
-    if (this.Right(node)) {
+    await PseudoCode.RunThrough(2)
+    if (!this.IsNil(this.Right(node))) {
       PseudoCode.RunAt(3)
       await this.PostOrder(this.Right(node)!)
     }
     PseudoCode.RunAt(4)
     this.Act(UniqueAction.Peek, node)
-    this.Active(node.value!)
+    this.Active(node.value)
     await Interact.Doze()
   }
 
@@ -470,17 +514,121 @@ export abstract class GenericBinaryTreeADT<T, TNode extends TreeNode<T> = TreeNo
   async PreOrder(node = this._data.root) {
     PseudoCode.RunAt(0)
     this.Act(UniqueAction.Peek, node)
-    this.Active(node.value!)
+    this.Active(node.value)
     await Interact.Doze()
-    PseudoCode.RunAt(1)
-    if (this.Left(node)) {
+    await PseudoCode.RunThrough(1)
+    if (!this.IsNil(this.Left(node))) {
       PseudoCode.RunAt(2)
       await this.PreOrder(this.Left(node)!)
     }
-    PseudoCode.RunAt(3)
-    if (this.Right(node)) {
+    await PseudoCode.RunThrough(3)
+    if (!this.IsNil(this.Right(node))) {
       PseudoCode.RunAt(4)
       await this.PreOrder(this.Right(node)!)
     }
+  }
+
+  static get rotateRightPseudoCode() {
+    return PseudoCode.Normalize(`
+    rotateRight(T, n):
+      left ← n.left
+      n.left ← left.right, left.right.parent ← n
+      left.right ← n
+      replace(n, left), n.parent ← left
+    `)
+  }
+
+  async RotateRight(pivot: TNode = this._data.root) {
+    this.State(UniqueState.Violate, pivot)
+    await PseudoCode.RunThrough(0)
+    let left = this.Left(pivot)!
+    let rightOfLeft = this.Right(left)
+    this.Act(UniqueAction.Rotate, pivot, left)
+    await PseudoCode.RunThrough(1, 2)
+    await Interact.Doze(2)
+    if (rightOfLeft) {
+      this.Link(rightOfLeft, pivot, false)
+      this.Act(UniqueAction.Isolate, rightOfLeft)
+      await Interact.Doze(3)
+    }
+    this.State(UniqueState.None, pivot)
+    this.Act(UniqueAction.None, pivot, left, rightOfLeft)
+    this.Assign(pivot, this.left, rightOfLeft)
+    Vue.set(left.children, this.right, pivot)
+    PseudoCode.RunAt(3)
+    this.ImmediateReplaceNode(pivot, left)
+    pivot.parent = left
+    this.Unlink(rightOfLeft, pivot)
+    await Interact.Doze(1)
+  }
+
+  static get rotateLeftPseudoCode() {
+    return PseudoCode.Normalize(`
+    rotateLeft(T, n):
+      right ← n.right
+      n.right ← right.left, right.left.parent ← n
+      right.left ← n
+      replace(n, right), n.parent ← right
+    `)
+  }
+
+  async RotateLeft(pivot: TNode = this._data.root) {
+    this.State(UniqueState.Violate, pivot)
+    await PseudoCode.RunThrough(0)
+    let right = this.Right(pivot)!
+    let leftOfRight = this.Left(right)
+    this.Act(UniqueAction.Rotate, pivot, right)
+    await PseudoCode.RunThrough(1, 2)
+    await Interact.Doze(2)
+    if (leftOfRight) {
+      this.Link(leftOfRight, pivot, false)
+      this.Act(UniqueAction.Isolate, leftOfRight)
+      await Interact.Doze(3)
+    }
+    this.State(UniqueState.None, pivot)
+    this.Act(UniqueAction.None, pivot, right, leftOfRight)
+    this.Assign(pivot, this.right, leftOfRight)
+    Vue.set(right.children, this.left, pivot)
+    PseudoCode.RunAt(3)
+    this.ImmediateReplaceNode(pivot, right)
+    pivot.parent = right
+    this.Unlink(leftOfRight, pivot)
+    await Interact.Doze(1)
+  }
+
+  static get searchPseudoCode() {
+    return PseudoCode.Normalize(`
+    search(T, v):
+      n ← T.root
+      while n ≠ nil:
+        if n.value = v:
+          return n
+        else:
+          n ← v ≺ n.value ? n.left : n.right
+      return nil
+    `)
+  }
+
+  async Search(value: T) {
+    this.Active(value)
+    await PseudoCode.RunThrough(0)
+    let node = this._data.root as TNode | null
+    while (!this.IsNil(node)) {
+      await PseudoCode.RunThrough(1, 2)
+      let result = await this.Compare(value, node!, true)
+      if (result === 0) {
+        this.Act(UniqueAction.Select, node)
+        this.ActActive(UniqueAction.Select)
+        await PseudoCode.RunAt(3)
+        this.Restore()
+        return node
+      } else {
+        await PseudoCode.RunAt(5)
+        node = node!.children[result < 0 ? this.left : this.right] as TNode | null
+      }
+    }
+    await PseudoCode.RunThrough(6)
+    this.Restore()
+    return null
   }
 }

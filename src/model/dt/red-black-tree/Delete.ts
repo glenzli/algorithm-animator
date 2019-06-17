@@ -1,10 +1,10 @@
-import { AVLTreeADT } from '../../adt'
+import { RedBlackTreeADT } from '../../adt'
 import { PseudoCode } from '../../PseudoCode'
-import { AVLTreeAlgorithm } from './AVLTree'
+import { RedBlackTreeAlgorithm } from './RedBlackTree'
 
-PseudoCode.Pseudo('AVLTree.Delete', AVLTreeADT.deletePseudoCode)
+PseudoCode.Pseudo('RedBlackTree.Delete', RedBlackTreeADT.deletePseudoCode)
 
-export class AVLTreeDelete<T> extends AVLTreeAlgorithm<T> {
+export class RedBlackTreeDelete<T> extends RedBlackTreeAlgorithm<T> {
   constructor(generator: () => T, compare?: (val1: T, val2: T) => number) {
     super(generator, compare)
   }
@@ -22,4 +22,3 @@ export class AVLTreeDelete<T> extends AVLTreeAlgorithm<T> {
     return deleted
   }
 }
-

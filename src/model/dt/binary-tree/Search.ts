@@ -12,7 +12,7 @@ export class BinaryTreeSearch<T> extends BinaryTreeAlgorithm<T> {
   protected async RunCore() {
     let count = Math.floor(this.n / 3)
     for (let i = 0; i < count; ++i) {
-      await this._adt.Search(this._generator())
+      await this._adt.Search(Math.random() > 0.5 ? this._generator() : this._adt.RandomPick().value!)
     }
   }
 }

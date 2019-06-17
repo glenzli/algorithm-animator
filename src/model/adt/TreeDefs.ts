@@ -2,6 +2,7 @@ import { ValueItem } from './Defs'
 import { AbstractData } from './ADT'
 
 export interface TreeNode<T> extends ValueItem<T> {
+  parent: TreeNode<T>,
   children: Array<TreeNode<T> | null>
   tag: number
 }

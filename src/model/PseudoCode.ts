@@ -1,5 +1,5 @@
 import { Array$ } from 'js-corelib'
-import { Interact } from './Interact'
+import { Interact, InteractAbortError } from './Interact'
 
 enum CodeCategory {
   None = '',
@@ -59,6 +59,13 @@ class PseudoCodeTranslator {
       this._pointTo(ln)
     }
     await Interact.Doze().catch(() => {})
+  }
+
+  async RunThrough(...lns: Array<number>) {
+    // tslint:disable-next-line:prefer-for-of
+    for (let i = 0; i < lns.length; ++i) {
+      await Interact.HighspeedExecute(() => this.RunAt(lns[i]))
+    }
   }
 
   private Format(codeLine: string) {

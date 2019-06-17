@@ -1,3 +1,9 @@
+export class InteractAbortError extends Error {
+  constructor() {
+    super('Abort')
+  }
+}
+
 class Interactor {
   private _delay = 100
   private _memorizedDelay = 0
@@ -83,7 +89,7 @@ class Interactor {
 
   async Doze(n = 1) {
     if (this._aborting) {
-      throw new Error('Abort ' + Math.floor(1e8 * Math.random()))
+      throw new InteractAbortError()
     } else {
       if (!this.immediate) {
         await this.Continue()
@@ -108,13 +114,24 @@ class Interactor {
     })
   }
 
+  async HighspeedExecute<T>(f: () => Promise<T>) {
+    let delay = this._delay
+    this._delay = Math.min(delay, 15)
+    let result: any
+    try {
+      result = await f()
+    } catch (e) { } finally {
+      this.delay = delay
+    }
+    return result
+  }
+
   async ImmediateExecute<T>(f: () => Promise<T>) {
     this.immediate = true
     let result: any
     try {
       result = await f()
-    } catch (e) {
-    } finally {
+    } catch (e) { } finally {
       this.immediate = false
     }
     return result

@@ -37,14 +37,13 @@ export class ShellSort<T> extends SortAlgorithm<T> {
   }
 
   protected async RunCore() {
-    await PseudoCode.RunAt(0)
+    await PseudoCode.RunThrough(0)
     let space = this._adt.length
     while (space > 1) {
-      await PseudoCode.RunAt(2)
+      await PseudoCode.RunThrough(1, 2)
       space = Math.floor(space / 2)
       for (let i = 0; i < space; ++i) {
-        await PseudoCode.RunAt(3)
-        PseudoCode.RunAt(4)
+        await PseudoCode.RunThrough(3, 4)
         await this.RunSparseInsertionSort(i, space)
       }
     }

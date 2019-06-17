@@ -14,12 +14,13 @@ selectionSort(A):
 
 export class SelectionSort<T> extends SortAlgorithm<T> {
   private async SelectMin(startIndex: number) {
+    await PseudoCode.RunAt(1)
     let minIndex = startIndex
     this._adt.Select(minIndex)
     for (let i = startIndex + 1; i < this._adt.length; ++i) {
-      PseudoCode.RunAt(3)
+      await PseudoCode.RunThrough(2, 3)
       if (await this._adt.Compare(minIndex, i) > 0) {
-        await PseudoCode.RunAt(4)
+        await PseudoCode.RunThrough(4)
         this._adt.RestoreAt(minIndex)
         minIndex = i
         this._adt.Select(minIndex)
@@ -29,12 +30,11 @@ export class SelectionSort<T> extends SortAlgorithm<T> {
   }
 
   protected async RunCore() {
-    PseudoCode.RunAt(0)
     for (let i = 0; i < this._adt.length; ++i) {
+      await PseudoCode.RunThrough(0)
       this._adt.Partition(i)
-      PseudoCode.RunAt(1)
       let min = await this.SelectMin(i)
-      await PseudoCode.RunAt(5)
+      await PseudoCode.RunThrough(5)
       if (min !== i) {
         PseudoCode.RunAt(6)
         await this._adt.Swap(i, min)

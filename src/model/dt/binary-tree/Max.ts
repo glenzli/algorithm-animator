@@ -10,7 +10,7 @@ export class BinaryTreeMax<T> extends BinaryTreeAlgorithm<T> {
   }
 
   protected async RunCore() {
-    return (await this._adt.Max())[0].value
+    return (await this._adt.Max()).value
   }
 }
 

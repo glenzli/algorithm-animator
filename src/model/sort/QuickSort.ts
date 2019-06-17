@@ -18,15 +18,15 @@ quickSort(A):
 
 export class QuickSort<T> extends SortAlgorithm<T> {
   protected async RunCore(from = 0, to = this._adt.length - 1) {
-    await PseudoCode.RunAt(0)
+    await PseudoCode.RunThrough(0)
     if (from < to) {
       this._adt.Partition(from, to)
-      await PseudoCode.RunAt(1)
+      await PseudoCode.RunThrough(1)
       let pivot = from
       this._adt.Select(pivot)
       this._adt.Seperate(pivot)
       for (let i = from + 1; i <= to; ++i) {
-        PseudoCode.RunAt(3)
+        await PseudoCode.RunThrough(2, 3)
         if (await this._adt.Compare(from, i) > 0) {
           PseudoCode.RunAt(4)
           await this._adt.Swap(i, ++pivot)
@@ -36,17 +36,17 @@ export class QuickSort<T> extends SortAlgorithm<T> {
           this._adt.State(UniqueState.GreaterOrEqual, i)
         }
       }
-      await PseudoCode.RunAt(5)
+      await PseudoCode.RunThrough(5)
       if (from !== pivot) {
         PseudoCode.RunAt(6)
         await this._adt.Swap(from, pivot)
         this._adt.Seperate(pivot - 1, 0)
-        await Interact.Doze(1)
+        await Interact.Doze()
       }
       this._adt.Reset()
-      await PseudoCode.RunAt(7)
+      await PseudoCode.RunThrough(7)
       await this.RunCore(from, pivot - 1)
-      await PseudoCode.RunAt(8)
+      await PseudoCode.RunThrough(8)
       await this.RunCore(pivot + 1, to)
     }
   }

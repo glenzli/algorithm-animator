@@ -13,7 +13,7 @@ export class AlgorithmMixin extends Vue {
     await algorithm.Run()
   }
 
-  async mounted() {
+  mounted() {
     this.Init()
     this.Run()
   }

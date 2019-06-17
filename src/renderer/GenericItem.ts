@@ -2,7 +2,7 @@ import Vue from 'vue'
 import { Array$ } from 'js-corelib'
 import { Component, Prop, Inject } from 'vue-property-decorator'
 import { PointObject, Coordinate, PointTextItem, GroupItem, PaperItemObject } from 'paper-vueify'
-import { ValueItem, UniqueAttribute } from '../model'
+import { ValueItem, UniqueAttribute, UniqueAction } from '../model'
 import { ItemHelpers, ITEM_SIZES, ACTION_BRUSHES, TEXT_BRUSH, STATE_STROKES } from './Defs'
 
 const STATE_CONTENTS = ['', '≺', '≼', '≻', '≽', '=', '≈', '!']
@@ -14,22 +14,41 @@ export class GenericItemMixin extends Vue {
 
   @Inject({ default: null }) quantizer!: ((val: any) => number) | null
 
+  GetDiameter(value: any, attribute: UniqueAttribute) {
+    if (value != null) {
+      return (attribute === UniqueAttribute.Emphasize ? ITEM_SIZES.SPACE.x * 2 : 0) + ITEM_SIZES.DIAMETER
+    } else {
+      return ITEM_SIZES.DIAMETER / 2
+    }
+  }
+
   get diameter() {
-    return (this.item.attribute === UniqueAttribute.Emphasize ? ITEM_SIZES.SPACE.x * 2 : 0) + ITEM_SIZES.DIAMETER
+    return this.GetDiameter(this.item.value, this.item.attribute)
   }
 
   get labelContent() {
     return ItemHelpers.ToLabel(this.item.value)
   }
 
+  get nilOpacity() {
+    return 0.4
+  }
+
+  get nilBrush() {
+    return ACTION_BRUSHES[UniqueAction.None]
+  }
+
   get opacity() {
-    let factor = (this.item.attribute === UniqueAttribute.Ignore || !this.labelContent) ? 0.2 : 1
-    return (this.quantizer ? (this.quantizer(this.item.value) * 0.6 + 0.4) : 1) * factor
+    if (this.item.value != null) {
+      let factor = this.item.attribute === UniqueAttribute.Ignore ? 0.4 : 1
+      return (this.quantizer ? (this.quantizer(this.item.value) * 0.6 + 0.4) : 1) * factor
+    }
+    return this.nilOpacity
   }
 
   get boxStyle() {
     return {
-      brush: ACTION_BRUSHES[this.item.action],
+      brush: this.item.value != null ? ACTION_BRUSHES[this.item.action] : this.nilBrush,
       stroke: STATE_STROKES[this.item.state],
     }
   }

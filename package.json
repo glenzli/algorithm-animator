@@ -1,6 +1,6 @@
 {
   "name": "algorithm-animator",
-  "version": "3.0.6",
+  "version": "3.0.7",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "core-js": "^2.6.5",
-    "js-corelib": "^1.1.2",
-    "paper-vueify": "^1.1.9",
+    "js-corelib": "^1.1.3",
+    "paper-vueify": "^1.1.11",
     "vue": "^2.6.10",
     "vuetify": "^1.5.14"
   },

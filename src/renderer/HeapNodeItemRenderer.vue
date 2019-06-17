@@ -39,7 +39,7 @@ export default class HeapNodeItemRenderer extends Mixins(GenericItemMixin) {
     if (this.parentPosition && this.parent) {
       let terminal = Point$.Subtract(this.parentPosition, this.position)
       let angle = Point$.Angle(terminal)
-      let xFrom = ITEM_SIZES.DIAMETER / 2
+      let xFrom = this.diameter / 2
       let xTo = Point$.Length(terminal) - ITEM_SIZES.DIAMETER / 2
       let children = [PolylineItem({
         points: [Point(xTo, 0), Point(xFrom, 0)],

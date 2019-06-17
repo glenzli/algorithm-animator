@@ -1,5 +1,5 @@
 import { ADT, AbstractData } from './adt'
-import { Interact } from './Interact'
+import { Interact, InteractAbortError } from './Interact'
 import { PseudoCode } from './PseudoCode'
 
 export abstract class Algorithm<TData extends AbstractData, TADT extends ADT<TData>> {
@@ -35,6 +35,9 @@ export abstract class Algorithm<TData extends AbstractData, TADT extends ADT<TDa
         --Interact.running
         return output
       } catch (e) {
+        if (!(e instanceof InteractAbortError)) {
+          throw e
+        }
         if (--Interact.running === 0) {
           Interact.aborting = false
         }

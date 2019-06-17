@@ -16,7 +16,7 @@ import { ItemHelpers, ITEM_SIZES, ACTION_BRUSHES, ACTION_STROKES } from './Defs'
 import NodeItemRenderer from './NodeItemRenderer.vue'
 import ValueItemRenderer from './ValueItemRenderer.vue'
 
-const REPLACE_STROKE = Stroke({ brush: ACTION_BRUSHES[UniqueAction.Swap], thickness: 2, dash: [ITEM_SIZES.SPACE.x, ITEM_SIZES.SPACE.x] })
+const REPLACE_STROKE = Stroke({ brush: ACTION_BRUSHES[UniqueAction.Move], thickness: 2, dash: [ITEM_SIZES.SPACE.x, ITEM_SIZES.SPACE.x] })
 
 @Component({
   components: { NodeItemRenderer, ValueItemRenderer },
@@ -55,11 +55,11 @@ export default class BinaryTreeRenderer extends Vue {
             radius: ITEM_SIZES.SPACE.x,
             sides: 3,
             coordinate: Coordinate({ position: Point(xFrom - ITEM_SIZES.SPACE.x, 0), rotation: Math.PI / 2 }),
-            brush: ACTION_BRUSHES[UniqueAction.None],
-            stroke: ACTION_STROKES[UniqueAction.None],
+            brush: ACTION_BRUSHES[UniqueAction.Move],
+            stroke: ACTION_STROKES[UniqueAction.Move],
           }))
         }
-        return GroupItem({ children, opacity: 0.4, coordinate: Coordinate({ position: tag.from, rotation: Point$.Angle(terminal) }) })
+        return GroupItem({ children, opacity: 0.8, coordinate: Coordinate({ position: tag.from, rotation: Point$.Angle(terminal) }) })
       } else {
         return GroupItem()
       }

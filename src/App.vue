@@ -11,7 +11,7 @@
             </template>
             <template v-for="(algorithm, index) in cAlgorithms">
               <v-list-tile v-if="algorithm.id" :key="index" @click="Select(index, category)">
-                <v-list-tile-title>{{algorithm.name}}</v-list-tile-title>
+                <v-list-tile-title class="non-category">{{algorithm.name}}</v-list-tile-title>
               </v-list-tile>
               <v-list-group v-else :key="index" sub-group no-action>
                 <template v-slot:activator>
@@ -179,19 +179,15 @@ html, body {
 
 .category {
   font-weight: bold;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
 
   &.sub {
     font-size: 1rem;
   }
 }
 
-.description {
-  position: absolute;
-  left: 10%;
-  bottom: 128px;
-  font-size: 1.2rem;
-  width: 80%;
+.non-category {
+  padding-left: 40px;
 }
 
 .codebox {

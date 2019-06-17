@@ -12,7 +12,7 @@ import { GenericItemMixin } from './GenericItem'
 export default class ValueItemRenderer extends Mixins(GenericItemMixin) {
   get box() {
     return RectangleItem({
-      size: Point(ITEM_SIZES.DIAMETER, this.diameter),
+      size: Point(this.diameter, this.diameter),
       ...this.boxStyle,
     })
   }

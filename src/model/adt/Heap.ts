@@ -147,7 +147,7 @@ export class HeapADT<T> extends ADT<HeapData<T>> {
 
   async Down(node: number) {
     while (!this.IsLeaf(node)) {
-      PseudoCode.RunAt(1)
+      await PseudoCode.RunThrough(0, 1)
       this.Act(UniqueAction.Select, node)
       let child = (await this.PostChild(node))!
       this.Act(UniqueAction.Select, child)
@@ -159,7 +159,7 @@ export class HeapADT<T> extends ADT<HeapData<T>> {
       } else {
         this.Act(UniqueAction.None, node, child)
       }
-      await PseudoCode.RunAt(4)
+      await PseudoCode.RunThrough(4)
       node = child
     }
     this.Restore()
@@ -175,12 +175,11 @@ export class HeapADT<T> extends ADT<HeapData<T>> {
   }
 
   async Heapify() {
-    await PseudoCode.RunAt(0)
+    await PseudoCode.RunThrough(0)
     let firstLeaf = (this.capacity + 1) / 2 - 1
     for (let i = firstLeaf - 1; i >= 0; --i) {
       if (!this.IsLeaf(i)) {
-        await PseudoCode.RunAt(1)
-        PseudoCode.RunAt(2)
+        await PseudoCode.RunThrough(1, 2)
         await PseudoCode.SilentExecute(() => this.Down(i))
       }
     }
@@ -208,15 +207,15 @@ export class HeapADT<T> extends ADT<HeapData<T>> {
       this._data.heap = this._data.heap.concat(Array$.RepeatValue(increase, { value: null, action: UniqueAction.None, state: UniqueState.None, attribute: UniqueAttribute.None }))
       ++this._data.height
     }
-    await PseudoCode.RunAt(1)
+    await PseudoCode.RunThrough(1)
     let descendant = this.count - 1
     let parent = this.Parent(descendant)
-    await PseudoCode.RunAt(2)
+    await PseudoCode.RunThrough(2)
     await this.Set(descendant, value)
     while (descendant > 0 && await this.Compare(descendant, parent) > 0) {
-      PseudoCode.RunAt(4)
+      await PseudoCode.RunThrough(3, 4)
       await this.SwapUp(descendant)
-      await PseudoCode.RunAt(5)
+      await PseudoCode.RunThrough(5)
       descendant = parent
       parent = this.Parent(descendant)
     }
@@ -227,9 +226,10 @@ export class HeapADT<T> extends ADT<HeapData<T>> {
     return PseudoCode.Normalize(`
     delete(H):
       top ← H[0]
-      H[0] ← H[--H.count]
+      H[0] ← H[↓H.count]
       delete H[H.count]
       down(0)
+      shrinkCapacity(H.count)
       return top
     `)
   }
@@ -244,6 +244,12 @@ export class HeapADT<T> extends ADT<HeapData<T>> {
     PseudoCode.RunAt(3)
     await PseudoCode.SilentExecute(() => this.Down(0))
     await PseudoCode.RunAt(4)
+    let capacity = this.ComputeCapacity(this.count)
+    if (capacity < this.capacity) {
+      this._data.heap.splice(capacity)
+      --this._data.height
+    }
+    await PseudoCode.RunThrough(5)
     this.Restore()
     return top
   }

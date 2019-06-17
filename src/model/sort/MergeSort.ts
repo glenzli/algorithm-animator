@@ -33,13 +33,13 @@ export class MergeSort<T> extends SortAlgorithm<T> {
 
   protected async RunCore(from = 0, to = this._adt.length - 1) {
     this._adt.Partition(from, to)
-    await PseudoCode.RunAt(0)
+    await PseudoCode.RunThrough(0)
     if (to - from > 1) {
-      await PseudoCode.RunAt(1)
+      await PseudoCode.RunThrough(1)
       let mid = Math.floor((to - from) / 2) + from
-      await PseudoCode.RunAt(2)
+      await PseudoCode.RunThrough(2)
       await this.RunCore(from, mid)
-      await PseudoCode.RunAt(3)
+      await PseudoCode.RunThrough(3)
       await this.RunCore(mid + 1, to)
       await PseudoCode.RunAt(4)
       this._aux.Replace(this._adt.Slice(from, to + 1, true))
@@ -48,20 +48,20 @@ export class MergeSort<T> extends SortAlgorithm<T> {
       let i = from
       let j = mid + 1
       for (let k = from; k <= to; ++k) {
-        PseudoCode.RunAt(6)
+        await PseudoCode.RunThrough(5, 6)
         if (i > mid || (j <= to && await this._aux.Compare(j - from, i - from) < 0)) {
           this._aux.Select(j - from)
-          await PseudoCode.RunAt(7)
+          await PseudoCode.RunThrough(7)
           await this._adt.Set(k, await this._aux.Get(j++ - from, true))
         } else {
           this._aux.Select(i - from)
-          await PseudoCode.RunAt(9)
+          await PseudoCode.RunThrough(8, 9)
           await this._adt.Set(k, await this._aux.Get(i++ - from, true))
         }
       }
       this._aux.Reset(true)
     } else {
-      PseudoCode.RunAt(11)
+      await PseudoCode.RunThrough(10, 11)
       if (to > from && await this._adt.Compare(from, to) > 0) {
         PseudoCode.RunAt(12)
         await this._adt.Swap(from, to)

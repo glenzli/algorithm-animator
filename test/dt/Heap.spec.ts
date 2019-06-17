@@ -21,7 +21,7 @@ function CheckHeapConstraint(heap: HeapData<number>) {
   return true
 }
 
-function ExtractHeapData(heap: HeapData<number>) {
+function GetData(heap: HeapData<number>) {
   return heap.heap.map(item => item.value).slice(0, heap.count) as Array<number>
 }
 
@@ -29,15 +29,15 @@ function TestHeap<T extends HeapAlgorithm<number>>(Heap: new (...args: Array<any
   it(Heap.name, async () => {
     let heap = new Heap(GENERATOR)
     heap.Init()
-    let source = ExtractHeapData(heap.data)
+    let source = GetData(heap.data)
     let output = await Interact.ImmediateExecute(() => heap.Run())
 
     expect(CheckHeapConstraint(heap.data)).toBeTruthy()
     if (operator && output) {
       let expected = operator(source, output as Array<number>).sort((m, n) => m - n)
-      expect(expected).toEqual(ExtractHeapData(heap.data).sort((m, n) => m - n))
+      expect(expected).toEqual(GetData(heap.data).sort((m, n) => m - n))
     } else {
-      expect(source.sort((m, n) => m - n)).toEqual(ExtractHeapData(heap.data).sort((m, n) => m - n))
+      expect(source.sort((m, n) => m - n)).toEqual(GetData(heap.data).sort((m, n) => m - n))
     }
   })
 }

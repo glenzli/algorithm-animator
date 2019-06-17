@@ -1,6 +1,6 @@
 <template>
   <div v-if="abstractData">
-    <binary-tree-renderer :abstractData="abstractData"></binary-tree-renderer>
+    <avl-tree-renderer :abstractData="abstractData"></avl-tree-renderer>
   </div>
 </template>
 

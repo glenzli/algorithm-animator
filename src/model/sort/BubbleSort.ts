@@ -9,31 +9,29 @@ bubbleSort(A):
       if A[j] ≻ A[j + 1]:
         swap(j, j + 1)
         noSwap ← false
-    if noSwap = true:
+    if noSwap:
       break
 `)
 
 export class BubbleSort<T> extends SortAlgorithm<T> {
   protected async RunCore() {
-    PseudoCode.RunAt(0)
     for (let i = 0; i < this._adt.length; ++i) {
-      await PseudoCode.RunAt(1)
+      await PseudoCode.RunThrough(0, 1)
       let noSwap = true
       let terminal = this._adt.length - i - 1
       this._adt.Partition(0, terminal)
-      await PseudoCode.RunAt(2)
       for (let j = 0; j < terminal; ++j) {
-        PseudoCode.RunAt(3)
+        await PseudoCode.RunThrough(2, 3)
         if (await this._adt.Compare(j, j + 1) > 0) {
           PseudoCode.RunAt(4)
           await this._adt.Swap(j, j + 1)
-          await PseudoCode.RunAt(5)
+          await PseudoCode.RunThrough(5)
           noSwap = false
         }
       }
-      await PseudoCode.RunAt(6)
+      await PseudoCode.RunThrough(6)
       if (noSwap) {
-        await PseudoCode.RunAt(7)
+        await PseudoCode.RunThrough(7)
         break
       }
     }

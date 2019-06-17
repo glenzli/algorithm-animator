@@ -4,56 +4,56 @@ import { TestUtil$ } from '../Util'
 
 const GENERATOR = VALUE_GENERATORS[0]
 
-function CheckBinaryTreeConstraint(node: TreeNode<number> | null): boolean {
+export function CheckBinaryConstraint(node: TreeNode<number> | null): boolean {
   if (node) {
-    if (node.children[0] && node.children[0]!.value! >= node.value!) {
+    if (node.children[0] && (node.children[0]!.value! >= node.value! || node.children[0]!.parent !== node)) {
       return false
     }
-    if (node.children[1] && node.children[1]!.value! < node.value!) {
+    if (node.children[1] && (node.children[1]!.value! < node.value! || node.children[1]!.parent !== node)) {
       return false
     }
-    return CheckBinaryTreeConstraint(node.children[0]) && CheckBinaryTreeConstraint(node.children[1])
+    return CheckBinaryConstraint(node.children[0]) && CheckBinaryConstraint(node.children[1])
   }
   return true
 }
 
-function ExtractTreeData(node: TreeNode<number> | null): Array<number> {
+export function InOrderBinaryData(node: TreeNode<number> | null): Array<number> {
   if (node) {
-    return [node.value!, ...ExtractTreeData(node.children[0]), ...ExtractTreeData(node.children[1])]
+    return [...InOrderBinaryData(node.children[0]), node.value!, ...InOrderBinaryData(node.children[1])]
   }
   return []
 }
 
-function TestTree<T extends BinaryTreeAlgorithm<number>>(Tree: new (...args: Array<any>) => T, operator?: (source: Array<number>, delta: Array<number>) => Array<number>, unchanged = true) {
+function TestWithModify<T extends BinaryTreeAlgorithm<number>>(Tree: new (...args: Array<any>) => T, operator?: (source: Array<number>, delta: Array<number>) => Array<number>, unchanged = true) {
   it(Tree.name, async () => {
     let tree = new Tree(GENERATOR)
     tree.Init()
-    let source = ExtractTreeData(tree.data.root)
+    let source = InOrderBinaryData(tree.data.root)
     let output = await Interact.ImmediateExecute(() => tree.Run())
 
-    expect(CheckBinaryTreeConstraint(tree.data.root)).toBeTruthy()
+    expect(CheckBinaryConstraint(tree.data.root)).toBeTruthy()
     if (operator && output) {
       let expected = operator(source, output as Array<number>).sort((m, n) => m - n)
-      expect(expected).toEqual(ExtractTreeData(tree.data.root).sort((m, n) => m - n))
+      expect(expected).toEqual(InOrderBinaryData(tree.data.root).sort((m, n) => m - n))
     } else {
       if (unchanged) {
-        expect(source).toEqual(ExtractTreeData(tree.data.root))
+        expect(InOrderBinaryData(tree.data.root)).toEqual(source)
       } else {
-        expect(source.sort((m, n) => m - n)).toEqual(ExtractTreeData(tree.data.root).sort((m, n) => m - n))
+        expect(InOrderBinaryData(tree.data.root).sort((m, n) => m - n)).toEqual(source.sort((m, n) => m - n))
       }
     }
   })
 }
 
-function TestTreeResult<T extends BinaryTreeAlgorithm<number>>(Tree: new (...args: Array<any>) => T, validate?: (output: any, data: Array<number>) => any) {
+function TestWithReturn<T extends BinaryTreeAlgorithm<number>>(Tree: new (...args: Array<any>) => T, validate?: (output: any, data: Array<number>) => any) {
   it(Tree.name, async () => {
     let tree = new Tree(GENERATOR)
     tree.Init()
-    let source = ExtractTreeData(tree.data.root)
+    let source = InOrderBinaryData(tree.data.root)
     let output = await Interact.ImmediateExecute(() => tree.Run())
 
-    expect(CheckBinaryTreeConstraint(tree.data.root)).toBeTruthy()
-    expect(source).toEqual(ExtractTreeData(tree.data.root))
+    expect(CheckBinaryConstraint(tree.data.root)).toBeTruthy()
+    expect(source).toEqual(InOrderBinaryData(tree.data.root))
     if (validate) {
       expect(validate(output, source)).toBeTruthy()
     }
@@ -61,13 +61,13 @@ function TestTreeResult<T extends BinaryTreeAlgorithm<number>>(Tree: new (...arg
 }
 
 describe('BinaryTree', () => {
-  TestTreeResult(BinaryTreeSearch)
-  TestTree(BinaryTreePreOrder)
-  TestTree(BinaryTreeInOrder)
-  TestTree(BinaryTreePostOrder)
-  TestTreeResult(BinaryTreeMax, (max, values) => max === Math.max(...values))
-  TestTreeResult(BinaryTreeMin, (min, values) => min === Math.min(...values))
-  TestTreeResult(BinaryTreePredecessor, (pairs: Array<Array<number>>, values) => {
+  TestWithReturn(BinaryTreeSearch)
+  TestWithModify(BinaryTreePreOrder)
+  TestWithModify(BinaryTreeInOrder)
+  TestWithModify(BinaryTreePostOrder)
+  TestWithReturn(BinaryTreeMax, (max, values) => max === Math.max(...values))
+  TestWithReturn(BinaryTreeMin, (min, values) => min === Math.min(...values))
+  TestWithReturn(BinaryTreePredecessor, (pairs: Array<Array<number>>, values) => {
     values = values.sort((m, n) => m - n)
     return pairs.every(pair => {
       if (pair.length > 1) {
@@ -77,7 +77,7 @@ describe('BinaryTree', () => {
       }
     })
   })
-  TestTreeResult(BinaryTreeSuccessor, (pairs: Array<Array<number>>, values) => {
+  TestWithReturn(BinaryTreeSuccessor, (pairs: Array<Array<number>>, values) => {
     values = values.sort((m, n) => m - n)
     return pairs.every(pair => {
       if (pair.length > 1) {
@@ -87,6 +87,6 @@ describe('BinaryTree', () => {
       }
     })
   })
-  TestTree(BinaryTreeInsert, TestUtil$.Operator.Insert)
-  TestTree(BinaryTreeDelete, TestUtil$.Operator.Delete)
+  TestWithModify(BinaryTreeInsert, TestUtil$.Operator.Insert)
+  TestWithModify(BinaryTreeDelete, TestUtil$.Operator.Delete)
 })

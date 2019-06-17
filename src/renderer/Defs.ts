@@ -32,9 +32,9 @@ export const STATE_ACTIVE_STROKES = ACTION_BRUSHES.map(brush => Stroke({ thickne
 export const EMPTY_STROKE = Stroke({ thickness: 0 })
 
 export const ITEM_SIZES = {
-  DIAMETER: 28,
-  SPACE: Point(5, 20),
-  DIAMETER_SPACED: 33,
+  DIAMETER: 32,
+  SPACE: Point(7, 20),
+  DIAMETER_SPACED: 39,
   TEXT: 18,
   TEXT_BIAS: Coordinate({ position: Point(0, 6) }),
 }
