@@ -1,4 +1,4 @@
-import { Interact, AVLTreeAlgorithm, AVLTreeRotateLeft, AVLTreeRotateLeftRight, AVLTreeRotateRight, AVLTreeRotateRightLeft, AVLTreeBalance, AVLTreeInsert, AVLTreeDelete, AVLTreeNode } from '../../src/model'
+import { Interact, AVLTreeAlgorithm, AVLTreeRotateLeft, AVLTreeRotateLeftRight, AVLTreeRotateRight, AVLTreeRotateRightLeft, AVLTreeBalanceUp, AVLTreeInsert, AVLTreeDelete, AVLTreeNode } from '../../src/model'
 import { VALUE_GENERATORS } from '../../src/algorithm/Defs'
 import { TestUtil$ } from '../Util'
 import { CheckBinaryConstraint, InOrderBinaryData } from './BinaryTree.spec'
@@ -38,7 +38,7 @@ describe('AVLTree', () => {
   TestWithModify(AVLTreeRotateLeftRight, undefined, false)
   TestWithModify(AVLTreeRotateRight, undefined, false)
   TestWithModify(AVLTreeRotateRightLeft, undefined, false)
-  TestWithModify(AVLTreeBalance, undefined, false)
+  TestWithModify(AVLTreeBalanceUp, undefined, false)
   TestWithModify(AVLTreeInsert, TestUtil$.Operator.Insert)
   TestWithModify(AVLTreeDelete, TestUtil$.Operator.Delete)
 })
