@@ -38,7 +38,7 @@ export class AVLTreeADT<T> extends GenericBinaryTreeADT<T, AVLTreeNode<T>> {
     }
   }
 
-  private BalanceOf(node: AVLTreeNode<T>) {
+  BalanceOf(node: AVLTreeNode<T>) {
     return (this.Left(node) || this._sentinel).height - (this.Right(node) || this._sentinel).height
   }
 

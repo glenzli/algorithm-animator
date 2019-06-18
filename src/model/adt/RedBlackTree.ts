@@ -117,7 +117,7 @@ export class RedBlackTreeADT<T> extends GenericBinaryTreeADT<T, RedBlackTreeNode
         if (!sibling || !sibling.red) {
           await PseudoCode.RunThrough(6)
           if (this.IsOutside(node)) {
-            await PseudoCode.RunThrough(7);
+            await PseudoCode.RunAt(7);
             (parent.parent as RedBlackTreeNode<T>).red = true
             parent.red = false
             PseudoCode.RunAt(8)
@@ -129,7 +129,7 @@ export class RedBlackTreeADT<T> extends GenericBinaryTreeADT<T, RedBlackTreeNode
             await this.InsertFixUp(parent)
           }
         } else {
-          await PseudoCode.RunThrough(12);
+          await PseudoCode.RunAt(12);
           (parent.parent as RedBlackTreeNode<T>).red = true
           parent.red = false
           sibling.red = false
@@ -156,11 +156,13 @@ export class RedBlackTreeADT<T> extends GenericBinaryTreeADT<T, RedBlackTreeNode
   }
 
   async Insert(value: T) {
+    let inserted = false
     this.Active(value)
     await PseudoCode.RunThrough(0)
     if (this._data.root === this._sentinel) {
       await PseudoCode.RunAt(1)
       this._data.root = this.New(value, false)
+      inserted = true
     } else {
       await PseudoCode.RunThrough(2, 3)
       let node = this._data.root as RedBlackTreeNode<T> | null
@@ -175,6 +177,7 @@ export class RedBlackTreeADT<T> extends GenericBinaryTreeADT<T, RedBlackTreeNode
       await PseudoCode.RunThrough(6)
       if (this.IsNil(node)) {
         this.ActActive(UniqueAction.Select)
+        inserted = true
         PseudoCode.RunAt(7)
         let cNode = await this.Set(parent, this._compare(value, parent.value!) < 0 ? this.left : this.right, value)
         PseudoCode.RunAt(8)
@@ -182,8 +185,8 @@ export class RedBlackTreeADT<T> extends GenericBinaryTreeADT<T, RedBlackTreeNode
       }
       this._data.height = this.HeightOf(this._data.root)
       this.Restore()
-      return !node
     }
+    return inserted
   }
 
   static get deleteFixPseudoCode() {
@@ -220,33 +223,52 @@ export class RedBlackTreeADT<T> extends GenericBinaryTreeADT<T, RedBlackTreeNode
   }
 
   async DeleteFixUp(node: RedBlackTreeNode<T>) {
+    await PseudoCode.RunThrough(0)
     if (node.parent !== this._sentinel) {
+      await PseudoCode.RunThrough(1)
       let parent = node.parent as RedBlackTreeNode<T>
       let sibling = this.Sibling(node)!
+      await PseudoCode.RunThrough(2)
       if (sibling.red) {
+        PseudoCode.RunAt(3)
         await (this.IsLeft(node) ? this.RotateLeft(parent) : this.RotateRight(parent))
         this.SwapColor(parent, sibling)
+        await PseudoCode.RunAt(4)
         await this.DeleteFixUp(node)
       } else {
+        await PseudoCode.RunThrough(5, 6)
         let sl = this.Left(sibling)!
         let sr = this.Right(sibling)!
+        await PseudoCode.RunThrough(7)
         if (!sl.red && !sr.red) {
+          await PseudoCode.RunThrough(8)
           if (!parent.red) {
             sibling.red = true
+            await PseudoCode.RunAt(9)
             await this.DeleteFixUp(parent)
           } else {
+            await PseudoCode.RunThrough(10)
             this.SwapColor(parent, sibling)
+            await PseudoCode.RunAt(11)
           }
         } else if ((this.IsRight(sibling) && sl.red) || (this.IsLeft(sibling) && sr.red)) {
+          await PseudoCode.RunThrough(12, 13)
           await (this.IsRight(sibling) ? this.RotateRight(sibling) : this.RotateLeft(sibling))
           this.SwapColor(sibling, sibling.parent as RedBlackTreeNode<T>)
+          await PseudoCode.RunAt(14)
           await this.DeleteFixUp(node)
         } else {
+          await PseudoCode.RunThrough(15)
           this.SwapColor(parent, sibling)
+          await PseudoCode.RunAt(16)
+          await PseudoCode.RunThrough(17)
           if (this.IsRight(sibling)) {
+            PseudoCode.RunAt(18)
             await this.RotateLeft(parent)
             sr.red = false
           } else {
+            await PseudoCode.RunThrough(19)
+            PseudoCode.RunAt(20)
             await this.RotateRight(parent)
             sl.red = false
           }
@@ -313,7 +335,7 @@ export class RedBlackTreeADT<T> extends GenericBinaryTreeADT<T, RedBlackTreeNode
           successor!.red = false
         } else {
           await PseudoCode.RunThrough(13, 14)
-          await this.DeleteFixUp(successor!)
+          await PseudoCode.SilentExecute(() => this.DeleteFixUp(successor!))
         }
       }
     }

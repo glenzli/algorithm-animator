@@ -1,12 +1,15 @@
-import { Interact, AVLTreeAlgorithm, AVLTreeRotateLeft, AVLTreeRotateLeftRight, AVLTreeRotateRight, AVLTreeRotateRightLeft, AVLTreeBalanceUp, AVLTreeInsert, AVLTreeDelete, AVLTreeNode } from '../../src/model'
+import { Interact, AVLTreeAlgorithm, AVLTreeRotateLeft, AVLTreeRotateLeftRight, AVLTreeRotateRight, AVLTreeRotateRightLeft, AVLTreeBalanceUp, AVLTreeInsert, AVLTreeDelete, AVLTreeNode, AVLTreeADT } from '../../src/model'
 import { VALUE_GENERATORS } from '../../src/algorithm/Defs'
 import { TestUtil$ } from '../Util'
 import { CheckBinaryConstraint, InOrderBinaryData } from './BinaryTree.spec'
 
 const GENERATOR = VALUE_GENERATORS[0]
 
-function CheckAVLConstraint(node: AVLTreeNode<number> | null): boolean {
+function CheckAVLConstraint(node: AVLTreeNode<number> | null, adt: AVLTreeADT<number>): boolean {
   if (CheckBinaryConstraint(node)) {
+    if (node && Math.abs(adt.BalanceOf(node)) >= 2) {
+      return false
+    }
     return true
   }
   return false
@@ -19,7 +22,7 @@ function TestWithModify<T extends AVLTreeAlgorithm<number>>(Tree: new (...args: 
     let source = InOrderBinaryData(tree.data.root)
     let output = await Interact.ImmediateExecute(() => tree.Run())
 
-    expect(CheckAVLConstraint(tree.data.root)).toBeTruthy()
+    expect(CheckAVLConstraint(tree.data.root, tree.adt)).toBeTruthy()
     if (operator && output) {
       let expected = operator(source, output as Array<number>).sort((m, n) => m - n)
       expect(expected).toEqual(InOrderBinaryData(tree.data.root).sort((m, n) => m - n))

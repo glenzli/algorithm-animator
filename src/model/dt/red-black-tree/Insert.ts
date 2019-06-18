@@ -18,8 +18,9 @@ export class RedBlackTreeInsert<T> extends RedBlackTreeAlgorithm<T> {
     let inserted = [] as Array<any>
     for (let i = 0; i < this._n; ++i) {
       let next = this._generator()
-      await this._adt.Insert(next)
-      inserted.push(next)
+      if (await this._adt.Insert(next)) {
+        inserted.push(next)
+      }
     }
     return inserted
   }
